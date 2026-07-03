@@ -27,15 +27,18 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; max-width: 420px; width: 90%; border: 1px solid #334155;
         }
         .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        .login-box p { color: var(--text-muted); margin-bottom: 2rem; font-size: 1rem; }
+        .login-box p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1rem; }
         .login-box input {
-            width: 100%; padding: 0.9rem; margin-bottom: 1.5rem;
+            width: 100%; padding: 0.9rem; margin-bottom: 1rem;
             border: 2px solid #334155; background: #0f172a; color: white;
-            border-radius: 8px; font-size: 1.2rem; text-align: center; outline: none;
+            border-radius: 8px; font-size: 1.1rem; text-align: center; outline: none;
         }
         .login-box button {
             background: var(--secondary); color: white; border: none;
-            padding: 1rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%;
+            padding: 1rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 0.5rem;
+        }
+        .login-box button:disabled {
+            background: #475569; cursor: not-allowed;
         }
 
         #main-interface { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
@@ -69,16 +72,20 @@
         .ranking-table th, .ranking-table td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #334155; }
         .btn-submit { background: #10b981; color: white; border: none; padding: 1.3rem; font-size: 1.3rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; position: sticky; bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: background 0.2s; }
         .btn-submit:hover { background: #059669; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 0.3rem 0.8rem; font-size: 0.9rem; border-radius: 6px; cursor: pointer; margin-top: 5px; font-weight: bold;}
+        #login-msg { margin-top: 10px; font-weight: bold; color: #f59e0b; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h1>🏆 Prode Familiar 2026</h1>
-            <p>Ingresá tu nombre o apodo para empezar:</p>
-            <input type="text" id="player-name" placeholder="Ej: Juan, Mamá, Tío...">
-            <button onclick="entrarAlEstadio()">¡Entrar a Jugar!</button>
+            <h1>🏆 Prode Familiar Segurizado</h1>
+            <p>Ingresá para registrar o cargar tus predicciones:</p>
+            <input type="text" id="player-name" placeholder="Tu Nombre (Ej: Mamá, Juan)">
+            <input type="password" id="player-pass" placeholder="Tu Contraseña Secreta">
+            <button id="btn-login" onclick="procesarLogin()">¡Entrar a Jugar!</button>
+            <div id="login-msg"></div>
         </div>
     </div>
 
@@ -88,16 +95,19 @@
                 <h2>Camino a la Final Oficial</h2>
                 <div class="clock-bar" id="live-clock">Cargando hora...</div>
             </div>
-            <div style="background: #2563eb; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 1.2rem;" id="user-display"></div>
+            <div style="text-align: right;">
+                <div style="background: #2563eb; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 1.2rem;" id="user-display"></div>
+                <button class="logout-btn" onclick="cerrarSesion()">Salir / Cambiar de Cuenta</button>
+            </div>
         </header>
 
         <div class="grid">
             <main>
                 <div class="panel">
                     <h3>✍️ Completá los partidos disponibles:</h3>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">* Los partidos con fondo oscuro y gris ya finalizaron según la pantalla de DIRECTV y no se pueden modificar.</p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">* Los resultados bloqueados ya están consolidados por DIRECTV Sports.</p>
                     <div id="fixture-container"></div>
-                    <button class="btn-submit" onclick="guardarProde()">💾 GUARDAR MIS RESULTADOS</button>
+                    <button class="btn-submit" id="btn-save" onclick="guardarProde()">💾 GUARDAR MIS RESULTADOS</button>
                 </div>
             </main>
 
@@ -114,7 +124,6 @@
     </div>
 
     <script>
-        // CRUCES EXTRAÍDOS FIELMENTE DE DIRECTV CON LOS RESULTADOS QUE YA SUCEDIERON
         const multiWebsMatches = [
             // --- LLAVE IZQUIERDA ---
             { id: "p1", fase: "Dieciseisavos de Final", local: "Alemania 🇩🇪", visitante: "Paraguay 🇵🇾", realL: 1, realV: 1, penales: "Pasó PAR (P)", yaJugado: true },
@@ -123,7 +132,7 @@
             { id: "p4", fase: "Dieciseisavos de Final", local: "Países Bajos 🇳🇱", visitante: "Marruecos 🇲🇦", realL: 1, realV: 1, penales: "Pasó MAR (P)", yaJugado: true },
             { id: "p5", fase: "Dieciseisavos de Final", local: "Portugal 🇵🇹", visitante: "Croacia 🇭🇷", realL: 2, realV: 1, yaJugado: true },
             { id: "p6", fase: "Dieciseisavos de Final", local: "España 🇪🇸", visitante: "Austria 🇦🇹", realL: 3, realV: 0, yaJugado: true },
-            { id: "p7", fase: "Estados Unidos 🇺🇸", visitante: "Bosnia 🇧🇦", realL: 2, realV: 0, yaJugado: true },
+            { id: "p7", fase: "Dieciseisavos de Final", local: "Estados Unidos 🇺🇸", visitante: "Bosnia 🇧🇦", realL: 2, realV: 0, yaJugado: true },
             { id: "p8", fase: "Dieciseisavos de Final", local: "Bélgica 🇧🇪", visitante: "Senegal 🇸🇳", realL: 3, realV: 2, yaJugado: true },
 
             // --- LLAVE DERECHA ---
@@ -131,14 +140,12 @@
             { id: "p10", fase: "Dieciseisavos de Final", local: "Costa de Marfil 🇨🇮", visitante: "Noruega 🇳🇴", realL: 1, realV: 2, yaJugado: true },
             { id: "p11", fase: "Dieciseisavos de Final", local: "México 🇲🇽", visitante: "Ecuador 🇪🇨", realL: 2, realV: 0, yaJugado: true },
             { id: "p12", fase: "Dieciseisavos de Final", local: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", visitante: "Rep. Dem. Congo 🇨🇩", realL: 2, realV: 1, yaJugado: true },
-            
-            // PARTIDOS PENDIENTES EN LA TELE
             { id: "p13", fase: "Dieciseisavos de Final", local: "Argentina 🇦🇷", visitante: "Cabo Verde 🇨🇻", yaJugado: false },
             { id: "p14", fase: "Dieciseisavos de Final", local: "Australia 🇦🇺", visitante: "Egipto 🇪🇬", yaJugado: false },
-            { id: "p15", fase: "Dieciseisavos de Final", local: "Suiza 🇨🇭", visitante: "Argelia 🇩🇿", realL: 2, realV: 0, yaJugado: true }, // Se visualiza abajo a Suiza ya clasificado 2-0 frente a Argelia
+            { id: "p15", fase: "Dieciseisavos de Final", local: "Suiza 🇨🇭", visitante: "Argelia 🇩🇿", realL: 2, realV: 0, yaJugado: true },
             { id: "p16", fase: "Dieciseisavos de Final", local: "Colombia 🇨🇴", visitante: "Ghana 🇬🇭", yaJugado: false },
 
-            // --- OCTAVOS DE FINAL (ARMADOS SEGÚN CLASIFICADOS DE LA TELE) ---
+            // --- OCTAVOS DE FINAL ---
             { id: "p17", fase: "Octavos de Final", local: "Paraguay 🇵🇾", visitante: "Francia 🇫🇷", yaJugado: false },
             { id: "p18", fase: "Octavos de Final", local: "Canadá 🇨🇦", visitante: "Marruecos 🇲🇦", yaJugado: false },
             { id: "p19", fase: "Octavos de Final", local: "Portugal 🇵🇹", visitante: "España 🇪🇸", yaJugado: false },
@@ -148,7 +155,7 @@
             { id: "p23", fase: "Octavos de Final", local: "Ganador [Argentina / C. Verde]", visitante: "Ganador [Australia / Egipto]", yaJugado: false },
             { id: "p24", fase: "Octavos de Final", local: "Suiza 🇨🇭", visitante: "Ganador [Colombia / Ghana]", yaJugado: false },
 
-            // FASES FINALES SIGUIENTES
+            // FASES FINALES
             { id: "p25", fase: "Cuartos de Final", local: "Ganador Octavos 17", visitante: "Ganador Octavos 18", yaJugado: false },
             { id: "p26", fase: "Cuartos de Final", local: "Ganador Octavos 19", visitante: "Ganador Octavos 20", yaJugado: false },
             { id: "p27", fase: "Cuartos de Final", local: "Ganador Octavos 21", visitante: "Ganador Octavos 22", yaJugado: false },
@@ -158,21 +165,37 @@
             { id: "p32", fase: "¡Gran Final del Mundial! 🏆", local: "Ganador Semifinal 1", visitante: "Ganador Semifinal 2", yaJugado: false }
         ];
 
-        // Base de datos en tiempo real en la nube compartida para toda la familia
-        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_mundial_v5";
+        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_final_seguro_v15";
         let clienteActual = "";
+        let passwordActual = "";
         let baseDeDatosCompleta = {};
 
-        setInterval(() => {
-            const ahora = new Date();
-            document.getElementById('live-clock').innerText = `🕒 Hora actual: ${ahora.toLocaleTimeString()}`;
-        }, 1000);
+        window.onload = async function() {
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('live-clock').innerText = `🕒 Hora actual: ${ahora.toLocaleTimeString()}`;
+            }, 1000);
+
+            const userGuardado = localStorage.getItem('prode_secure_user');
+            const passGuardado = localStorage.getItem('prode_secure_pass');
+            
+            if (userGuardado && passGuardado) {
+                clienteActual = userGuardado.toUpperCase();
+                passwordActual = passGuardado;
+                
+                document.getElementById('login-msg').innerText = "⏳ Conectando automáticamente...";
+                await descargarDatos();
+                ejecutarAccesoValido();
+            }
+        }
 
         async function descargarDatos() {
             try {
                 let respuesta = await fetch(DB_URL);
                 if (respuesta.ok) {
-                    baseDeDatosCompleta = await respuesta.json();
+                    let texto = await respuesta.text();
+                    // Si la BD devuelve texto vacío o no es un JSON válido, inicializa un objeto limpio
+                    baseDeDatosCompleta = texto ? JSON.parse(texto) : {};
                 } else {
                     baseDeDatosCompleta = {};
                 }
@@ -185,27 +208,52 @@
             try {
                 await fetch(DB_URL, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(baseDeDatosCompleta)
                 });
             } catch (e) {
-                console.error("Error guardando en la nube", e);
+                console.error("Error al guardar en la nube", e);
             }
         }
 
-        async function entrarAlEstadio() {
+        async function procesarLogin() {
             const alias = document.getElementById('player-name').value.trim().toUpperCase();
-            if (!alias) return alert("Por favor, ingresá tu nombre para empezar.");
-            clienteActual = alias;
-            document.getElementById('user-display').innerText = `👤 Jugador: ${clienteActual}`;
+            const pass = document.getElementById('player-pass').value.trim();
 
-            document.getElementById('login-screen').innerHTML = "<h1>⚽ Sincronizando fixture familiar...</h1>";
+            if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
+
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true;
+            document.getElementById('login-msg').innerText = "🔒 Validando con la base de datos...";
+
             await descargarDatos();
 
-            if (!baseDeDatosCompleta[clienteActual]) {
-                baseDeDatosCompleta[clienteActual] = { pronosticos: {} };
+            if (baseDeDatosCompleta[alias]) {
+                if (baseDeDatosCompleta[alias].password !== pass) {
+                    alert("❌ Error: Contraseña incorrecta para este usuario.");
+                    document.getElementById('login-msg').innerText = "";
+                    btn.disabled = false;
+                    return;
+                }
+            } else {
+                // Registro por primera vez
+                baseDeDatosCompleta[alias] = {
+                    password: pass,
+                    pronosticos: {}
+                };
                 await subirDatos();
             }
 
+            clienteActual = alias;
+            passwordActual = pass;
+            localStorage.setItem('prode_secure_user', clienteActual);
+            localStorage.setItem('prode_secure_pass', passwordActual);
+
+            ejecutarAccesoValido();
+        }
+
+        function ejecutarAccesoValido() {
+            document.getElementById('user-display').innerText = `👤 Usuario: ${clienteActual}`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
             renderizarFixture();
@@ -223,20 +271,13 @@
                 fasesMap[match.fase].push(match);
             });
 
-            const ordenFases = [
-                "Dieciseisavos de Final",
-                "Octavos de Final",
-                "Cuartos de Final",
-                "Semifinales",
-                "¡Gran Final del Mundial! 🏆"
-            ];
+            const ordenFases = ["Dieciseisavos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "¡Gran Final del Mundial! 🏆"];
 
             ordenFases.forEach(fase => {
                 if (!fasesMap[fase]) return;
                 let divFase = `<div class="fase-bloque"><div class="fase-nombre">${fase}</div>`;
                 
                 fasesMap[fase].forEach(match => {
-                    // Si ya se jugó se muestra el score real inmirable, sino lo que la persona arriesgó
                     const lVal = match.yaJugado ? match.realL : (misPredicciones[match.id]?.l ?? "");
                     const vVal = match.yaJugado ? match.realV : (misPredicciones[match.id]?.v ?? "");
                     const disableAttr = match.yaJugado ? "disabled" : "";
@@ -245,7 +286,7 @@
                     const infoPenales = match.penales ? `<span class="penales-label">${match.penales}</span>` : "";
 
                     divFase += `
-                        <div class="class ${claseFila}">
+                        <div class="${claseFila}">
                             <div class="partido-meta">📺 DIRECTV<br>${textoMeta}</div>
                             <div class="partido-equipos">
                                 <div class="equipo-bloque local">${match.local}</div>
@@ -271,8 +312,18 @@
         }
 
         async function guardarProde() {
+            const btn = document.getElementById('btn-save');
+            btn.innerText = "⏳ Sincronizando en la nube...";
+            btn.disabled = true;
+
+            await descargarDatos();
+
+            if (!baseDeDatosCompleta[clienteActual]) {
+                baseDeDatosCompleta[clienteActual] = { password: passwordActual, pronosticos: {} };
+            }
+
             multiWebsMatches.forEach(match => {
-                if (match.yaJugado) return; // No pisa lo ya terminado
+                if (match.yaJugado) return;
 
                 const inputL = document.getElementById(`gl-${match.id}`).value;
                 const inputV = document.getElementById(`gv-${match.id}`).value;
@@ -286,8 +337,13 @@
             });
 
             await subirDatos();
-            alert("✅ ¡Tus predicciones se guardaron en la red familiar!");
-            await descargarDatos();
+            
+            btn.innerText = "✅ ¡GUARDADO CON ÉXITO!";
+            setTimeout(() => {
+                btn.innerText = "💾 GUARDAR MIS RESULTADOS";
+                btn.disabled = false;
+            }, 2000);
+
             renderizarFixture();
         }
 
@@ -295,18 +351,29 @@
             const containerTabla = document.getElementById('ranking-rows');
             containerTabla.innerHTML = "";
             
-            let participantes = Object.keys(baseDeDatosCompleta);
+            let listaFamiliares = Object.keys(baseDeDatosCompleta);
             
-            participantes.forEach((nombreAmigo, index) => {
-                const esPropio = nombreAmigo === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
+            if(listaFamiliares.length === 0) {
+                containerTabla.innerHTML = "<tr><td colspan='3'>Nadie ingresó todavía</td></tr>";
+                return;
+            }
+
+            listaFamiliares.forEach((nombreFamiliar, index) => {
+                const esPropio = nombreFamiliar === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
                 containerTabla.innerHTML += `
                     <tr ${esPropio}>
                         <td>${index + 1}</td>
-                        <td>${nombreAmigo}</td>
+                        <td>${nombreFamiliar}</td>
                         <td>0 Pts</td>
                     </tr>
                 `;
             });
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('prode_secure_user');
+            localStorage.removeItem('prode_secure_pass');
+            window.location.reload();
         }
     </script>
 </body>
