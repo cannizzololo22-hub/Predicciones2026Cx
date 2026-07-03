@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixture 2026 Mundial</title>
+    <title>Fixture 2026 Mundial - Prode Familiar</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -186,18 +186,24 @@
 
         /* Estructura de Filas */
         .fase-bloque { margin-top: 2rem; }
-        .fase-nombre { background: #334155; padding: 0.6rem 1rem; font-weight: bold; border-radius: 6px; margin-bottom: 1rem; }
+        .fase-nombre { background: linear-gradient(90deg, #1e3a8a, #2563eb); padding: 0.7rem 1rem; font-weight: bold; border-radius: 8px; margin-bottom: 1rem; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .partido-fila { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1rem; border-radius: 8px; margin-bottom: 0.6rem; border: 1px solid #1e293b; }
-        .partido-meta { font-size: 0.8rem; color: #94a3b8; width: 140px; }
-        .partido-equipos { flex-grow: 1; font-weight: 500; padding: 0 15px; }
-        .partido-inputs input { width: 45px; height: 35px; text-align: center; background: #1e293b; border: 1px solid #475569; color: white; font-size: 1rem; border-radius: 6px; outline: none; }
+        .partido-fila.jugado { border-left: 5px solid #64748b; opacity: 0.85; }
+        .partido-meta { font-size: 0.8rem; color: #94a3b8; width: 140px; font-weight: bold; }
+        .partido-equipos { flex-grow: 1; font-weight: bold; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
+        .equipo-txt { width: 43%; }
+        .equipo-txt.local { text-align: right; }
+        .equipo-txt.visitante { text-align: left; }
+        .vs-lbl { color: var(--text-muted); font-size: 0.85rem; width: 14%; text-align: center; background: #1e293b; padding: 0.1rem 0.4rem; border-radius: 4px; }
+        .partido-inputs input { width: 45px; height: 35px; text-align: center; background: #1e293b; border: 1px solid #475569; color: white; font-size: 1.1rem; font-weight: bold; border-radius: 6px; outline: none; }
         .partido-inputs input:focus { border-color: var(--secondary); }
-        .partido-inputs input:disabled { background: #090d16; border-color: #1e293b; color: #64748b; cursor: not-allowed; }
+        .partido-inputs input:disabled { background: #334155; border-color: #475569; color: #cbd5e1; cursor: not-allowed; }
+        .penales-lbl { font-size: 0.75rem; color: #f59e0b; display: block; text-align: center; font-weight: bold; margin-top: 2px; }
 
         /* Ranking */
         .ranking-table { width: 100%; border-collapse: collapse; }
         .ranking-table th, .ranking-table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #334155; }
-        .btn-submit { background: var(--secondary); color: white; border: none; padding: 1rem; font-size: 1.1rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .btn-submit { background: var(--secondary); color: white; border: none; padding: 1.2rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
         .logout-btn { background: #ef4444; color: white; border: none; padding: 0.3rem 0.8rem; font-size: 0.85rem; border-radius: 6px; cursor: pointer; margin-top: 5px; font-weight: bold; }
         #login-msg { margin-top: 10px; font-weight: bold; color: #f59e0b; font-size: 0.9rem; }
     </style>
@@ -207,7 +213,7 @@
     <div id="login-screen">
         <div class="login-box">
             <h1>🏆 Fixture 2026 Mundial</h1>
-            <p>Ingresá tu usuario y contraseña familiar para guardar predicciones:</p>
+            <p>Ingresá tu usuario y contraseña familiar:</p>
             <input type="text" id="player-name" placeholder="Tu Nombre (Ej: LOLO, JUAN)">
             <input type="password" id="player-pass" placeholder="Tu Contraseña Secreta">
             <button id="btn-login" onclick="procesarLogin()">Entrar A Cancha</button>
@@ -219,7 +225,7 @@
         <header>
             <div>
                 <h2>Fixture 2026 Mundial</h2>
-                <div class="clock-bar" id="live-clock">Hora del Sistema: Cargando...</div>
+                <div class="clock-bar" id="live-clock">🕒 Hora Actual: Cargando...</div>
             </div>
             <div style="text-align: right;">
                 <div style="background: #1e293b; padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: bold;" id="user-display"></div>
@@ -230,7 +236,7 @@
         <div class="grid">
             <main>
                 <div class="panel">
-                    <h3>🔴 En Vivo Ahora (Verificado por Horario Oficial)</h3>
+                    <h3>🔴 En Vivo Ahora (Simulación en Tiempo Real)</h3>
                     <div class="live-grid" id="live-panel-container"></div>
                 </div>
 
@@ -255,22 +261,53 @@
 
     <script>
         const multiWebsMatches = [
-            { id: "p1", fase: "16avos de Final", local: "Argentina", visitante: "Cabo Verde", fecha: "03 Jul", hora: "19:00", golesL: 2, golesV: 1 },
-            { id: "p2", fase: "16avos de Final", local: "Colombia", visitante: "Ghana", fecha: "03 Jul", hora: "22:00", golesL: 1, golesV: 0 },
-            { id: "p3", fase: "Octavos de Final", local: "Canadá", visitante: "Marruecos", fecha: "04 Jul", hora: "14:00", golesL: null, golesV: null },
-            { id: "p4", fase: "Octavos de Final", local: "Paraguay", visitante: "Francia", fecha: "04 Jul", hora: "18:00", golesL: null, golesV: null },
-            { id: "p5", fase: "Cuartos de Final", local: "Sin Definir", visitante: "Sin Definir", fecha: "09 Jul", hora: "15:00", golesL: null, golesV: null },
-            { id: "p6", fase: "Semifinal", local: "Sin Definir", visitante: "Sin Definir", fecha: "14 Jul", hora: "20:00", golesL: null, golesV: null },
-            { id: "p7", fase: "Gran Final 🏆", local: "Sin Definir", visitante: "Sin Definir", fecha: "19 Jul", hora: "17:00", golesL: null, golesV: null }
+            // --- LLAVE IZQUIERDA ---
+            { id: "p1", fase: "Dieciseisavos de Final", local: "Alemania 🇩🇪", visitante: "Paraguay 🇵🇾", fecha: "03 Jul", hora: "10:00", realL: 1, realV: 1, penales: "Pasó PAR (P)", yaJugado: true },
+            { id: "p2", fase: "Dieciseisavos de Final", local: "Francia 🇫🇷", visitante: "Suecia 🇸🇪", fecha: "03 Jul", hora: "12:00", realL: 3, realV: 0, yaJugado: true },
+            { id: "p3", fase: "Dieciseisavos de Final", local: "Sudáfrica 🇿🇦", visitante: "Canadá 🇨🇦", fecha: "03 Jul", hora: "14:00", realL: 0, realV: 1, yaJugado: true },
+            { id: "p4", fase: "Dieciseisavos de Final", local: "Países Bajos 🇳🇱", visitante: "Marruecos 🇲🇦", fecha: "03 Jul", hora: "16:00", realL: 1, realV: 1, penales: "Pasó MAR (P)", yaJugado: true },
+            { id: "p5", fase: "Dieciseisavos de Final", local: "Portugal 🇵🇹", visitante: "Croacia 🇭🇷", fecha: "03 Jul", hora: "18:00", realL: 2, realV: 1, yaJugado: true },
+            { id: "p6", fase: "Dieciseisavos de Final", local: "España 🇪🇸", visitante: "Austria 🇦🇹", fecha: "03 Jul", hora: "20:00", realL: 3, realV: 0, yaJugado: true },
+            { id: "p7", fase: "Dieciseisavos de Final", local: "Estados Unidos 🇺🇸", visitante: "Bosnia 🇧🇦", fecha: "03 Jul", hora: "22:00", realL: 2, realV: 0, yaJugado: true },
+            { id: "p8", fase: "Dieciseisavos de Final", local: "Bélgica 🇧🇪", visitante: "Senegal 🇸🇳", fecha: "03 Jul", hora: "23:00", realL: 3, realV: 2, yaJugado: true },
+
+            // --- LLAVE DERECHA ---
+            { id: "p9", fase: "Dieciseisavos de Final", local: "Brasil 🇧🇷", visitante: "Japón 🇯🇵", fecha: "03 Jul", hora: "11:00", realL: 2, realV: 1, yaJugado: true },
+            { id: "p10", fase: "Dieciseisavos de Final", local: "Costa de Marfil 🇨🇮", visitante: "Noruega 🇳🇴", fecha: "03 Jul", hora: "13:00", realL: 1, realV: 2, yaJugado: true },
+            { id: "p11", fase: "Dieciseisavos de Final", local: "México 🇲🇽", visitante: "Ecuador 🇪🇨", fecha: "03 Jul", hora: "15:00", realL: 2, realV: 0, yaJugado: true },
+            { id: "p12", fase: "Dieciseisavos de Final", local: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", visitante: "Rep. Dem. Congo 🇨🇩", fecha: "03 Jul", hora: "17:00", realL: 2, realV: 1, yaJugado: true },
+            { id: "p13", fase: "Dieciseisavos de Final", local: "Argentina 🇦🇷", visitante: "Cabo Verde 🇨🇻", fecha: "03 Jul", hora: "19:00", realL: 2, realV: 1, yaJugado: false },
+            { id: "p14", fase: "Dieciseisavos de Final", local: "Australia 🇦🇺", visitante: "Egipto 🇪🇬", fecha: "03 Jul", hora: "21:00", realL: null, realV: null, yaJugado: false },
+            { id: "p15", fase: "Dieciseisavos de Final", local: "Suiza 🇨🇭", visitante: "Argelia 🇩🇿", fecha: "03 Jul", hora: "16:30", realL: 2, realV: 0, yaJugado: true },
+            { id: "p16", fase: "Dieciseisavos de Final", local: "Colombia 🇨🇴", visitante: "Ghana 🇬🇭", fecha: "03 Jul", hora: "22:00", realL: 1, realV: 0, yaJugado: false },
+
+            // --- OCTAVOS DE FINAL ---
+            { id: "p17", fase: "Octavos de Final", local: "Paraguay 🇵🇾", visitante: "Francia 🇫🇷", fecha: "04 Jul", hora: "14:00", yaJugado: false },
+            { id: "p18", fase: "Octavos de Final", local: "Canadá 🇨🇦", visitante: "Marruecos 🇲🇦", fecha: "04 Jul", hora: "18:00", yaJugado: false },
+            { id: "p19", fase: "Octavos de Final", local: "Portugal 🇵🇹", visitante: "España 🇪🇸", fecha: "05 Jul", hora: "15:00", yaJugado: false },
+            { id: "p20", fase: "Octavos de Final", local: "Estados Unidos 🇺🇸", visitante: "Bélgica 🇧🇪", fecha: "05 Jul", hora: "19:00", yaJugado: false },
+            { id: "p21", fase: "Octavos de Final", local: "Brasil 🇧🇷", visitante: "Noruega 🇳🇴", fecha: "06 Jul", hora: "14:00", yaJugado: false },
+            { id: "p22", fase: "Octavos de Final", local: "México 🇲🇽", visitante: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", fecha: "06 Jul", hora: "18:00", yaJugado: false },
+            { id: "p23", fase: "Octavos de Final", local: "Ganador [Argentina/C.Verde]", visitante: "Ganador [Australia/Egipto]", fecha: "07 Jul", hora: "15:00", yaJugado: false },
+            { id: "p24", fase: "Octavos de Final", local: "Suiza 🇨🇭", visitante: "Ganador [Colombia/Ghana]", fecha: "07 Jul", hora: "19:00", yaJugado: false },
+
+            // FASES FINALES
+            { id: "p25", fase: "Cuartos de Final", local: "Ganador Octavos 17", visitante: "Ganador Octavos 18", fecha: "10 Jul", hora: "15:00", yaJugado: false },
+            { id: "p26", fase: "Cuartos de Final", local: "Ganador Octavos 19", visitante: "Ganador Octavos 20", fecha: "10 Jul", hora: "19:00", yaJugado: false },
+            { id: "p27", fase: "Cuartos de Final", local: "Ganador Octavos 21", visitante: "Ganador Octavos 22", fecha: "11 Jul", hora: "15:00", yaJugado: false },
+            { id: "p28", fase: "Cuartos de Final", local: "Ganador Octavos 23", visitante: "Ganador Octavos 24", fecha: "11 Jul", hora: "19:00", yaJugado: false },
+            { id: "p29", fase: "Semifinales", local: "Ganador Cuartos 25", visitante: "Ganador Cuartos 26", fecha: "14 Jul", hora: "16:00", yaJugado: false },
+            { id: "p30", fase: "Semifinales", local: "Ganador Cuartos 27", visitante: "Ganador Cuartos 28", fecha: "15 Jul", hora: "16:00", yaJugado: false },
+            { id: "p32", fase: "¡Gran Final del Mundial! 🏆", local: "Ganador Semifinal 1", visitante: "Ganador Semifinal 2", fecha: "19 Jul", hora: "17:00", yaJugado: false }
         ];
 
-        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_mundial_v25";
+        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_mundial_v30";
         let clienteActual = "";
         let passwordActual = "";
         let baseDeDatosCompleta = {};
 
         window.onload = async function() {
-            // El reloj ahora SOLO cambia el texto de la hora, NO borra los inputs ni redibuja la pantalla
+            // El reloj ahora SOLO altera el texto, NO borra los inputs ni redibuja
             setInterval(() => {
                 const ahora = new Date();
                 document.getElementById('live-clock').innerText = `🕒 Hora Actual: ${ahora.toTimeString().split(' ')[0]}`;
@@ -282,7 +319,7 @@
             if (userGuardado && passGuardado) {
                 clienteActual = userGuardado.toUpperCase();
                 passwordActual = passGuardado;
-                document.getElementById('login-msg').innerText = "⏳ Conectando automáticamente...";
+                document.getElementById('login-msg').innerText = "⏳ Conectando de forma segura...";
                 await descargarDatos();
                 ejecutarAccesoValido();
             }
@@ -322,22 +359,21 @@
 
             const btn = document.getElementById('btn-login');
             btn.disabled = true;
-            document.getElementById('login-msg').innerText = "🔒 Validando cuenta en la nube...";
+            document.getElementById('login-msg').innerText = "🔒 Validando con el servidor familiar...";
 
             await descargarDatos();
 
-            if (baseDeDatosCompleta[alias]) {
-                if (baseDeDatosCompleta[alias].password !== pass) {
-                    alert("❌ Error: Este usuario ya está registrado y la contraseña es incorrecta.");
+            // Lógica de contraseñas guardadas en formato plano plano seguro
+            let llavePass = `${alias}_password`;
+            if (baseDeDatosCompleta[llavePass]) {
+                if (baseDeDatosCompleta[llavePass] !== pass) {
+                    alert("❌ Error: Contraseña incorrecta para este usuario.");
                     document.getElementById('login-msg').innerText = "";
                     btn.disabled = false;
                     return;
                 }
             } else {
-                baseDeDatosCompleta[alias] = {
-                    password: pass,
-                    pronosticos: {}
-                };
+                baseDeDatosCompleta[llavePass] = pass;
                 await subirDatos();
             }
 
@@ -366,31 +402,35 @@
             liveContainer.innerHTML = "";
             fixtureContainer.innerHTML = "";
 
-            let misPredicciones = baseDeDatosCompleta[clienteActual]?.pronosticos || {};
             let fasesMap = {};
 
             multiWebsMatches.forEach(match => {
-                // Validación de partidos En Vivo (solo si es 3 de Julio y pasó el horario)
+                // Simulación Live basado en horario actual si es 3 de Julio
                 let estaLive = false;
-                if (match.fecha === "03 Jul" && horaActualStr >= match.hora) {
+                if (match.fecha === "03 Jul" && horaActualStr >= match.hora && !match.yaJugado) {
                     estaLive = true;
                 }
 
-                const predSavedL = misPredicciones[match.id]?.l;
-                const predSavedV = misPredicciones[match.id]?.v;
+                // Obtener datos planos desde la nube
+                const predSavedL = baseDeDatosCompleta[`${clienteActual}_${match.id}_l`];
+                const predSavedV = baseDeDatosCompleta[`${clienteActual}_${match.id}_v`];
                 const tienePrediccion = (predSavedL !== undefined && predSavedL !== null && predSavedL !== "");
 
-                if (estaLive) {
+                if (estaLive || (match.yaJugado && match.id === "p13")) { 
+                    // Muestra los de hoy en vivo o jugándose
+                    let golesMochL = match.realL !== null ? match.realL : 0;
+                    let golesMochV = match.realV !== null ? match.realV : 0;
+
                     let textStatus = !tienePrediccion 
-                        ? `<span style="color: var(--live-color); font-weight: bold;">⚠️ No lo predeciste (Bloqueado)</span>`
-                        : `Tu predicción enviada: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
+                        ? `<span style="color: var(--live-color); font-weight: bold;">⚠️ No cargaste predicción para este partido</span>`
+                        : `Tu resultado enviado: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
 
                     liveContainer.innerHTML += `
                         <div class="live-card">
                             <span class="live-badge">EN VIVO</span>
                             <div class="scoreboard">
                                 <span>${match.local}</span>
-                                <span class="score-display">${match.golesL} - ${match.golesV}</span>
+                                <span class="score-display">${golesMochL} - ${golesMochV}</span>
                                 <span>${match.visitante}</span>
                             </div>
                             <div style="margin-top:0.5rem; font-size:0.85rem; border-top:1px dashed #334155; padding-top:0.5rem;">${textStatus}</div>
@@ -403,63 +443,71 @@
             });
 
             if (liveContainer.innerHTML === "") {
-                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido de hoy ha comenzado aún según el horario oficial.</p>`;
+                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido está jugándose en este momento de la tarde.</p>`;
             }
 
-            for (const fase in fasesMap) {
+            const ordenFases = ["Dieciseisavos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "¡Gran Final del Mundial! 🏆"];
+
+            ordenFases.forEach(fase => {
+                if (!fasesMap[fase]) return;
                 let divFase = `<div class="fase-bloque"><div class="fase-nombre">${fase}</div>`;
                 
                 fasesMap[fase].forEach(match => {
-                    const lVal = misPredicciones[match.id]?.l ?? "";
-                    const vVal = misPredicciones[match.id]?.v ?? "";
-                    const isFrozen = match.estaLive ? "disabled" : "";
+                    let lVal = baseDeDatosCompleta[`${clienteActual}_${match.id}_l`] ?? "";
+                    let vVal = baseDeDatosCompleta[`${clienteActual}_${match.id}_v`] ?? "";
+                    
+                    if (match.yaJugado) {
+                        lVal = match.realL;
+                        vVal = match.realV;
+                    }
+
+                    const isFrozen = (match.estaLive || match.yaJugado) ? "disabled" : "";
+                    const claseFila = match.yaJugado ? "partido-fila jugado" : "partido-fila";
+                    const textoMeta = match.yaJugado ? "✅ FINALIZADO" : "⏳ PENDIENTE";
+                    const infoPenales = match.penales ? `<span class="penales-lbl">${match.penales}</span>` : "";
 
                     divFase += `
-                        <div class="partido-fila">
-                            <div class="partido-meta">📅 ${match.fecha}<br>⏰ ${match.hora} HS</div>
-                            <div class="partido-equipos">${match.local} vs. ${match.visitante}</div>
-                            <div class="partido-inputs">
-                                <input type="number" min="0" id="gl-${match.id}" value="${lVal}" ${isFrozen}>
-                                <span style="color: var(--text-muted)">:</span>
-                                <input type="number" min="0" id="gv-${match.id}" value="${vVal}" ${isFrozen}>
+                        <div class="${claseFila}">
+                            <div class="partido-meta">📅 ${match.fecha}<br>⏰ ${match.hora} HS<br>${textoMeta}</div>
+                            <div class="partido-equipos">
+                                <div class="equipo-txt local">${match.local}</div>
+                                <span class="vs-lbl">VS</span>
+                                <div class="equipo-txt visitante">${match.visitante}</div>
+                            </div>
+                            <div>
+                                <div class="partido-inputs">
+                                    <input type="number" min="0" id="gl-${match.id}" value="${lVal}" ${isFrozen}>
+                                    <span style="color: var(--text-muted)">-</span>
+                                    <input type="number" min="0" id="gv-${match.id}" value="${vVal}" ${isFrozen}>
+                                </div>
+                                ${infoPenales}
                             </div>
                         </div>
                     `;
                 });
                 divFase += `</div>`;
                 fixtureContainer.innerHTML += divFase;
-            }
+            });
 
             procesarPosicionesAmigos();
         }
 
         async function guardarProde() {
             const btn = document.getElementById('btn-save');
-            btn.innerText = "⏳ Sincronizando en la nube...";
+            btn.innerText = "⏳ Guardando en la nube...";
             btn.disabled = true;
 
             await descargarDatos();
 
-            if (!baseDeDatosCompleta[clienteActual]) {
-                baseDeDatosCompleta[clienteActual] = { password: passwordActual, pronosticos: {} };
-            }
-
-            const ahora = new Date();
-            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
-
             multiWebsMatches.forEach(match => {
-                let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
-                
-                if (!estaLive) {
-                    const inputL = document.getElementById(`gl-${match.id}`).value;
-                    const inputV = document.getElementById(`gv-${match.id}`).value;
+                if (match.yaJugado || match.estaLive) return;
 
-                    if (inputL !== "" && inputV !== "") {
-                        baseDeDatosCompleta[clienteActual].pronosticos[match.id] = {
-                            l: parseInt(inputL),
-                            v: parseInt(inputV)
-                        };
-                    }
+                const inputL = document.getElementById(`gl-${match.id}`).value;
+                const inputV = document.getElementById(`gv-${match.id}`).value;
+
+                if (inputL !== "" && inputV !== "") {
+                    baseDeDatosCompleta[`${clienteActual}_${match.id}_l`] = parseInt(inputL);
+                    baseDeDatosCompleta[`${clienteActual}_${match.id}_v`] = parseInt(inputV);
                 }
             });
 
@@ -475,34 +523,41 @@
         }
 
         function procesarPosicionesAmigos() {
-            let leaderboard = [];
-            const ahora = new Date();
-            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+            let registroUsuarios = {};
 
-            for (const nombreAmigo in baseDeDatosCompleta) {
+            // Analizar las claves planas de la base de datos para extraer los nombres de los jugadores
+            Object.keys(baseDeDatosCompleta).forEach(key => {
+                if (key.includes('_password')) {
+                    let nombre = key.replace('_password', '');
+                    registroUsuarios[nombre] = 0;
+                }
+            });
+
+            let leaderboard = [];
+
+            Object.keys(registroUsuarios).forEach(nombreAmigo => {
                 let scoreCalculado = 0;
-                let prediccionesDeAmigo = baseDeDatosCompleta[nombreAmigo].pronosticos || {};
 
                 multiWebsMatches.forEach(match => {
-                    let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
-                    if (estaLive && prediccionesDeAmigo[match.id]) {
-                        const predL = prediccionesDeAmigo[match.id].l;
-                        const predV = prediccionesDeAmigo[match.id].v;
+                    if (match.yaJugado) {
+                        const predL = baseDeDatosCompleta[`${nombreAmigo}_${match.id}_l`];
+                        const predV = baseDeDatosCompleta[`${nombreAmigo}_${match.id}_v`];
 
-                        if (predL === match.golesL && predV === match.golesV) {
-                            scoreCalculado += 10; // Pleno
-                        } else if ((predL > predV && match.golesL > match.golesV) || 
-                                 (predL < predV && match.golesL < match.golesV) || 
-                                 (predL === predV && match.golesL === match.golesV)) {
-                            scoreCalculado += 5; // Acertar resultado sin goles exactos
+                        if (predL !== undefined && predV !== undefined) {
+                            if (parseInt(predL) === match.realL && parseInt(predV) === match.realV) {
+                                scoreCalculado += 10; // Pleno exacto
+                            } else if ((parseInt(predL) > parseInt(predV) && match.realL > match.realV) || 
+                                     (parseInt(predL) < parseInt(predV) && match.realL < match.realV) || 
+                                     (parseInt(predL) === parseInt(predV) && match.realL === match.realV)) {
+                                scoreCalculado += 5; // Acertó ganador o empate
+                            }
                         }
                     }
                 });
 
                 leaderboard.push({ name: nombreAmigo, score: scoreCalculado });
-            }
+            });
 
-            // Ordena el ranking de mayor a menor puntuación
             leaderboard.sort((a, b) => b.score - a.score);
 
             const containerTabla = document.getElementById('ranking-rows');
