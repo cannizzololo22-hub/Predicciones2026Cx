@@ -6,7 +6,6 @@
 <title>Pronósticos Mundial 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
     --pitch:#0e2f1f; --pitch-2:#123a27; --gold:#f2c14e; --gold-2:#d9a72e;
@@ -43,12 +42,6 @@
   .btn-primary:hover{transform:translateY(-1px); background:var(--gold-2);}
   .btn-primary:active{transform:translateY(0);}
   .login-err{color:var(--live); font-size:13px; margin-top:10px; min-height:16px;}
-  #google-btn-container{display:flex; justify-content:center; margin-bottom:14px; min-height:44px;}
-  .google-setup-note{background:rgba(242,193,78,.1); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:11.5px; color:var(--muted); text-align:left; margin-bottom:14px;}
-  .google-setup-note b{color:var(--gold);}
-  .or-divider{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.5px; margin:6px 0 14px;}
-  .or-divider::before,.or-divider::after{content:""; flex:1; height:1px; background:var(--line);}
-  .user-avatar{width:20px; height:20px; border-radius:50%; object-fit:cover; margin-right:2px;}
 
   header.top{padding:22px 16px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(242,193,78,.06), transparent);}
   .top-row{display:flex; justify-content:space-between; align-items:flex-start; max-width:760px; margin:0 auto;}
@@ -185,10 +178,7 @@
   <div class="login-card">
     <div class="login-ball">⚽</div>
     <h1>PRONÓSTICOS<br>MUNDIAL 2026</h1>
-    <p>Iniciá sesión con Google para que tu ranking quede guardado con tu cuenta</p>
-    <div id="google-btn-container"></div>
-    <div class="google-setup-note" id="google-setup-note" style="display:none;"></div>
-    <div class="or-divider">o entrá solo con tu nombre</div>
+    <p>Ingresá tu nombre para empezar a pronosticar</p>
     <input id="name-input" type="text" placeholder="Tu nombre" maxlength="24" autocomplete="off">
     <button class="btn-primary" id="enter-btn" type="button">Entrar a la cancha</button>
     <div class="login-err" id="login-err"></div>
@@ -199,7 +189,7 @@
   <header class="top">
     <div class="top-row">
       <div class="brand"><span>⚽</span> PRONÓS<span>TICOS</span></div>
-      <div class="user-chip"><img id="user-avatar" class="user-avatar" style="display:none;" alt=""><span id="user-icon">👤</span> <b id="user-label"></b><button id="logout-btn" type="button">salir</button></div>
+      <div class="user-chip"><span id="user-icon">👤</span> <b id="user-label"></b><button id="logout-btn" type="button">salir</button></div>
     </div>
   </header>
 
@@ -324,74 +314,12 @@ const EN_NAMES = {GER:"Germany",PAR:"Paraguay",NED:"Netherlands",MAR:"Morocco",C
 let currentUser = null; // ahora es un objeto {uid, name, email, picture, provider}
 let predictions = {};
 
-// ------- Login con Google -------
-// 1) Andá a https://console.cloud.google.com/apis/credentials
-// 2) Creá un "ID de cliente de OAuth" de tipo "Aplicación web".
-// 3) En "Orígenes de JavaScript autorizados" agregá la URL donde vas a
-//    publicar la página (por ej. https://tuusuario.github.io).
-// 4) Pegá el Client ID que te dan acá abajo, reemplazando el texto entre comillas.
-const GOOGLE_CLIENT_ID = "REEMPLAZAR_CON_TU_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
-
-function googleConfigured(){ return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.indexOf('REEMPLAZAR') !== 0; }
-
 function escapeHtml(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
     return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
   });
 }
 function slugify(s){ return String(s).trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
-
-function parseJwt(token){
-  try{
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g,'+').replace(/_/g,'/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c){
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    return JSON.parse(jsonPayload);
-  }catch(e){ return null; }
-}
-
-function handleGoogleCredential(response){
-  var payload = parseJwt(response.credential);
-  if(!payload) return;
-  var profile = {
-    uid: 'g_' + payload.sub,
-    name: payload.name || payload.given_name || 'Jugador',
-    email: payload.email || '',
-    picture: payload.picture || '',
-    provider: 'google'
-  };
-  saveProfile(profile);
-  enterApp(profile);
-}
-
-function initGoogleLogin(){
-  var btnBox = document.getElementById('google-btn-container');
-  var note = document.getElementById('google-setup-note');
-  if(!btnBox) return;
-  if(!googleConfigured()){
-    btnBox.style.display = 'none';
-    note.style.display = 'block';
-    note.innerHTML = 'El inicio de sesión con Google todavía no está activado en esta copia de la página. ' +
-      'Hace falta crear un <b>Client ID</b> gratis en Google Cloud Console y pegarlo en la constante ' +
-      '<b>GOOGLE_CLIENT_ID</b> del archivo. Mientras tanto, podés entrar con tu nombre.';
-    return;
-  }
-  if(typeof google === 'undefined' || !google.accounts || !google.accounts.id){
-    // La librería de Google puede tardar un instante en cargar.
-    setTimeout(initGoogleLogin, 300);
-    return;
-  }
-  note.style.display = 'none';
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredential,
-    auto_select: true
-  });
-  google.accounts.id.renderButton(btnBox, {theme:'filled_black', size:'large', shape:'pill', text:'signin_with', logo_alignment:'left', width:280});
-  try{ google.accounts.id.prompt(); }catch(e){}
-}
 
 function loadProfile(){
   try{ var raw = localStorage.getItem('mundial_profile'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
@@ -576,17 +504,20 @@ function flag(code){
 }
 
 // ------- Ranking compartido entre amigos (kvdb.io) -------
-// 1) Abrí la consola del navegador (F12) en esta misma página y pegá:
-//      fetch('https://kvdb.io/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'email=tu@email.com&default_ttl=0'}).then(r=>r.text()).then(id=>alert(id))
-//    Te va a mostrar un ID (algo como "Fd55uogXyxYdnXJvnyN8Xo").
-// 2) Pegá ese ID acá abajo, reemplazando el texto entre comillas, y volvé a subir el archivo.
+// No hace falta que hagas nada a mano: la primera vez que alguien abre la
+// página con el ranking sin configurar, la propia app genera un código
+// gratis (via kvdb.io) y te lo muestra en un cartel arriba, con los pasos
+// para pegarlo en la línea de BUCKET_ID de este archivo. Es un solo paso,
+// una sola vez: después queda compartido para todos los que entren a la
+// página (viene de que es un sitio estático sin servidor propio; sin ese
+// código no hay dónde guardar un ranking que vean todos).
 const BUCKET_ID = "REEMPLAZAR_CON_TU_BUCKET_ID";
 
 function rankingConfigured(){ return BUCKET_ID && BUCKET_ID.indexOf('REEMPLAZAR') !== 0; }
 
-// Si todavía no está configurado el ranking, la primera vez que la página
-// corre en una URL real (no en local, no en el sandbox de la IA) genera
-// sola un código y lo muestra en un cartel para que se lo pases a la IA.
+// Si todavía no está configurado el ranking, la app genera sola un código
+// (sin que el usuario tenga que tocar la consola del navegador) y lo
+// muestra en un cartel con los pasos para pegarlo en el archivo.
 async function ensureSetupBanner(){
   if(rankingConfigured()) return;
   var cached = localStorage.getItem('ranking_setup_id');
@@ -625,10 +556,17 @@ function showSetupBanner(id, state, detail){
       '<button type="button" id="setup-retry" style="margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Reintentar</button>';
   } else {
     div.innerHTML =
-      '<b style="color:var(--gold);">Falta un paso para el ranking</b><br>' +
-      'Copiá este código y pasáselo a la IA para que termine de activar el ranking compartido:<br>' +
+      '<b style="color:var(--gold);">Falta 1 paso para activar el ranking compartido</b><br>' +
+      'Este código ya está listo, solo hay que pegarlo en el archivo:<br>' +
       '<div style="background:var(--navy);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;font-weight:700;color:var(--gold);word-break:break-all;user-select:all;" id="setup-code">' + id + '</div>' +
-      '<button type="button" id="setup-copy" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Copiar código</button>';
+      '<button type="button" id="setup-copy" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Copiar código</button>' +
+      '<div style="margin-top:10px;color:var(--muted);font-size:12px;line-height:1.5;">' +
+      '1. Copiá el código de arriba.<br>' +
+      '2. En GitHub, abrí <b>index.html</b> y tocá el lápiz (editar).<br>' +
+      '3. Buscá la línea <code style="background:var(--navy);padding:1px 4px;border-radius:4px;">const BUCKET_ID = "REEMPLAZAR_CON_TU_BUCKET_ID";</code><br>' +
+      '4. Reemplazá el texto entre comillas por el código copiado.<br>' +
+      '5. Guardá (Commit changes). Listo — el ranking va a quedar compartido para todos los que entren a la página.' +
+      '</div>';
   }
   document.querySelector('header.top').insertAdjacentElement('afterend', div);
   if(state==='error'){
@@ -951,13 +889,6 @@ function enterApp(profile){
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   document.getElementById('user-label').textContent = currentUser.displayName || currentUser.name;
-  var avatar = document.getElementById('user-avatar');
-  var icon = document.getElementById('user-icon');
-  if(currentUser.picture){
-    avatar.src = currentUser.picture; avatar.style.display = 'inline-block'; icon.style.display = 'none';
-  } else {
-    avatar.style.display = 'none'; icon.style.display = 'inline';
-  }
   refreshAll();
   refreshSource();
   ensureSetupBanner();
@@ -983,19 +914,14 @@ document.getElementById('name-input').addEventListener('keydown', function(e){
 });
 
 document.getElementById('logout-btn').addEventListener('click', function(){
-  var wasGoogle = currentUser && currentUser.provider === 'google';
   clearProfile();
   currentUser = null;
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('name-input').value = '';
-  if(wasGoogle && typeof google !== 'undefined' && google.accounts && google.accounts.id){
-    google.accounts.id.disableAutoSelect();
-  }
 });
 
 (function init(){
-  initGoogleLogin();
   var profile = loadProfile();
   if(profile && profile.uid){
     enterApp(profile);
