@@ -158,6 +158,21 @@
   .rank-exact{font-size:11px; color:var(--muted);}
   .rank-pts{font-family:'Oswald'; font-weight:700; color:var(--gold); font-size:14px;}
 
+  .bracket-scroll{display:flex; gap:14px; overflow-x:auto; padding:6px 2px 16px;}
+  .bracket-col{min-width:190px; flex:0 0 auto; display:flex; flex-direction:column; gap:10px;}
+  .bracket-col-title{
+    font-family:'Oswald'; text-transform:uppercase; letter-spacing:.5px; font-size:11.5px;
+    color:var(--gold); text-align:center; padding-bottom:6px; border-bottom:1px solid var(--line); margin-bottom:2px;
+  }
+  .bracket-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12px;}
+  .bracket-card.final{border-color:var(--gold); background:rgba(242,193,78,.08);}
+  .bracket-slot{display:flex; align-items:center; gap:6px; padding:3px 0;}
+  .bracket-slot img.flag-img{width:20px; height:14px;}
+  .bracket-slot .tbd{color:var(--muted); font-style:italic; font-size:11px;}
+  .bracket-vs{text-align:center; color:var(--muted); font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; padding:1px 0;}
+  .bracket-date{text-align:center; color:var(--muted); font-size:10px; margin-top:4px; padding-top:4px; border-top:1px dashed var(--line);}
+  .bracket-hint{font-size:12px; color:var(--muted); text-align:center; margin-bottom:12px; line-height:1.5;}
+
   @media (max-width:420px){
     .team-name{font-size:11.5px;} .flag-img{width:24px; height:17px;}
     .score-mid{font-size:22px; min-width:60px;} .login-card{padding:28px 20px;}
@@ -203,6 +218,7 @@
     <button class="tab-btn active" data-tab="partidos" type="button">Partidos</button>
     <button class="tab-btn" data-tab="mios" type="button">Mis pronósticos</button>
     <button class="tab-btn" data-tab="ranking" type="button">Ranking</button>
+    <button class="tab-btn" data-tab="cuadro" type="button">Cuadro</button>
   </div>
 
   <main>
@@ -215,6 +231,7 @@
     <div id="tab-partidos"></div>
     <div id="tab-mios" style="display:none;"></div>
     <div id="tab-ranking" style="display:none;"></div>
+    <div id="tab-cuadro" style="display:none;"></div>
   </main>
 </div>
 
@@ -228,26 +245,75 @@ const FLAGS = {SUI:"ch",DZA:"dz",GER:"de",PAR:"py",NED:"nl",MAR:"ma",CIV:"ci",NO
   COL:"co",GHA:"gh",CAN:"ca",BRA:"br"};
 
 const MATCHES = [
-  {id:"53452541", home:"GER", homeN:"Alemania", away:"PAR", awayN:"Paraguay", status:"finished", hs:1, as:1, date:"29 jun"},
-  {id:"53452547", home:"NED", homeN:"Países Bajos", away:"MAR", awayN:"Marruecos", status:"finished", hs:1, as:1, date:"29 jun"},
-  {id:"53452561", home:"CIV", homeN:"Costa de Marfil", away:"NOR", awayN:"Noruega", status:"finished", hs:1, as:2, date:"30 jun"},
-  {id:"53452543", home:"FRA", homeN:"Francia", away:"SWE", awayN:"Suecia", status:"finished", hs:3, as:0, date:"30 jun"},
-  {id:"53452563", home:"MEX", homeN:"México", away:"ECU", awayN:"Ecuador", status:"finished", hs:2, as:0, date:"30 jun"},
-  {id:"53452565", home:"ENG", homeN:"Inglaterra", away:"COD", awayN:"Rep. Dem. del Congo", status:"finished", hs:2, as:1, date:"1 jul"},
-  {id:"53452555", home:"BEL", homeN:"Bélgica", away:"SEN", awayN:"Senegal", status:"finished", hs:3, as:2, date:"1 jul"},
-  {id:"53452553", home:"USA", homeN:"Estados Unidos", away:"BIH", awayN:"Bosnia y Herz.", status:"finished", hs:2, as:0, date:"1 jul"},
-  {id:"53452551", home:"ESP", homeN:"España", away:"AUT", awayN:"Austria", status:"finished", hs:3, as:0, date:"2 jul"},
-  {id:"53452549", home:"POR", homeN:"Portugal", away:"CRO", awayN:"Croacia", status:"finished", hs:2, as:1, date:"2 jul"},
-  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"live", hs:1, as:0, date:"hoy", start:"2026-07-03T15:00:00Z"},
-  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"scheduled", start:"2026-07-03T18:00:00Z", date:"3 jul, 15:00"},
-  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"scheduled", start:"2026-07-03T22:00:00Z", date:"3 jul, 19:00"},
-  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"scheduled", start:"2026-07-04T01:30:00Z", date:"3 jul, 22:30"},
-  {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00"},
-  {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00"},
-  {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00"},
-  {id:"53452519", home:"MEX", homeN:"México", away:"ENG", awayN:"Inglaterra", status:"scheduled", start:"2026-07-06T00:00:00Z", date:"5 jul, 21:00"},
-  {id:"53452513", home:"POR", homeN:"Portugal", away:"ESP", awayN:"España", status:"scheduled", start:"2026-07-06T19:00:00Z", date:"6 jul, 16:00"},
-  {id:"53452515", home:"USA", homeN:"Estados Unidos", away:"BEL", awayN:"Bélgica", status:"scheduled", start:"2026-07-07T00:00:00Z", date:"6 jul, 21:00"},
+  {id:"53452541", home:"GER", homeN:"Alemania", away:"PAR", awayN:"Paraguay", status:"finished", hs:1, as:1, date:"29 jun", round:"grupos"},
+  {id:"53452547", home:"NED", homeN:"Países Bajos", away:"MAR", awayN:"Marruecos", status:"finished", hs:1, as:1, date:"29 jun", round:"grupos"},
+  {id:"53452561", home:"CIV", homeN:"Costa de Marfil", away:"NOR", awayN:"Noruega", status:"finished", hs:1, as:2, date:"30 jun", round:"grupos"},
+  {id:"53452543", home:"FRA", homeN:"Francia", away:"SWE", awayN:"Suecia", status:"finished", hs:3, as:0, date:"30 jun", round:"grupos"},
+  {id:"53452563", home:"MEX", homeN:"México", away:"ECU", awayN:"Ecuador", status:"finished", hs:2, as:0, date:"30 jun", round:"grupos"},
+  {id:"53452565", home:"ENG", homeN:"Inglaterra", away:"COD", awayN:"Rep. Dem. del Congo", status:"finished", hs:2, as:1, date:"1 jul", round:"grupos"},
+  {id:"53452555", home:"BEL", homeN:"Bélgica", away:"SEN", awayN:"Senegal", status:"finished", hs:3, as:2, date:"1 jul", round:"grupos"},
+  {id:"53452553", home:"USA", homeN:"Estados Unidos", away:"BIH", awayN:"Bosnia y Herz.", status:"finished", hs:2, as:0, date:"1 jul", round:"grupos"},
+  {id:"53452551", home:"ESP", homeN:"España", away:"AUT", awayN:"Austria", status:"finished", hs:3, as:0, date:"2 jul", round:"grupos"},
+  {id:"53452549", home:"POR", homeN:"Portugal", away:"CRO", awayN:"Croacia", status:"finished", hs:2, as:1, date:"2 jul", round:"grupos"},
+  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"live", hs:1, as:0, date:"hoy", start:"2026-07-03T15:00:00Z", round:"16avos"},
+  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"scheduled", start:"2026-07-03T18:00:00Z", date:"3 jul, 15:00", round:"16avos"},
+  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"scheduled", start:"2026-07-03T22:00:00Z", date:"3 jul, 19:00", round:"16avos"},
+  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"scheduled", start:"2026-07-04T01:30:00Z", date:"3 jul, 22:30", round:"16avos"},
+  {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00", round:"16avos"},
+  {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00", round:"16avos"},
+  {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00", round:"16avos"},
+  {id:"53452519", home:"MEX", homeN:"México", away:"ENG", awayN:"Inglaterra", status:"scheduled", start:"2026-07-06T00:00:00Z", date:"5 jul, 21:00", round:"16avos"},
+  {id:"53452513", home:"POR", homeN:"Portugal", away:"ESP", awayN:"España", status:"scheduled", start:"2026-07-06T19:00:00Z", date:"6 jul, 16:00", round:"16avos"},
+  {id:"53452515", home:"USA", homeN:"Estados Unidos", away:"BEL", awayN:"Bélgica", status:"scheduled", start:"2026-07-07T00:00:00Z", date:"6 jul, 21:00", round:"16avos"},
+];
+
+// ------- Cuadro de eliminación (Octavos en adelante) -------
+// Todavía no se sabe qué equipos llegan a estas instancias (dependen de
+// quién gana los 16avos de arriba), así que cada casillero se arma con
+// "slotA/slotB": si hay un equipo confirmado va el código de país; si no,
+// va null y en su lugar se muestra un texto genérico ("Ganador 16avos …")
+// más la fecha (o "Fecha a confirmar" si tampoco hay fecha todavía).
+// Cuando quieras ir completando el cuadro a medida que se conocen los
+// cruces reales, solo hay que reemplazar los "slotA:null" por el código de
+// país correspondiente (ej: slotA:"ARG").
+// La columna de 16avos NO se repite acá: se arma en renderCuadro() a partir
+// de MATCHES (round:"16avos") más estos 6 cruces que todavía no están
+// definidos porque dependen de equipos que salen 2°/3° de grupo.
+const BRACKET_16_PENDING = [
+  {id:"b16-p1", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
+  {id:"b16-p2", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
+  {id:"b16-p3", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
+  {id:"b16-p4", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
+  {id:"b16-p5", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
+  {id:"b16-p6", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null}
+];
+
+const BRACKET_ROUNDS = [
+  {
+    key:"8vos", label:"Octavos de final",
+    matches: Array.from({length:8}, function(_, i){
+      return {id:"b8-"+(i+1), slotA:null, slotB:null, refA:"Ganador 16avos", refB:"Ganador 16avos", date:"9-11 jul"};
+    })
+  },
+  {
+    key:"4tos", label:"Cuartos de final",
+    matches: Array.from({length:4}, function(_, i){
+      return {id:"b4-"+(i+1), slotA:null, slotB:null, refA:"Ganador Octavos", refB:"Ganador Octavos", date:"13-14 jul"};
+    })
+  },
+  {
+    key:"semis", label:"Semifinales",
+    matches: [
+      {id:"bs-1", slotA:null, slotB:null, refA:"Ganador Cuartos", refB:"Ganador Cuartos", date:"18 jul"},
+      {id:"bs-2", slotA:null, slotB:null, refA:"Ganador Cuartos", refB:"Ganador Cuartos", date:"19 jul"}
+    ]
+  },
+  {
+    key:"final", label:"Final",
+    matches: [
+      {id:"bf-1", slotA:null, slotB:null, refA:"Ganador Semi 1", refB:"Ganador Semi 2", date:"19 jul · MetLife Stadium, NJ"}
+    ]
+  }
 ];
 
 const EN_NAMES = {GER:"Germany",PAR:"Paraguay",NED:"Netherlands",MAR:"Morocco",CIV:"Ivory Coast",NOR:"Norway",
@@ -349,11 +415,44 @@ function todayISO(){
 // "2025-2026" como una liga, a veces usa solo "2026"). En vez de apostar a
 // un solo formato, probamos 3 endpoints distintos en orden y nos quedamos
 // con el primero que realmente traiga partidos.
+// 5 intentos distintos contra la API gratuita de TheSportsDB (no hace falta
+// API key). No son 5 proveedores distintos —las APIs gratuitas de fútbol en
+// vivo sin key son escasas— pero sí son 5 endpoints/estrategias diferentes:
+// si uno falla o no trae el partido buscado, se prueba el siguiente. El
+// orden va de "más específico y liviano" a "más general".
 var SYNC_ATTEMPTS = [
+  {label:'livescore del torneo', url:'https://www.thesportsdb.com/api/v1/json/123/livescore.php?id=4429'},
   {label:'partidos de hoy', url:'https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d=' + todayISO() + '&l=4429'},
+  {label:'próxima fecha del torneo', url:'https://www.thesportsdb.com/api/v1/json/123/eventsnextleague.php?id=4429'},
   {label:'temporada 2026', url:'https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2026'},
   {label:'temporada 2025-2026', url:'https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2025-2026'}
 ];
+
+// Compara nombres de equipo de forma tolerante: sin mayúsculas ni acentos,
+// para que "México" (el nuestro) y "Mexico" (el de la API) coincidan.
+function normName(s){
+  return String(s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function applyEventToMatch(ev, match){
+  var hs = parseInt(ev.intHomeScore, 10), as = parseInt(ev.intAwayScore, 10);
+  if(isNaN(hs) || isNaN(as)) return false;
+  match.hs = hs; match.as = as;
+  var st = (ev.strStatus || ev.strProgress || '').toLowerCase();
+  if(st.indexOf('finish') !== -1 || st === 'ft' || st === 'aet' || st === 'pen'){
+    match.status = 'finished';
+  } else if(st && st !== 'not started' && st !== 'ns'){
+    match.status = 'live';
+  } else if(!st && match.status === 'scheduled'){
+    // Algunas respuestas no traen status explícito para partidos en curso;
+    // si ya venció la hora de arranque lo pasamos a "en vivo" igual.
+    var startMs = match.start ? new Date(match.start).getTime() : null;
+    if(startMs && Date.now() >= startMs) match.status = 'live';
+  }
+  return true;
+}
 
 async function fetchLiveScores(){
   lastSyncError = null;
@@ -364,27 +463,22 @@ async function fetchLiveScores(){
       var res = await fetch(attempt.url, {cache:"no-store"});
       if(!res.ok){ attemptLog.push(attempt.label + ': HTTP ' + res.status); continue; }
       var data = await res.json();
-      if(!data || !data.events || !data.events.length){ attemptLog.push(attempt.label + ': sin partidos'); continue; }
+      var events = data && (data.events || data.results);
+      if(!events || !events.length){ attemptLog.push(attempt.label + ': sin partidos'); continue; }
       var updated = 0;
-      data.events.forEach(function(ev){
+      events.forEach(function(ev){
         var match = MATCHES.find(function(m){
-          var hN = EN_NAMES[m.home], aN = EN_NAMES[m.away];
-          return (ev.strHomeTeam && ev.strAwayTeam) &&
-            ((ev.strHomeTeam.indexOf(hN) !== -1 && ev.strAwayTeam.indexOf(aN) !== -1) ||
-             (ev.strHomeTeam.indexOf(aN) !== -1 && ev.strAwayTeam.indexOf(hN) !== -1));
+          var hN = normName(EN_NAMES[m.home]), aN = normName(EN_NAMES[m.away]);
+          var evH = normName(ev.strHomeTeam), evA = normName(ev.strAwayTeam);
+          if(!evH || !evA) return false;
+          return (evH.indexOf(hN) !== -1 && evA.indexOf(aN) !== -1) ||
+                 (evH.indexOf(aN) !== -1 && evA.indexOf(hN) !== -1);
         });
         if(!match) return;
-        var hs = parseInt(ev.intHomeScore, 10), as = parseInt(ev.intAwayScore, 10);
-        if(!isNaN(hs) && !isNaN(as)){
-          match.hs = hs; match.as = as;
-          var st = (ev.strStatus || '').toLowerCase();
-          if(st.indexOf('finish') !== -1 || st === 'ft' || st === 'match finished'){ match.status = 'finished'; }
-          else if(st && st !== 'not started' && st !== 'ns'){ match.status = 'live'; }
-          updated++;
-        }
+        if(applyEventToMatch(ev, match)) updated++;
       });
       if(updated > 0) return true;
-      attemptLog.push(attempt.label + ': trajo ' + data.events.length + ' eventos pero ninguno coincidió con los nombres de equipo guardados');
+      attemptLog.push(attempt.label + ': trajo ' + events.length + ' eventos pero ninguno coincidió con los nombres de equipo guardados');
     }catch(e){
       // Nota: si esto es un bloqueo CORS del navegador, "e" no trae detalle
       // (el navegador lo oculta por seguridad); en la consola (F12) vas a
@@ -553,6 +647,47 @@ function showSetupBanner(id, state, detail){
   }
 }
 
+// Si dos personas distintas entran con el mismo nombre (dos "uid" distintos,
+// ej. dos que escribieron "Juan" a mano), el ranking compartido quedaría con
+// nombres iguales y no se podría distinguir quién es quién. Por eso, antes
+// de mostrar/publicar el nombre, se revisa el ranking: si el nombre base ya
+// lo está usando OTRO uid, se le agrega "(1)", "(2)", etc. hasta encontrar
+// uno libre. El resultado se guarda en el perfil (displayName) para que no
+// cambie solo entre sesiones.
+async function resolveDisplayName(profile){
+  var base = (profile.name || '').trim();
+  if(!base) return base;
+  if(!rankingConfigured()) return base;
+  try{
+    var res = await fetch('https://kvdb.io/' + BUCKET_ID + '/?prefix=user:&values=true&format=json', {cache:'no-store'});
+    if(!res.ok) return base;
+    var data = await res.json();
+    var rows = data.map(function(kv){
+      var v = kv[1];
+      if(typeof v === 'string'){ try{ v = JSON.parse(v); }catch(e){ return null; } }
+      return v;
+    }).filter(Boolean);
+    var takenByOthers = rows.filter(function(r){ return r.uid !== profile.uid; })
+      .map(function(r){ return String(r.name || '').trim().toLowerCase(); });
+    if(takenByOthers.indexOf(base.toLowerCase()) === -1) return base;
+    var n = 1;
+    while(takenByOthers.indexOf((base + ' (' + n + ')').toLowerCase()) !== -1){ n++; }
+    return base + ' (' + n + ')';
+  }catch(e){
+    console.warn('No se pudo verificar nombres repetidos en el ranking:', e);
+    return base;
+  }
+}
+
+async function ensureDisplayName(){
+  if(!currentUser) return;
+  if(currentUser.displayName) return; // ya resuelto antes, se mantiene estable
+  currentUser.displayName = await resolveDisplayName(currentUser);
+  saveProfile(currentUser);
+  var lbl = document.getElementById('user-label');
+  if(lbl) lbl.textContent = currentUser.displayName;
+}
+
 async function pushMyScore(){
   if(!currentUser || !rankingConfigured()) return;
   var s = computeStats();
@@ -561,7 +696,7 @@ async function pushMyScore(){
       method:'PUT',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        uid: currentUser.uid, name: currentUser.name, picture: currentUser.picture || '',
+        uid: currentUser.uid, name: currentUser.displayName || currentUser.name, picture: currentUser.picture || '',
         points:s.points, exact:s.exact, preds:s.preds, updated:Date.now()
       })
     });
@@ -590,7 +725,7 @@ async function loadRanking(){
       return;
     }
     el.innerHTML = '<div class="section-title">Ranking de amigos <span style="font-weight:400;text-transform:none;letter-spacing:0;">· se actualiza solo</span></div>' + rows.map(function(r, i){
-      var isMe = currentUser && (r.uid ? r.uid === currentUser.uid : r.name === currentUser.name);
+      var isMe = currentUser && (r.uid ? r.uid === currentUser.uid : r.name === (currentUser.displayName || currentUser.name));
       return '<div class="rank-row' + (isMe ? ' me' : '') + '">' +
         '<span class="rank-pos">' + (i + 1) + '</span>' +
         '<span class="rank-name">' + escapeHtml(r.name).toUpperCase() + (isMe ? ' (VOS)' : '') + '</span>' +
@@ -612,7 +747,7 @@ function matchCard(m){
   var predictableLive = canPredictLive(m);
 
   var badge;
-  if(m.status==='finished') badge = '<span class="badge finished">Finalizado</span>';
+  if(m.status==='finished') badge = '<span class="badge finished">Terminado</span>';
   else if(m.status==='live'){
     var minTxt = (liveMin!==null && liveMin>=0) ? ' <span class="live-min">· min ' + Math.floor(liveMin) + '</span>' : '';
     badge = '<span class="badge live"><span class="dot-live"></span>En vivo' + minTxt + '</span>';
@@ -693,6 +828,70 @@ function renderMios(){
   attachCardEvents();
 }
 
+// Devuelve {code, name} del ganador de un partido de MATCHES, o null si
+// todavía no terminó / empató (en esta fase los empates van a penales, así
+// que si empata en el resultado que cargó la API no podemos saber el
+// ganador solos: se deja el casillero como "por definir").
+function winnerOf(match){
+  if(!match || match.status !== 'finished') return null;
+  if(match.hs > match.as) return {code:match.home, name:match.homeN};
+  if(match.as > match.hs) return {code:match.away, name:match.awayN};
+  return null; // empate -> penales, no lo sabemos con los datos que tenemos
+}
+
+function bracketSlotHtml(code, name, refText){
+  if(code){
+    return '<div class="bracket-slot">' + flag(code) + '<span class="team-name">' + escapeHtml(name) + '</span></div>';
+  }
+  return '<div class="bracket-slot"><span class="tbd">' + escapeHtml(refText || 'Por definir') + '</span></div>';
+}
+
+function bracketCard(m, isFinal){
+  var dateTxt = m.date ? m.date : 'Fecha a confirmar';
+  return '<div class="bracket-card' + (isFinal ? ' final' : '') + '">' +
+    bracketSlotHtml(m.slotA, m.slotAName, m.refA) +
+    '<div class="bracket-vs">vs</div>' +
+    bracketSlotHtml(m.slotB, m.slotBName, m.refB) +
+    '<div class="bracket-date">' + escapeHtml(dateTxt) + '</div>' +
+  '</div>';
+}
+
+function renderCuadro(){
+  var el = document.getElementById('tab-cuadro');
+
+  // Columna de 16avos: los partidos ya definidos vienen de MATCHES, más los
+  // cruces que todavía dependen de puestos de grupo (BRACKET_16_PENDING).
+  var col16 = MATCHES.filter(function(m){ return m.round === '16avos'; }).map(function(m){
+    return {
+      id:m.id,
+      slotA:m.home, slotAName:m.homeN, refA:null,
+      slotB:m.away, slotBName:m.awayN, refB:null,
+      date: m.status === 'finished' ? (m.date + ' · Terminado ' + m.hs + '-' + m.as)
+          : m.status === 'live' ? 'En vivo ahora'
+          : m.date
+    };
+  }).concat(BRACKET_16_PENDING.map(function(p){
+    return {id:p.id, slotA:null, slotB:null, refA:p.refA, refB:p.refB, date:p.date};
+  }));
+
+  var columns = [{key:'16avos', label:'16avos de final', matches: col16}];
+  BRACKET_ROUNDS.forEach(function(r){ columns.push({key:r.key, label:r.label, matches:r.matches}); });
+
+  var html = '<div class="bracket-hint">Cuadro de eliminación directa. Los cruces que todavía no están definidos ' +
+    'muestran quién los va a ocupar y, si ya hay fecha, cuándo se juegan.</div>' +
+    '<div class="bracket-scroll">' +
+    columns.map(function(col){
+      var isFinal = col.key === 'final';
+      return '<div class="bracket-col">' +
+        '<div class="bracket-col-title">' + escapeHtml(col.label) + '</div>' +
+        col.matches.map(function(m){ return bracketCard(m, isFinal); }).join('') +
+      '</div>';
+    }).join('') +
+    '</div>';
+
+  el.innerHTML = html;
+}
+
 function renderStats(){
   var s = computeStats();
   document.getElementById('stat-points').textContent = s.points;
@@ -705,6 +904,7 @@ function refreshAll(){
   renderStats();
   renderPartidos();
   renderMios();
+  renderCuadro();
   pushMyScore();
   if(document.getElementById('tab-ranking').style.display !== 'none') loadRanking();
 }
@@ -737,7 +937,9 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
     document.getElementById('tab-partidos').style.display = tab==='partidos' ? 'block':'none';
     document.getElementById('tab-mios').style.display = tab==='mios' ? 'block':'none';
     document.getElementById('tab-ranking').style.display = tab==='ranking' ? 'block':'none';
+    document.getElementById('tab-cuadro').style.display = tab==='cuadro' ? 'block':'none';
     if(tab==='ranking') loadRanking();
+    if(tab==='cuadro') renderCuadro();
   };
 });
 
@@ -748,7 +950,7 @@ function enterApp(profile){
   predictions = loadPredictions();
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('user-label').textContent = currentUser.name;
+  document.getElementById('user-label').textContent = currentUser.displayName || currentUser.name;
   var avatar = document.getElementById('user-avatar');
   var icon = document.getElementById('user-icon');
   if(currentUser.picture){
@@ -759,6 +961,7 @@ function enterApp(profile){
   refreshAll();
   refreshSource();
   ensureSetupBanner();
+  ensureDisplayName(); // si el nombre está repetido en el ranking, le agrega "(1)"
 }
 
 function doEnter(){
