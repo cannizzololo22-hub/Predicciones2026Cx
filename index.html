@@ -339,42 +339,63 @@ function savePredictions(){ localStorage.setItem('mundial_predicciones_' + curre
 
 let lastSyncError = null;
 
+function todayISO(){
+  var d = new Date();
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
+}
+
+// La API gratuita de TheSportsDB es inconsistente con el formato de
+// "temporada" para torneos que no son ligas domésticas (el Mundial no usa
+// "2025-2026" como una liga, a veces usa solo "2026"). En vez de apostar a
+// un solo formato, probamos 3 endpoints distintos en orden y nos quedamos
+// con el primero que realmente traiga partidos.
+var SYNC_ATTEMPTS = [
+  {label:'partidos de hoy', url:'https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d=' + todayISO() + '&l=4429'},
+  {label:'temporada 2026', url:'https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2026'},
+  {label:'temporada 2025-2026', url:'https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2025-2026'}
+];
+
 async function fetchLiveScores(){
   lastSyncError = null;
-  try{
-    var res = await fetch('https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2025-2026', {cache:"no-store"});
-    if(!res.ok){ lastSyncError = 'La API respondió con error ' + res.status; throw new Error(lastSyncError); }
-    var data = await res.json();
-    if(!data || !data.events || !data.events.length){ lastSyncError = 'La API no devolvió partidos'; throw new Error(lastSyncError); }
-    var updated = 0;
-    data.events.forEach(function(ev){
-      var match = MATCHES.find(function(m){
-        var hN = EN_NAMES[m.home], aN = EN_NAMES[m.away];
-        return (ev.strHomeTeam && ev.strAwayTeam) &&
-          ((ev.strHomeTeam.indexOf(hN) !== -1 && ev.strAwayTeam.indexOf(aN) !== -1) ||
-           (ev.strHomeTeam.indexOf(aN) !== -1 && ev.strAwayTeam.indexOf(hN) !== -1));
+  var attemptLog = [];
+  for(var i=0; i<SYNC_ATTEMPTS.length; i++){
+    var attempt = SYNC_ATTEMPTS[i];
+    try{
+      var res = await fetch(attempt.url, {cache:"no-store"});
+      if(!res.ok){ attemptLog.push(attempt.label + ': HTTP ' + res.status); continue; }
+      var data = await res.json();
+      if(!data || !data.events || !data.events.length){ attemptLog.push(attempt.label + ': sin partidos'); continue; }
+      var updated = 0;
+      data.events.forEach(function(ev){
+        var match = MATCHES.find(function(m){
+          var hN = EN_NAMES[m.home], aN = EN_NAMES[m.away];
+          return (ev.strHomeTeam && ev.strAwayTeam) &&
+            ((ev.strHomeTeam.indexOf(hN) !== -1 && ev.strAwayTeam.indexOf(aN) !== -1) ||
+             (ev.strHomeTeam.indexOf(aN) !== -1 && ev.strAwayTeam.indexOf(hN) !== -1));
+        });
+        if(!match) return;
+        var hs = parseInt(ev.intHomeScore, 10), as = parseInt(ev.intAwayScore, 10);
+        if(!isNaN(hs) && !isNaN(as)){
+          match.hs = hs; match.as = as;
+          var st = (ev.strStatus || '').toLowerCase();
+          if(st.indexOf('finish') !== -1 || st === 'ft' || st === 'match finished'){ match.status = 'finished'; }
+          else if(st && st !== 'not started' && st !== 'ns'){ match.status = 'live'; }
+          updated++;
+        }
       });
-      if(!match) return;
-      var hs = parseInt(ev.intHomeScore, 10), as = parseInt(ev.intAwayScore, 10);
-      if(!isNaN(hs) && !isNaN(as)){
-        match.hs = hs; match.as = as;
-        var st = (ev.strStatus || '').toLowerCase();
-        if(st.indexOf('finish') !== -1 || st === 'ft' || st === 'match finished'){ match.status = 'finished'; }
-        else if(st && st !== 'not started' && st !== 'ns'){ match.status = 'live'; }
-        updated++;
-      }
-    });
-    if(updated === 0){ lastSyncError = 'Se conectó a la API pero ninguno de sus partidos coincidió con los nombres de equipo guardados'; }
-    return updated > 0;
-  }catch(e){
-    // Nota: si esto fallara por CORS, "e" no va a traer detalle (el navegador
-    // lo oculta por seguridad); lo único que vas a ver es "Failed to fetch"
-    // en la consola (F12). Eso confirma que es un bloqueo del navegador y no
-    // un problema de tu código.
-    if(!lastSyncError) lastSyncError = (e && e.message) ? e.message : 'Error de red desconocido';
-    console.warn('No se pudo conectar a la fuente de datos en vivo, se usan los datos locales:', e);
-    return false;
+      if(updated > 0) return true;
+      attemptLog.push(attempt.label + ': trajo ' + data.events.length + ' eventos pero ninguno coincidió con los nombres de equipo guardados');
+    }catch(e){
+      // Nota: si esto es un bloqueo CORS del navegador, "e" no trae detalle
+      // (el navegador lo oculta por seguridad); en la consola (F12) vas a
+      // ver "Failed to fetch", y eso confirma que es un bloqueo del
+      // navegador y no un problema del código.
+      attemptLog.push(attempt.label + ': ' + ((e && e.message) ? e.message : 'error de red'));
+    }
   }
+  lastSyncError = attemptLog.join(' · ');
+  console.warn('No se pudo conectar a la fuente de datos en vivo:', lastSyncError);
+  return false;
 }
 
 async function refreshSource(){
@@ -489,12 +510,13 @@ async function ensureSetupBanner(){
     localStorage.setItem('ranking_setup_id', cached);
     showSetupBanner(cached);
   }catch(e){
+    var detail = (e && e.message) ? e.message : 'error desconocido';
     console.warn('No se pudo generar el codigo de ranking:', e);
-    showSetupBanner(null, 'error');
+    showSetupBanner(null, 'error', detail);
   }
 }
 
-function showSetupBanner(id, state){
+function showSetupBanner(id, state, detail){
   var old = document.getElementById('setup-banner');
   if(old) old.remove();
   var div = document.createElement('div');
@@ -505,7 +527,7 @@ function showSetupBanner(id, state){
   } else if(state==='error'){
     div.innerHTML =
       '<b style="color:var(--live);">No se pudo generar el código del ranking</b><br>' +
-      'Puede ser un problema de conexión momentáneo.<br>' +
+      'Detalle: ' + escapeHtml(detail || 'desconocido') + '<br>' +
       '<button type="button" id="setup-retry" style="margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Reintentar</button>';
   } else {
     div.innerHTML =
