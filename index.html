@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixture 2026 Mundial - Prode Familiar Completo</title>
+    <title>Fixture 2026 Mundial - Prode Familiar Final</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -299,13 +299,13 @@
         ];
 
         let clienteActual = "";
-        let partidosEnVivoPorAPI = []; // Array que almacena los partidos en vivo reportados
+        let partidosEnVivoPorAPI = []; 
 
         if (!localStorage.getItem('mundial_prode_v2')) {
             localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
         }
 
-        // Reloj de cabecera
+        // Reloj continuo
         setInterval(() => {
             const ahora = new Date();
             const txtHora = ahora.toTimeString().split(' ')[0];
@@ -313,13 +313,10 @@
             if (clockEl) clockEl.innerText = `🕒 Hora Actual: ${txtHora}`;
         }, 1000);
 
-        // API Web Scraper de alta precisión: detecta qué partido se está jugando realmente
+        // API Scraper: Fuerza a "p14" (Australia vs Egipto) a estar en Vivo Real
         async function consultarAPIEnvivo() {
             try {
-                // Sincronización real con el estado actual del Mundial del 03 de Julio.
-                // Fuerza a "p14" (Australia vs Egipto) a estar en vivo sin importar el desfasaje horario del PC.
                 partidosEnVivoPorAPI = ["p14"]; 
-                
                 construirEstructuraYRenderizar();
             } catch (e) {
                 partidosEnVivoPorAPI = ["p14"]; 
@@ -341,7 +338,7 @@
 
             if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
 
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
 
             if (!DB[alias]) {
                 DB[alias] = { password: pass, pronosticos: {}, recordPuntos: 0 };
@@ -364,7 +361,7 @@
             document.getElementById('main-interface').style.display = 'block';
             
             consultarAPIEnvivo();
-            setInterval(consultarAPIEnvivo, 15000); // Mantiene el control refrescando cada 15 segundos
+            setInterval(consultarAPIEnvivo, 15000); 
         }
 
         function construirEstructuraYRenderizar() {
@@ -374,12 +371,11 @@
             liveContainer.innerHTML = "";
             fixtureContainer.innerHTML = "";
 
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
             let misPredicciones = DB[clienteActual]?.pronosticos || {};
             let fasesMap = {};
 
             multiWebsMatches.forEach(match => {
-                // Sincronización estricta por API
                 let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
 
                 const predSavedL = misPredicciones[match.id]?.l;
@@ -387,13 +383,12 @@
                 const tienePrediccion = (predSavedL !== undefined && predSavedL !== null && predSavedL !== "");
 
                 if (estaLiveReal) {
-                    // Marcador oficial en tiempo real (Egipto gana 1-0 parcial)
                     let apiGolesL = match.id === "p14" ? 0 : 0;
                     let apiGolesV = match.id === "p14" ? 1 : 0;
 
                     let textStatus = !tienePrediccion 
-                        ? `<span style="color: #f59e0b; font-weight: bold;">⏳ No cargaste predicción aún (¡Podés hacerlo abajo!)</span>`
-                        : `Tu predicción actual: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
+                        ? `<span style="color: #f59e0b; font-weight: bold;">⏳ No cargaste predicción (Cerrada por estar En Vivo)</span>`
+                        : `Tu predicción guardada: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
 
                     liveContainer.innerHTML += `
                         <div class="live-card">
@@ -413,7 +408,7 @@
             });
 
             if (liveContainer.innerHTML === "") {
-                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido reportado en vivo por la API en este momento.</p>`;
+                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido en juego actualmente.</p>`;
             }
 
             const ordenFases = ["Dieciseisavos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "¡Gran Final del Mundial! 🏆"];
@@ -426,10 +421,14 @@
                     let lVal = misPredicciones[match.id]?.l ?? "";
                     let vVal = misPredicciones[match.id]?.v ?? "";
 
-                    // Los partidos en vivo NO se congelan, podés editarlos y salvarlos sin problemas
-                    const isFrozen = match.yaJugado ? "disabled" : "";
+                    // NUEVA REGLA: Si ya se jugó O está EN VIVO, los inputs se deshabilitan por completo
+                    const isFrozen = (match.yaJugado || match.estaLiveReal) ? "disabled" : "";
                     const claseFila = match.yaJugado ? "partido-fila jugado" : "partido-fila";
-                    const textoMeta = match.yaJugado ? "✅ FINALIZADO" : (match.estaLiveReal ? "🔴 EN VIVO AHORA" : "⏳ PENDIENTE");
+                    
+                    let textoMeta = "⏳ PENDIENTE";
+                    if (match.yaJugado) textoMeta = "✅ FINALIZADO";
+                    else if (match.estaLiveReal) textoMeta = "🔴 EN VIVO (BLOQUEADO)";
+
                     const infoPenales = match.penales ? `<span class="penales-lbl">${match.penales}</span>` : "";
 
                     divFase += `
@@ -459,15 +458,18 @@
         }
 
         function guardarProde() {
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            if (!DB[clienteActual]) DB[clienteActual] = { password: "", pronosticos: {}, recordPuntos: 0 };
+            if (!DB[clienteActual].pronosticos) DB[clienteActual].pronosticos = {};
 
             multiWebsMatches.forEach(match => {
-                if (!match.yaJugado) {
+                // Solo lee y guarda si el partido NO está congelado (ni jugado ni en vivo)
+                let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
+                if (!match.yaJugado && !estaLiveReal) {
                     const inputL = document.getElementById(`gl-${match.id}`).value;
                     const inputV = document.getElementById(`gv-${match.id}`).value;
 
                     if (inputL !== "" && inputV !== "") {
-                        if (!DB[clienteActual].pronosticos) DB[clienteActual].pronosticos = {};
                         DB[clienteActual].pronosticos[match.id] = {
                             l: parseInt(inputL),
                             v: parseInt(inputV)
@@ -487,12 +489,11 @@
                 btn.style.background = "var(--secondary)";
             }, 2000);
 
-            // Re-renderiza para reflejar la predicción guardada en el panel superior inmediatamente
             construirEstructuraYRenderizar();
         }
 
         function procesarPosicionesAmigos() {
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
             let leaderboard = [];
 
             for (const nombreAmigo in DB) {
@@ -500,17 +501,19 @@
                 let prediccionesDeAmigo = DB[nombreAmigo].pronosticos || {};
 
                 multiWebsMatches.forEach(match => {
-                    // El ranking evalúa estrictamente solo partidos jugados y terminados con datos numéricos válidos
                     if (match.yaJugado && match.realL !== null && match.realV !== null && prediccionesDeAmigo[match.id]) {
                         const predL = prediccionesDeAmigo[match.id].l;
                         const predV = prediccionesDeAmigo[match.id].v;
 
+                        // Puntos por resultado exacto (Pleno = 10 pts)
                         if (predL === match.realL && predV === match.realV) {
-                            scoreCalculado += 10; // Pleno
-                        } else if ((predL > predV && match.realL > match.realV) || 
+                            scoreCalculado += 10;
+                        } 
+                        // Puntos por acertar ganador o empate (Tendencia = 5 pts)
+                        else if ((predL > predV && match.realL > match.realV) || 
                                  (predL < predV && match.realL < match.realV) || 
                                  (predL === predV && match.realL === match.realV)) {
-                            scoreCalculado += 5; // Tendencia
+                            scoreCalculado += 5;
                         }
                     }
                 });
@@ -519,7 +522,10 @@
                 leaderboard.push({ name: nombreAmigo, score: scoreCalculado });
             }
 
+            // Guardamos la base limpia con los puntajes recalculados de todos
             localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
+
+            // Ordenar de mayor a menor puntaje
             leaderboard.sort((a, b) => b.score - a.score);
 
             const containerTabla = document.getElementById('ranking-rows');
@@ -529,9 +535,9 @@
                 const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
                 containerTabla.innerHTML += `
                     <tr ${esPropio}>
-                        <td>${i + 1}</td>
+                        <td><b>${i + 1}</b></td>
                         <td>${jugador.name}</td>
-                        <td>${jugador.score} Pts</td>
+                        <td><b>${jugador.score} Pts</b></td>
                     </tr>
                 `;
             });
