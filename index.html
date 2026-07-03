@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixture 2026 Mundial - Prode Familiar Final</title>
+    <title>Fixture 2026 Mundial - Prode Familiar Final Sincronizado</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -301,7 +301,13 @@
         let clienteActual = "";
         let partidosEnVivoPorAPI = []; 
 
-        if (!localStorage.getItem('mundial_prode_v2')) {
+        // Forzar inicialización limpia si está corrupto
+        try {
+            let actualDB = localStorage.getItem('mundial_prode_v2');
+            if (!actualDB || actualDB === "undefined" || actualDB.startsWith("[")) {
+                localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
+            }
+        } catch(e) {
             localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
         }
 
@@ -313,7 +319,7 @@
             if (clockEl) clockEl.innerText = `🕒 Hora Actual: ${txtHora}`;
         }, 1000);
 
-        // API Scraper: Fuerza a "p14" (Australia vs Egipto) a estar en Vivo Real
+        // API Scraper: Fuerza exclusivamente a "p14" (Australia vs Egipto) a estar en Vivo Real
         async function consultarAPIEnvivo() {
             try {
                 partidosEnVivoPorAPI = ["p14"]; 
@@ -326,7 +332,7 @@
 
         window.onload = function() {
             const userGuardado = localStorage.getItem('mundial_sesion_usuario');
-            if (userGuardado) {
+            if (userGuardado && userGuardado !== "undefined") {
                 clienteActual = userGuardado;
                 ejecutarAccesoValido();
             }
@@ -338,7 +344,13 @@
 
             if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
 
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            let DB = {};
+            try {
+                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+                if (typeof DB !== "object" || Array.isArray(DB)) DB = {};
+            } catch(e) {
+                DB = {};
+            }
 
             if (!DB[alias]) {
                 DB[alias] = { password: pass, pronosticos: {}, recordPuntos: 0 };
@@ -371,7 +383,11 @@
             liveContainer.innerHTML = "";
             fixtureContainer.innerHTML = "";
 
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            let DB = {};
+            try {
+                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            } catch(e) { DB = {}; }
+            
             let misPredicciones = DB[clienteActual]?.pronosticos || {};
             let fasesMap = {};
 
@@ -421,7 +437,7 @@
                     let lVal = misPredicciones[match.id]?.l ?? "";
                     let vVal = misPredicciones[match.id]?.v ?? "";
 
-                    // NUEVA REGLA: Si ya se jugó O está EN VIVO, los inputs se deshabilitan por completo
+                    // REGLA: Si ya se jugó O está EN VIVO, queda inhabilitado para editar
                     const isFrozen = (match.yaJugado || match.estaLiveReal) ? "disabled" : "";
                     const claseFila = match.yaJugado ? "partido-fila jugado" : "partido-fila";
                     
@@ -458,12 +474,15 @@
         }
 
         function guardarProde() {
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            let DB = {};
+            try {
+                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            } catch(e) { DB = {}; }
+
             if (!DB[clienteActual]) DB[clienteActual] = { password: "", pronosticos: {}, recordPuntos: 0 };
             if (!DB[clienteActual].pronosticos) DB[clienteActual].pronosticos = {};
 
             multiWebsMatches.forEach(match => {
-                // Solo lee y guarda si el partido NO está congelado (ni jugado ni en vivo)
                 let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
                 if (!match.yaJugado && !estaLiveReal) {
                     const inputL = document.getElementById(`gl-${match.id}`).value;
@@ -493,54 +512,70 @@
         }
 
         function procesarPosicionesAmigos() {
-            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+            let DB = {};
+            try {
+                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
+                if (typeof DB !== "object" || Array.isArray(DB)) DB = {};
+            } catch(e) { DB = {}; }
+
             let leaderboard = [];
 
-            for (const nombreAmigo in DB) {
+            // Evaluamos de forma segura cada cuenta registrada en el objeto
+            Object.keys(DB).forEach(nombreAmigo => {
                 let scoreCalculado = 0;
-                let prediccionesDeAmigo = DB[nombreAmigo].pronosticos || {};
+                let cuenta = DB[nombreAmigo];
+                
+                // Si la cuenta guardada es inválida o un string viejo, lo inicializamos bien en caliente
+                if (!cuenta || typeof cuenta !== "object") {
+                    DB[nombreAmigo] = { password: "123", pronosticos: {}, recordPuntos: 0 };
+                    cuenta = DB[nombreAmigo];
+                }
+
+                let prediccionesDeAmigo = cuenta.pronosticos || {};
 
                 multiWebsMatches.forEach(match => {
                     if (match.yaJugado && match.realL !== null && match.realV !== null && prediccionesDeAmigo[match.id]) {
                         const predL = prediccionesDeAmigo[match.id].l;
                         const predV = prediccionesDeAmigo[match.id].v;
 
-                        // Puntos por resultado exacto (Pleno = 10 pts)
                         if (predL === match.realL && predV === match.realV) {
-                            scoreCalculado += 10;
-                        } 
-                        // Puntos por acertar ganador o empate (Tendencia = 5 pts)
-                        else if ((predL > predV && match.realL > match.realV) || 
+                            scoreCalculado += 10; // Pleno
+                        } else if ((predL > predV && match.realL > match.realV) || 
                                  (predL < predV && match.realL < match.realV) || 
                                  (predL === predV && match.realL === match.realV)) {
-                            scoreCalculado += 5;
+                            scoreCalculado += 5; // Tendencia
                         }
                     }
                 });
 
                 DB[nombreAmigo].recordPuntos = scoreCalculado;
                 leaderboard.push({ name: nombreAmigo, score: scoreCalculado });
-            }
+            });
 
-            // Guardamos la base limpia con los puntajes recalculados de todos
             localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
 
             // Ordenar de mayor a menor puntaje
             leaderboard.sort((a, b) => b.score - a.score);
 
             const containerTabla = document.getElementById('ranking-rows');
-            containerTabla.innerHTML = "";
-            
-            leaderboard.forEach((jugador, i) => {
-                const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
-                containerTabla.innerHTML += `
-                    <tr ${esPropio}>
-                        <td><b>${i + 1}</b></td>
-                        <td>${jugador.name}</td>
-                        <td><b>${jugador.score} Pts</b></td>
-                    </tr>
-                `;
-            });
+            if (containerTabla) {
+                containerTabla.innerHTML = "";
+                
+                if (leaderboard.length === 0) {
+                    containerTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;color:var(--text-muted);'>No hay usuarios registrados</td></tr>";
+                } else {
+                    leaderboard.forEach((jugador, i) => {
+                        const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
+                        containerTabla.innerHTML += `
+                            <tr ${esPropio}>
+                                <td><b>${i + 1}</b></td>
+                                <td>${jugador.name}</td>
+                                <td><b>${jugador.score} Pts</b></td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
         }
 
         function cerrarSesion() {
