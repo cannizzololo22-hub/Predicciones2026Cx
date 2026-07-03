@@ -267,7 +267,6 @@
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Tus 31 partidos originales intactos
         const multiWebsMatches = [
             { id: "p1", fase: "Dieciseisavos de Final", local: "Alemania 🇩🇪", visitante: "Paraguay 🇵🇾", fecha: "03 Jul", hora: "10:00", realL: 1, realV: 1, penales: "Pasó PAR (P)", yaJugado: true },
             { id: "p2", fase: "Dieciseisavos de Final", local: "Francia 🇫🇷", visitante: "Suecia 🇸🇪", fecha: "03 Jul", hora: "12:00", realL: 3, realV: 0, yaJugado: true },
@@ -314,7 +313,7 @@
 
         async function consultarAPIEnvivo() {
             partidosEnVivoPorAPI = ["p14"]; 
-            cargarDatosNube(); // Sincroniza desde la nube
+            await cargarDatosDesdeSupabase();
         }
 
         window.onload = function() {
@@ -332,19 +331,20 @@
             if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
 
             // Traemos los datos directamente desde Supabase en la nube
-            let { data: usuario } = await _supabase.from('prode_usuarios').select('*').eq('username', alias).maybeSingle();
+            let { data: usuario, error } = await _supabase.from('prode_usuarios').select('*').eq('username', alias).maybeSingle();
 
             if (usuario) {
-                if (usuario.password !== pass) {
+                if (usuario.password && usuario.password !== pass) {
                     return alert("❌ Contraseña incorrecta para este usuario.");
                 }
             } else {
-                // Si no existe, lo creamos de forma automática en la nube
+                // Si el usuario no existe en la tabla de Supabase, lo creamos de forma automática
                 await _supabase.from('prode_usuarios').insert([{ username: alias, password: pass, pronosticos: {} }]);
             }
 
             clienteActual = alias;
             localStorage.setItem('mundial_sesion_usuario', clienteActual);
+
             ejecutarAccesoValido();
         }
 
@@ -354,19 +354,23 @@
             document.getElementById('main-interface').style.display = 'block';
             
             consultarAPIEnvivo();
-            setInterval(consultarAPIEnvivo, 8000); 
+            setInterval(consultarAPIEnvivo, 15000); 
+            // Bucle forzado de seguridad para el ranking cada 5 segundos
+            setInterval(procesarPosicionesAmigos, 5000); 
         }
 
-        async function cargarDatosNube() {
-            let DB_Mock = {};
+        async function cargarDatosDesdeSupabase() {
+            let DB_Supabase = {};
+            // Obtenemos todos los jugadores registrados en tu base de datos en tiempo real
             let { data: todos } = await _supabase.from('prode_usuarios').select('*');
             
             if (todos) {
-                todos.forEach(u => { 
-                    DB_Mock[u.username] = { password: u.password, pronosticos: u.pronosticos || {} }; 
+                todos.forEach(u => {
+                    DB_Supabase[u.username] = { password: u.password, pronosticos: u.pronosticos || {} };
                 });
             }
-            construirEstructuraYRenderizar(DB_Mock);
+
+            construirEstructuraYRenderizar(DB_Supabase);
         }
 
         function construirEstructuraYRenderizar(DB) {
@@ -457,11 +461,11 @@
                 fixtureContainer.innerHTML += divFase;
             });
 
-            procesarPosicionesAmigos(DB);
+            renderizarTablaUI(DB);
         }
 
         async function guardarProde() {
-            // Traemos el estado más actual del usuario de la nube para no pisar nada
+            // Traemos el estado más actual del usuario desde Supabase para no pisar pronósticos anteriores
             let { data: actual } = await _supabase.from('prode_usuarios').select('pronosticos').eq('username', clienteActual).single();
             let pronosticosNuevos = actual?.pronosticos || {};
 
@@ -480,7 +484,7 @@
                 }
             });
 
-            // Guardamos directamente en la nube
+            // Guardamos directamente en la nube de Supabase
             await _supabase.from('prode_usuarios').update({ pronosticos: pronosticosNuevos }).eq('username', clienteActual);
             
             const btn = document.getElementById('btn-save');
@@ -492,10 +496,22 @@
                 btn.style.background = "var(--secondary)";
             }, 2000);
 
-            consultarAPIEnvivo();
+            await cargarDatosDesdeSupabase();
         }
 
-        function procesarPosicionesAmigos(DB) {
+        async function procesarPosicionesAmigos() {
+            let DB_Supabase = {};
+            let { data: todos } = await _supabase.from('prode_usuarios').select('*');
+            
+            if (todos) {
+                todos.forEach(u => {
+                    DB_Supabase[u.username] = { password: u.password, pronosticos: u.pronosticos || {} };
+                });
+            }
+            renderizarTablaUI(DB_Supabase);
+        }
+
+        function renderizarTablaUI(DB) {
             let leaderboard = [];
 
             Object.keys(DB).forEach(key => {
