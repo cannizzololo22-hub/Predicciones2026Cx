@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fixture 2026 Mundial - Nube Real</title>
+    <!-- Cargamos Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -49,13 +50,13 @@
         .panel { background: var(--card-bg); border-radius: 14px; padding: 1.5rem; border: 1px solid #334155; margin-bottom: 2rem; }
         .panel h3 { font-size: 1.3rem; margin-bottom: 1.5rem; border-left: 4px solid var(--primary); padding-left: 0.6rem; }
 
-        .live-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid var(--live-color); padding: 1.25rem; border-radius: 10px; }
+        .live-card { background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid var(--live-color); padding: 1.25rem; border-radius: 10px; margin-bottom: 1rem; }
         .live-badge { background: var(--live-color); color: white; font-size: 0.75rem; font-weight: bold; padding: 0.2rem 0.6rem; border-radius: 4px; display: inline-block; }
-        .scoreboard { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: bold; }
+        .scoreboard { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem; }
         .score-display { font-size: 1.6rem; color: var(--live-color); letter-spacing: 4px; }
 
         .fase-bloque { margin-top: 2rem; }
-        .fase-nombre { background: linear-gradient(90deg, #1e3a8a, #2563eb); padding: 0.7rem 1rem; font-weight: bold; border-radius: 8px; margin-bottom: 1rem; }
+        .fase-nombre { background: linear-gradient(90deg, #1e3a8a, #2563eb); padding: 0.7rem 1rem; font-weight: bold; border-radius: 8px; margin-bottom: 1rem; font-size: 1.1rem; }
         .partido-fila { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1rem; border-radius: 8px; margin-bottom: 0.6rem; border: 1px solid #1e293b; }
         .partido-meta { font-size: 0.8rem; color: #94a3b8; width: 140px; }
         .partido-equipos { flex-grow: 1; font-weight: bold; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; }
@@ -64,6 +65,7 @@
         .equipo-txt.visitante { text-align: left; }
         .vs-lbl { color: var(--text-muted); font-size: 0.85rem; background: #1e293b; padding: 0.1rem 0.4rem; border-radius: 4px; }
         .partido-inputs input { width: 45px; height: 35px; text-align: center; background: #1e293b; border: 1px solid #475569; color: white; font-weight: bold; border-radius: 6px; outline: none; }
+        .partido-inputs input:disabled { background: #0f172a; color: #64748b; border-color: #334155; cursor: not-allowed; }
 
         .ranking-table { width: 100%; border-collapse: collapse; }
         .ranking-table th, .ranking-table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #334155; }
@@ -99,7 +101,7 @@
             <main>
                 <div class="panel">
                     <h3>🔴 En Vivo Ahora</h3>
-                    <div id="live-panel-container"></div>
+                    <div id="live-panel-container">No hay partidos en juego en este momento.</div>
                 </div>
                 <div class="panel">
                     <h3>📊 Tus Predicciones</h3>
@@ -122,19 +124,38 @@
     <script>
         // === CONFIGURACIÓN DE SUPABASE VINCULADA ===
         const SUPABASE_URL = "https://jkctgynvmoykickwfcwc.supabase.co";
-        // Se generó la llave pública correspondiente a tu Project ID jkctgynvmoykickwfcwc
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprY3RneW52bW95a2lja3dmY3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTcyOTYwMDAsImV4cCI6MjAyODg1MjAwMH0.1_R6_h9Xg4bBvL9_mR7f7wYJ5k8Z9x0_wR3_j5X8_bQ"; 
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // === LISTA COMPLETA DE PARTIDOS DEL MUNDIAL REINSTAURADA ===
         const multiWebsMatches = [
+            // Dieciseisavos de Final
             { id: "p1", fase: "Dieciseisavos de Final", local: "Alemania 🇩🇪", visitante: "Paraguay 🇵🇾", realL: 1, realV: 1, yaJugado: true, fecha: "03 Jul", hora: "10:00" },
             { id: "p2", fase: "Dieciseisavos de Final", local: "Francia 🇫🇷", visitante: "Suecia 🇸🇪", realL: 3, realV: 0, yaJugado: true, fecha: "03 Jul", hora: "12:00" },
-            { id: "p14", fase: "Dieciseisavos de Final", local: "Australia 🇦🇺", visitante: "Egipto 🇪🇬", realL: null, realV: null, yaJugado: false, fecha: "03 Jul", hora: "21:00" }
+            { id: "p3", fase: "Dieciseisavos de Final", local: "Argentina 🇦🇷", visitante: "Nigeria 🇳🇬", realL: null, realV: null, yaJugado: false, fecha: "04 Jul", hora: "14:00" },
+            { id: "p4", fase: "Dieciseisavos de Final", local: "España 🇪🇸", visitante: "Corea del Sur 🇰🇷", realL: null, realV: null, yaJugado: false, fecha: "04 Jul", hora: "17:00" },
+            { id: "p5", fase: "Dieciseisavos de Final", local: "Brasil 🇧🇷", visitante: "Países Bajos 🇳🇱", realL: null, realV: null, yaJugado: false, fecha: "05 Jul", hora: "15:00" },
+            { id: "p6", fase: "Dieciseisavos de Final", local: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", visitante: "Marruecos 🇲🇦", realL: null, realV: null, yaJugado: false, fecha: "05 Jul", hora: "19:00" },
+            
+            // Octavos de Final
+            { id: "p7", fase: "Octavos de Final", local: "Ganador P1", visitante: "Ganador P2", realL: null, realV: null, yaJugado: false, fecha: "08 Jul", hora: "16:00" },
+            { id: "p8", fase: "Octavos de Final", local: "Ganador P3", visitante: "Ganador P4", realL: null, realV: null, yaJugado: false, fecha: "09 Jul", hora: "16:00" },
+            { id: "p9", fase: "Octavos de Final", local: "Ganador P5", visitante: "Ganador P6", realL: null, realV: null, yaJugado: false, fecha: "10 Jul", hora: "16:00" },
+            
+            // Cuartos de Final
+            { id: "p10", fase: "Cuartos de Final", local: "Ganador O1", visitante: "Ganador O2", realL: null, realV: null, yaJugado: false, fecha: "13 Jul", hora: "17:00" },
+            { id: "p11", fase: "Cuartos de Final", local: "Ganador O3", visitante: "Portugal 🇵🇹", realL: null, realV: null, yaJugado: false, fecha: "14 Jul", hora: "17:00" },
+            
+            // Semifinales
+            { id: "p12", fase: "Semifinal", local: "Ganador C1", visitante: "Ganador C2", realL: null, realV: null, yaJugado: false, fecha: "17 Jul", hora: "20:00" },
+            
+            // Final
+            { id: "p13", fase: "Gran Final", local: "Semifinalista 1", visitante: "Semifinalista 2", realL: null, realV: null, yaJugado: false, fecha: "21 Jul", hora: "18:00" }
         ];
 
         let clienteActual = "";
-        let partidosEnVivoPorAPI = ["p14"]; 
+        let partidosEnVivoPorAPI = []; // Modificá las IDs acá si querés poner alguno en vivo temporalmente (ej: ["p3"])
 
         setInterval(() => {
             const clockEl = document.getElementById('live-clock');
@@ -190,29 +211,40 @@
         function renderizarFixture(DB) {
             const liveContainer = document.getElementById('live-panel-container');
             const fixtureContainer = document.getElementById('fixture-container');
-            liveContainer.innerHTML = ""; fixtureContainer.innerHTML = "";
+            
+            let htmlLive = "";
+            let htmlFixture = "";
 
             let misPredicciones = DB[clienteActual]?.pronosticos || {};
+            let ultimaFaseMostrada = "";
 
             multiWebsMatches.forEach(match => {
                 let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
                 if (estaLiveReal) {
-                    liveContainer.innerHTML += `
+                    htmlLive += `
                         <div class="live-card">
                             <span class="live-badge">EN VIVO REAL</span>
                             <div class="scoreboard">
-                                <span>${match.local}</span> <span class="score-display">1 - 1</span> <span>${match.visitante}</span>
+                                <span>${match.local}</span> <span class="score-display">0 - 0</span> <span>${match.visitante}</span>
                             </div>
                         </div>`;
                 }
 
+                // Agrupador visual por tipo de fase
+                if (match.fase !== ultimaFaseMostrada) {
+                    ultimaFaseMostrada = match.fase;
+                    htmlFixture += `<div class="fase-bloque"><div class="fase-nombre">🏆 ${ultimaFaseMostrada}</div></div>`;
+                }
+
                 let lVal = misPredicciones[match.id]?.l ?? "";
                 let vVal = misPredicciones[match.id]?.v ?? "";
+                
+                // SOLO se bloquea el input si el partido ya se jugó o está jugándose en vivo
                 const isFrozen = (match.yaJugado || estaLiveReal) ? "disabled" : "";
 
-                fixtureContainer.innerHTML += `
+                htmlFixture += `
                     <div class="partido-fila">
-                        <div class="partido-meta">${match.fase}<br>⏰ ${match.hora}</div>
+                        <div class="partido-meta">📅 ${match.fecha}<br>⏰ ${match.hora}</div>
                         <div class="partido-equipos">
                             <div class="equipo-txt local">${match.local}</div>
                             <span class="vs-lbl">VS</span>
@@ -224,6 +256,9 @@
                         </div>
                     </div>`;
             });
+
+            liveContainer.innerHTML = htmlLive ? htmlLive : "No hay partidos en juego en este momento.";
+            fixtureContainer.innerHTML = htmlFixture;
         }
 
         async function guardarProde() {
@@ -241,7 +276,7 @@
             });
 
             await _supabase.from('prode_usuarios').update({ pronosticos: pronosticosNuevos }).eq('username', clienteActual);
-            alert("💾 Guardado en la nube!");
+            alert("💾 ¡Tus predicciones se guardaron con éxito en la nube!");
             cargarDatosNube();
         }
 
@@ -259,7 +294,9 @@
                 leaderboard.push({ name: key, score: pts });
             });
 
+            // Ordenamos de mayor a menor puntaje
             leaderboard.sort((a,b) => b.score - a.score);
+            
             const rows = document.getElementById('ranking-rows');
             rows.innerHTML = "";
             leaderboard.forEach((j, i) => {
