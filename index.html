@@ -86,7 +86,6 @@
             width: 100%;
             margin-top: 0.5rem;
         }
-        .login-box button:disabled { background: #475569; cursor: not-allowed; }
 
         /* Contenedor Principal */
         #main-interface {
@@ -205,7 +204,6 @@
         .ranking-table th, .ranking-table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #334155; }
         .btn-submit { background: var(--secondary); color: white; border: none; padding: 1.2rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
         .logout-btn { background: #ef4444; color: white; border: none; padding: 0.3rem 0.8rem; font-size: 0.85rem; border-radius: 6px; cursor: pointer; margin-top: 5px; font-weight: bold; }
-        #login-msg { margin-top: 10px; font-weight: bold; color: #f59e0b; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -213,11 +211,9 @@
     <div id="login-screen">
         <div class="login-box">
             <h1>🏆 Fixture 2026 Mundial</h1>
-            <p>Ingresá tu usuario y contraseña familiar:</p>
+            <p>Ingresá tu nombre o alias para jugar en este dispositivo:</p>
             <input type="text" id="player-name" placeholder="Tu Nombre (Ej: LOLO, JUAN)">
-            <input type="password" id="player-pass" placeholder="Tu Contraseña Secreta">
-            <button id="btn-login" onclick="procesarLogin()">Entrar A Cancha</button>
-            <div id="login-msg"></div>
+            <button onclick="entrarAlEstadio()">Entrar A Cancha</button>
         </div>
     </div>
 
@@ -229,21 +225,21 @@
             </div>
             <div style="text-align: right;">
                 <div style="background: #1e293b; padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: bold;" id="user-display"></div>
-                <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión / Cambiar</button>
+                <button class="logout-btn" onclick="cerrarSesion()">Salir / Cambiar Jugador</button>
             </div>
         </header>
 
         <div class="grid">
             <main>
                 <div class="panel">
-                    <h3>🔴 En Vivo Ahora (Simulación en Tiempo Real)</h3>
+                    <h3>🔴 En Vivo Ahora (Monitoreo Basado en Horario)</h3>
                     <div class="live-grid" id="live-panel-container"></div>
                 </div>
 
                 <div class="panel">
                     <h3>📊 Armá tus Clasificaciones</h3>
                     <div id="fixture-container"></div>
-                    <button class="btn-submit" id="btn-save" onclick="guardarProde()">💾 Guardar Predicciones</button>
+                    <button class="btn-submit" id="btn-save" onclick="guardarProde()">💾 Guardar Mis Predicciones</button>
                 </div>
             </main>
 
@@ -301,98 +297,39 @@
             { id: "p32", fase: "¡Gran Final del Mundial! 🏆", local: "Ganador Semifinal 1", visitante: "Ganador Semifinal 2", fecha: "19 Jul", hora: "17:00", yaJugado: false }
         ];
 
-        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_mundial_v30";
         let clienteActual = "";
-        let passwordActual = "";
-        let baseDeDatosCompleta = {};
 
-        window.onload = async function() {
-            // El reloj ahora SOLO altera el texto, NO borra los inputs ni redibuja
-            setInterval(() => {
-                const ahora = new Date();
-                document.getElementById('live-clock').innerText = `🕒 Hora Actual: ${ahora.toTimeString().split(' ')[0]}`;
-            }, 1000);
-
-            const userGuardado = localStorage.getItem('mundial_secure_user');
-            const passGuardado = localStorage.getItem('mundial_secure_pass');
-            
-            if (userGuardado && passGuardado) {
-                clienteActual = userGuardado.toUpperCase();
-                passwordActual = passGuardado;
-                document.getElementById('login-msg').innerText = "⏳ Conectando de forma segura...";
-                await descargarDatos();
-                ejecutarAccesoValido();
-            }
+        if (!localStorage.getItem('mundial_prode_v2')) {
+            localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
         }
 
-        async function descargarDatos() {
-            try {
-                let respuesta = await fetch(DB_URL);
-                if (respuesta.ok) {
-                    let texto = await respuesta.text();
-                    baseDeDatosCompleta = texto ? JSON.parse(texto) : {};
-                } else {
-                    baseDeDatosCompleta = {};
-                }
-            } catch (e) {
-                baseDeDatosCompleta = {};
-            }
-        }
+        // Reloj en tiempo real: AHORA SOLO CAMBIA EL TEXTO DE LA HORA, nunca borra los inputs mientras escribís
+        setInterval(() => {
+            const ahora = new Date();
+            const txtHora = ahora.toTimeString().split(' ')[0];
+            document.getElementById('live-clock').innerText = `🕒 Hora Actual: ${txtHora}`;
+        }, 1000);
 
-        async function subirDatos() {
-            try {
-                await fetch(DB_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(baseDeDatosCompleta)
-                });
-            } catch (e) {
-                console.error("Error al guardar en la nube", e);
-            }
-        }
-
-        async function procesarLogin() {
+        function entrarAlEstadio() {
             const alias = document.getElementById('player-name').value.trim().toUpperCase();
-            const pass = document.getElementById('player-pass').value.trim();
+            if (!alias) return alert("Escribe un nombre válido.");
+            clienteActual = alias;
+            document.getElementById('user-display').innerText = `👤 Jugador: ${clienteActual}`;
 
-            if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
-
-            const btn = document.getElementById('btn-login');
-            btn.disabled = true;
-            document.getElementById('login-msg').innerText = "🔒 Validando con el servidor familiar...";
-
-            await descargarDatos();
-
-            // Lógica de contraseñas guardadas en formato plano plano seguro
-            let llavePass = `${alias}_password`;
-            if (baseDeDatosCompleta[llavePass]) {
-                if (baseDeDatosCompleta[llavePass] !== pass) {
-                    alert("❌ Error: Contraseña incorrecta para este usuario.");
-                    document.getElementById('login-msg').innerText = "";
-                    btn.disabled = false;
-                    return;
-                }
-            } else {
-                baseDeDatosCompleta[llavePass] = pass;
-                await subirDatos();
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            if (!DB[clienteActual]) {
+                DB[clienteActual] = { pronosticos: {}, recordPuntos: 0 };
+                localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
             }
 
-            clienteActual = alias;
-            passwordActual = pass;
-            localStorage.setItem('mundial_secure_user', clienteActual);
-            localStorage.setItem('mundial_secure_pass', passwordActual);
-
-            ejecutarAccesoValido();
-        }
-
-        function ejecutarAccesoValido() {
-            document.getElementById('user-display').innerText = `👤 Jugador: ${clienteActual}`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
-            evaluarEstadosYRenderizar();
+            
+            // Renderizamos UNA SOLA VEZ al entrar para heredar lo guardado y evitar bucles
+            construirEstructuraYRenderizar();
         }
 
-        function evaluarEstadosYRenderizar() {
+        function construirEstructuraYRenderizar() {
             const ahora = new Date();
             const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
             
@@ -402,28 +339,28 @@
             liveContainer.innerHTML = "";
             fixtureContainer.innerHTML = "";
 
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            let misPredicciones = DB[clienteActual]?.pronosticos || {};
             let fasesMap = {};
 
             multiWebsMatches.forEach(match => {
-                // Simulación Live basado en horario actual si es 3 de Julio
                 let estaLive = false;
+                // Si es 3 de julio y el horario pasó, se congela porque ya empezó
                 if (match.fecha === "03 Jul" && horaActualStr >= match.hora && !match.yaJugado) {
                     estaLive = true;
                 }
 
-                // Obtener datos planos desde la nube
-                const predSavedL = baseDeDatosCompleta[`${clienteActual}_${match.id}_l`];
-                const predSavedV = baseDeDatosCompleta[`${clienteActual}_${match.id}_v`];
+                const predSavedL = misPredicciones[match.id]?.l;
+                const predSavedV = misPredicciones[match.id]?.v;
                 const tienePrediccion = (predSavedL !== undefined && predSavedL !== null && predSavedL !== "");
 
-                if (estaLive || (match.yaJugado && match.id === "p13")) { 
-                    // Muestra los de hoy en vivo o jugándose
+                if (estaLive || (match.yaJugado && match.id === "p13")) {
                     let golesMochL = match.realL !== null ? match.realL : 0;
                     let golesMochV = match.realV !== null ? match.realV : 0;
 
                     let textStatus = !tienePrediccion 
-                        ? `<span style="color: var(--live-color); font-weight: bold;">⚠️ No cargaste predicción para este partido</span>`
-                        : `Tu resultado enviado: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
+                        ? `<span style="color: var(--live-color); font-weight: bold;">⚠️ No cargaste predicción (Bloqueado)</span>`
+                        : `Tu predicción enviada: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
 
                     liveContainer.innerHTML += `
                         <div class="live-card">
@@ -443,7 +380,7 @@
             });
 
             if (liveContainer.innerHTML === "") {
-                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido está jugándose en este momento de la tarde.</p>`;
+                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido está jugándose en este momento.</p>`;
             }
 
             const ordenFases = ["Dieciseisavos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "¡Gran Final del Mundial! 🏆"];
@@ -453,9 +390,9 @@
                 let divFase = `<div class="fase-bloque"><div class="fase-nombre">${fase}</div>`;
                 
                 fasesMap[fase].forEach(match => {
-                    let lVal = baseDeDatosCompleta[`${clienteActual}_${match.id}_l`] ?? "";
-                    let vVal = baseDeDatosCompleta[`${clienteActual}_${match.id}_v`] ?? "";
-                    
+                    let lVal = misPredicciones[match.id]?.l ?? "";
+                    let vVal = misPredicciones[match.id]?.v ?? "";
+
                     if (match.yaJugado) {
                         lVal = match.realL;
                         vVal = match.realV;
@@ -492,82 +429,75 @@
             procesarPosicionesAmigos();
         }
 
-        async function guardarProde() {
-            const btn = document.getElementById('btn-save');
-            btn.innerText = "⏳ Guardando en la nube...";
-            btn.disabled = true;
-
-            await descargarDatos();
+        function guardarProde() {
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
+            const ahora = new Date();
+            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
 
             multiWebsMatches.forEach(match => {
-                if (match.yaJugado || match.estaLive) return;
+                let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
+                
+                if (!estaLive && !match.yaJugado) {
+                    const inputL = document.getElementById(`gl-${match.id}`).value;
+                    const inputV = document.getElementById(`gv-${match.id}`).value;
 
-                const inputL = document.getElementById(`gl-${match.id}`).value;
-                const inputV = document.getElementById(`gv-${match.id}`).value;
-
-                if (inputL !== "" && inputV !== "") {
-                    baseDeDatosCompleta[`${clienteActual}_${match.id}_l`] = parseInt(inputL);
-                    baseDeDatosCompleta[`${clienteActual}_${match.id}_v`] = parseInt(inputV);
+                    if (inputL !== "" && inputV !== "") {
+                        DB[clienteActual].pronosticos[match.id] = {
+                            l: parseInt(inputL),
+                            v: parseInt(inputV)
+                        };
+                    }
                 }
             });
 
-            await subirDatos();
+            localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
             
-            btn.innerText = "✅ ¡GUARDADO CON ÉXITO!";
+            const btn = document.getElementById('btn-save');
+            btn.innerText = "✅ ¡Cargado en Memoria!";
+            btn.style.background = "#059669";
+            
             setTimeout(() => {
-                btn.innerText = "💾 Guardar Predicciones";
-                btn.disabled = false;
+                btn.innerText = "💾 Guardar Mis Predicciones";
+                btn.style.background = "var(--secondary)";
             }, 2000);
 
-            evaluarEstadosYRenderizar();
+            // Actualizamos la interfaz una vez guardado de forma segura
+            construirEstructuraYRenderizar();
         }
 
         function procesarPosicionesAmigos() {
-            let registroUsuarios = {};
-
-            // Analizar las claves planas de la base de datos para extraer los nombres de los jugadores
-            Object.keys(baseDeDatosCompleta).forEach(key => {
-                if (key.includes('_password')) {
-                    let nombre = key.replace('_password', '');
-                    registroUsuarios[nombre] = 0;
-                }
-            });
-
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
             let leaderboard = [];
 
-            Object.keys(registroUsuarios).forEach(nombreAmigo => {
+            for (const nombreAmigo in DB) {
                 let scoreCalculado = 0;
+                let prediccionesDeAmigo = DB[nombreAmigo].pronosticos || {};
 
                 multiWebsMatches.forEach(match => {
-                    if (match.yaJugado) {
-                        const predL = baseDeDatosCompleta[`${nombreAmigo}_${match.id}_l`];
-                        const predV = baseDeDatosCompleta[`${nombreAmigo}_${match.id}_v`];
+                    if (match.yaJugado && prediccionesDeAmigo[match.id]) {
+                        const predL = prediccionesDeAmigo[match.id].l;
+                        const predV = prediccionesDeAmigo[match.id].v;
 
-                        if (predL !== undefined && predV !== undefined) {
-                            if (parseInt(predL) === match.realL && parseInt(predV) === match.realV) {
-                                scoreCalculado += 10; // Pleno exacto
-                            } else if ((parseInt(predL) > parseInt(predV) && match.realL > match.realV) || 
-                                     (parseInt(predL) < parseInt(predV) && match.realL < match.realV) || 
-                                     (parseInt(predL) === parseInt(predV) && match.realL === match.realV)) {
-                                scoreCalculado += 5; // Acertó ganador o empate
-                            }
+                        if (predL === match.realL && predV === match.realV) {
+                            scoreCalculado += 10; // Pleno exacto
+                        } else if ((predL > predV && match.realL > match.realV) || 
+                                 (predL < predV && match.realL < match.realV) || 
+                                 (predL === predV && match.realL === match.realV)) {
+                            scoreCalculado += 5; // Acertó ganador
                         }
                     }
                 });
 
+                DB[nombreAmigo].recordPuntos = scoreCalculado;
                 leaderboard.push({ name: nombreAmigo, score: scoreCalculado });
-            });
+            }
 
+            localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
             leaderboard.sort((a, b) => b.score - a.score);
 
             const containerTabla = document.getElementById('ranking-rows');
             containerTabla.innerHTML = "";
             
-            if (leaderboard.length === 0) {
-                containerTabla.innerHTML = "<tr><td colspan='3'>Nadie ingresó todavía</td></tr>";
-                return;
-            }
-
             leaderboard.forEach((jugador, i) => {
                 const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
                 containerTabla.innerHTML += `
@@ -581,8 +511,7 @@
         }
 
         function cerrarSesion() {
-            localStorage.removeItem('mundial_secure_user');
-            localStorage.removeItem('mundial_secure_pass');
+            clienteActual = "";
             window.location.reload();
         }
     </script>
