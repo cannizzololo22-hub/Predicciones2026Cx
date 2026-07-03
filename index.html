@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prode Mundial 2026 - Familia</title>
+    <title>Fixture 2026 Mundial</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -12,79 +12,205 @@
             --card-bg: #1e293b;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --live-color: #ef4444;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background-color: var(--dark-bg); color: var(--text-main); min-height: 100vh; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
 
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Pantalla de Entrada */
         #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, #1e3a8a 0%, var(--dark-bg) 100%);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
+
         .login-box {
-            background: var(--card-bg); padding: 2.5rem; border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; max-width: 420px; width: 90%; border: 1px solid #334155;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            border: 1px solid #334155;
         }
-        .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-        .login-box p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 1rem; }
+
+        .login-box h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-box p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
         .login-box input {
-            width: 100%; padding: 0.9rem; margin-bottom: 1rem;
-            border: 2px solid #334155; background: #0f172a; color: white;
-            border-radius: 8px; font-size: 1.1rem; text-align: center; outline: none;
+            width: 100%;
+            padding: 0.9rem;
+            margin-bottom: 1rem;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: white;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
         }
+
         .login-box button {
-            background: var(--secondary); color: white; border: none;
-            padding: 1rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 0.5rem;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.9rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
         }
-        .login-box button:disabled {
-            background: #475569; cursor: not-allowed;
+        .login-box button:disabled { background: #475569; cursor: not-allowed; }
+
+        /* Contenedor Principal */
+        #main-interface {
+            display: none;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        #main-interface { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid #334155; margin-bottom: 2rem; }
-        .clock-bar { font-size: 1rem; color: #fff; background: #1e293b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; border: 1px solid #334155; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #334155;
+            margin-bottom: 2rem;
+        }
 
-        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
-        @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+        .clock-bar {
+            font-size: 0.9rem;
+            color: #fff;
+            background: #1e293b;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            border: 1px solid #334155;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
 
-        .panel { background: var(--card-bg); border-radius: 14px; padding: 1.5rem; border: 1px solid #334155; margin-bottom: 2rem; }
-        .panel h3 { font-size: 1.4rem; margin-bottom: 1.5rem; border-left: 5px solid var(--primary); padding-left: 0.6rem; }
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
 
-        .fase-bloque { margin-top: 2.5rem; }
-        .fase-nombre { background: linear-gradient(90deg, #1e3a8a, #2563eb); padding: 1rem; font-weight: bold; border-radius: 8px; margin-bottom: 1.2rem; color: #fff; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .partido-fila { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1.2rem; border-radius: 10px; margin-bottom: 0.8rem; border: 1px solid #1e293b; }
-        .partido-fila.jugado { border-left: 5px solid #64748b; opacity: 0.85; }
-        .partido-meta { font-size: 0.9rem; color: var(--text-muted); width: 120px; line-height: 1.5; font-weight: bold; }
-        .partido-equipos { flex-grow: 1; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
-        .equipo-bloque { display: flex; align-items: center; gap: 12px; width: 43%; font-size: 1.15rem; font-weight: bold; }
-        .equipo-bloque.local { justify-content: flex-end; text-align: right; }
-        .equipo-bloque.visitante { justify-content: flex-start; text-align: left; }
-        .vs-label { color: var(--text-muted); font-size: 0.9rem; font-weight: bold; width: 14%; text-align: center; background: #1e293b; padding: 0.2rem 0.5rem; border-radius: 4px; }
-        
-        .partido-inputs { display: flex; align-items: center; gap: 8px; }
-        .partido-inputs input { width: 55px; height: 45px; text-align: center; background: #1e293b; border: 2px solid #475569; color: white; font-size: 1.4rem; font-weight: bold; border-radius: 8px; outline: none; }
+        @media (max-width: 1024px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 1.5rem;
+            border: 1px solid #334155;
+            margin-bottom: 2rem;
+        }
+
+        .panel h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+            padding-left: 0.6rem;
+        }
+
+        /* Tarjetas En Vivo */
+        .live-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .live-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid var(--live-color);
+            padding: 1.25rem;
+            border-radius: 10px;
+        }
+
+        .live-badge {
+            background: var(--live-color);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            animation: blink 1.5s infinite;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        @keyframes blink { 50% { opacity: 0.4; } }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .score-display {
+            font-size: 1.6rem;
+            color: var(--live-color);
+            letter-spacing: 4px;
+        }
+
+        /* Estructura de Filas */
+        .fase-bloque { margin-top: 2rem; }
+        .fase-nombre { background: #334155; padding: 0.6rem 1rem; font-weight: bold; border-radius: 6px; margin-bottom: 1rem; }
+        .partido-fila { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1rem; border-radius: 8px; margin-bottom: 0.6rem; border: 1px solid #1e293b; }
+        .partido-meta { font-size: 0.8rem; color: #94a3b8; width: 140px; }
+        .partido-equipos { flex-grow: 1; font-weight: 500; padding: 0 15px; }
+        .partido-inputs input { width: 45px; height: 35px; text-align: center; background: #1e293b; border: 1px solid #475569; color: white; font-size: 1rem; border-radius: 6px; outline: none; }
         .partido-inputs input:focus { border-color: var(--secondary); }
-        .partido-inputs input:disabled { background: #334155; border-color: #475569; color: #cbd5e1; cursor: not-allowed; }
-        .penales-label { font-size: 0.8rem; color: #f59e0b; display: block; text-align: center; font-weight: bold; margin-top: 2px;}
+        .partido-inputs input:disabled { background: #090d16; border-color: #1e293b; color: #64748b; cursor: not-allowed; }
 
-        .ranking-table { width: 100%; border-collapse: collapse; font-size: 1.1rem; }
-        .ranking-table th, .ranking-table td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #334155; }
-        .btn-submit { background: #10b981; color: white; border: none; padding: 1.3rem; font-size: 1.3rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; position: sticky; bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: background 0.2s; }
-        .btn-submit:hover { background: #059669; }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 0.3rem 0.8rem; font-size: 0.9rem; border-radius: 6px; cursor: pointer; margin-top: 5px; font-weight: bold;}
-        #login-msg { margin-top: 10px; font-weight: bold; color: #f59e0b; font-size: 0.95rem; }
+        /* Ranking */
+        .ranking-table { width: 100%; border-collapse: collapse; }
+        .ranking-table th, .ranking-table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #334155; }
+        .btn-submit { background: var(--secondary); color: white; border: none; padding: 1rem; font-size: 1.1rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 0.3rem 0.8rem; font-size: 0.85rem; border-radius: 6px; cursor: pointer; margin-top: 5px; font-weight: bold; }
+        #login-msg { margin-top: 10px; font-weight: bold; color: #f59e0b; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h1>🏆 Prode Familiar Segurizado</h1>
-            <p>Ingresá para registrar o cargar tus predicciones:</p>
-            <input type="text" id="player-name" placeholder="Tu Nombre (Ej: Mamá, Juan)">
+            <h1>🏆 Fixture 2026 Mundial</h1>
+            <p>Ingresá tu usuario y contraseña familiar para guardar predicciones:</p>
+            <input type="text" id="player-name" placeholder="Tu Nombre (Ej: LOLO, JUAN)">
             <input type="password" id="player-pass" placeholder="Tu Contraseña Secreta">
-            <button id="btn-login" onclick="procesarLogin()">¡Entrar a Jugar!</button>
+            <button id="btn-login" onclick="procesarLogin()">Entrar A Cancha</button>
             <div id="login-msg"></div>
         </div>
     </div>
@@ -92,30 +218,34 @@
     <div id="main-interface">
         <header>
             <div>
-                <h2>Camino a la Final Oficial</h2>
-                <div class="clock-bar" id="live-clock">Cargando hora...</div>
+                <h2>Fixture 2026 Mundial</h2>
+                <div class="clock-bar" id="live-clock">Hora del Sistema: Cargando...</div>
             </div>
             <div style="text-align: right;">
-                <div style="background: #2563eb; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 1.2rem;" id="user-display"></div>
-                <button class="logout-btn" onclick="cerrarSesion()">Salir / Cambiar de Cuenta</button>
+                <div style="background: #1e293b; padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: bold;" id="user-display"></div>
+                <button class="logout-btn" onclick="cerrarSesion()">Cerrar Sesión / Cambiar</button>
             </div>
         </header>
 
         <div class="grid">
             <main>
                 <div class="panel">
-                    <h3>✍️ Completá los partidos disponibles:</h3>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1rem;">* Los resultados bloqueados ya están consolidados por DIRECTV Sports.</p>
+                    <h3>🔴 En Vivo Ahora (Verificado por Horario Oficial)</h3>
+                    <div class="live-grid" id="live-panel-container"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>📊 Armá tus Clasificaciones</h3>
                     <div id="fixture-container"></div>
-                    <button class="btn-submit" id="btn-save" onclick="guardarProde()">💾 GUARDAR MIS RESULTADOS</button>
+                    <button class="btn-submit" id="btn-save" onclick="guardarProde()">💾 Guardar Predicciones</button>
                 </div>
             </main>
 
             <aside>
                 <div class="panel">
-                    <h3>⭐ Tabla General de la Familia</h3>
+                    <h3>⭐ Tabla de Posiciones General</h3>
                     <table class="ranking-table">
-                        <thead><tr><th>Pos</th><th>Nombre</th><th>Puntos</th></tr></thead>
+                        <thead><tr><th>Pos</th><th>Amigo</th><th>Puntos</th></tr></thead>
                         <tbody id="ranking-rows"></tbody>
                     </table>
                 </div>
@@ -125,64 +255,33 @@
 
     <script>
         const multiWebsMatches = [
-            // --- LLAVE IZQUIERDA ---
-            { id: "p1", fase: "Dieciseisavos de Final", local: "Alemania 🇩🇪", visitante: "Paraguay 🇵🇾", realL: 1, realV: 1, penales: "Pasó PAR (P)", yaJugado: true },
-            { id: "p2", fase: "Dieciseisavos de Final", local: "Francia 🇫🇷", visitante: "Suecia 🇸🇪", realL: 3, realV: 0, yaJugado: true },
-            { id: "p3", fase: "Dieciseisavos de Final", local: "Sudáfrica 🇿🇦", visitante: "Canadá 🇨🇦", realL: 0, realV: 1, yaJugado: true },
-            { id: "p4", fase: "Dieciseisavos de Final", local: "Países Bajos 🇳🇱", visitante: "Marruecos 🇲🇦", realL: 1, realV: 1, penales: "Pasó MAR (P)", yaJugado: true },
-            { id: "p5", fase: "Dieciseisavos de Final", local: "Portugal 🇵🇹", visitante: "Croacia 🇭🇷", realL: 2, realV: 1, yaJugado: true },
-            { id: "p6", fase: "Dieciseisavos de Final", local: "España 🇪🇸", visitante: "Austria 🇦🇹", realL: 3, realV: 0, yaJugado: true },
-            { id: "p7", fase: "Dieciseisavos de Final", local: "Estados Unidos 🇺🇸", visitante: "Bosnia 🇧🇦", realL: 2, realV: 0, yaJugado: true },
-            { id: "p8", fase: "Dieciseisavos de Final", local: "Bélgica 🇧🇪", visitante: "Senegal 🇸🇳", realL: 3, realV: 2, yaJugado: true },
-
-            // --- LLAVE DERECHA ---
-            { id: "p9", fase: "Dieciseisavos de Final", local: "Brasil 🇧🇷", visitante: "Japón 🇯🇵", realL: 2, realV: 1, yaJugado: true },
-            { id: "p10", fase: "Dieciseisavos de Final", local: "Costa de Marfil 🇨🇮", visitante: "Noruega 🇳🇴", realL: 1, realV: 2, yaJugado: true },
-            { id: "p11", fase: "Dieciseisavos de Final", local: "México 🇲🇽", visitante: "Ecuador 🇪🇨", realL: 2, realV: 0, yaJugado: true },
-            { id: "p12", fase: "Dieciseisavos de Final", local: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", visitante: "Rep. Dem. Congo 🇨🇩", realL: 2, realV: 1, yaJugado: true },
-            { id: "p13", fase: "Dieciseisavos de Final", local: "Argentina 🇦🇷", visitante: "Cabo Verde 🇨🇻", yaJugado: false },
-            { id: "p14", fase: "Dieciseisavos de Final", local: "Australia 🇦🇺", visitante: "Egipto 🇪🇬", yaJugado: false },
-            { id: "p15", fase: "Dieciseisavos de Final", local: "Suiza 🇨🇭", visitante: "Argelia 🇩🇿", realL: 2, realV: 0, yaJugado: true },
-            { id: "p16", fase: "Dieciseisavos de Final", local: "Colombia 🇨🇴", visitante: "Ghana 🇬🇭", yaJugado: false },
-
-            // --- OCTAVOS DE FINAL ---
-            { id: "p17", fase: "Octavos de Final", local: "Paraguay 🇵🇾", visitante: "Francia 🇫🇷", yaJugado: false },
-            { id: "p18", fase: "Octavos de Final", local: "Canadá 🇨🇦", visitante: "Marruecos 🇲🇦", yaJugado: false },
-            { id: "p19", fase: "Octavos de Final", local: "Portugal 🇵🇹", visitante: "España 🇪🇸", yaJugado: false },
-            { id: "p20", fase: "Octavos de Final", local: "Estados Unidos 🇺🇸", visitante: "Bélgica 🇧🇪", yaJugado: false },
-            { id: "p21", fase: "Octavos de Final", local: "Brasil 🇧🇷", visitante: "Noruega 🇳🇴", yaJugado: false },
-            { id: "p22", fase: "Octavos de Final", local: "México 🇲🇽", visitante: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", yaJugado: false },
-            { id: "p23", fase: "Octavos de Final", local: "Ganador [Argentina / C. Verde]", visitante: "Ganador [Australia / Egipto]", yaJugado: false },
-            { id: "p24", fase: "Octavos de Final", local: "Suiza 🇨🇭", visitante: "Ganador [Colombia / Ghana]", yaJugado: false },
-
-            // FASES FINALES
-            { id: "p25", fase: "Cuartos de Final", local: "Ganador Octavos 17", visitante: "Ganador Octavos 18", yaJugado: false },
-            { id: "p26", fase: "Cuartos de Final", local: "Ganador Octavos 19", visitante: "Ganador Octavos 20", yaJugado: false },
-            { id: "p27", fase: "Cuartos de Final", local: "Ganador Octavos 21", visitante: "Ganador Octavos 22", yaJugado: false },
-            { id: "p28", fase: "Cuartos de Final", local: "Ganador Octavos 23", visitante: "Ganador Octavos 24", yaJugado: false },
-            { id: "p29", fase: "Semifinales", local: "Ganador Cuartos 25", visitante: "Ganador Cuartos 26", yaJugado: false },
-            { id: "p30", fase: "Semifinales", local: "Ganador Cuartos 27", visitante: "Ganador Cuartos 28", yaJugado: false },
-            { id: "p32", fase: "¡Gran Final del Mundial! 🏆", local: "Ganador Semifinal 1", visitante: "Ganador Semifinal 2", yaJugado: false }
+            { id: "p1", fase: "16avos de Final", local: "Argentina", visitante: "Cabo Verde", fecha: "03 Jul", hora: "19:00", golesL: 2, golesV: 1 },
+            { id: "p2", fase: "16avos de Final", local: "Colombia", visitante: "Ghana", fecha: "03 Jul", hora: "22:00", golesL: 1, golesV: 0 },
+            { id: "p3", fase: "Octavos de Final", local: "Canadá", visitante: "Marruecos", fecha: "04 Jul", hora: "14:00", golesL: null, golesV: null },
+            { id: "p4", fase: "Octavos de Final", local: "Paraguay", visitante: "Francia", fecha: "04 Jul", hora: "18:00", golesL: null, golesV: null },
+            { id: "p5", fase: "Cuartos de Final", local: "Sin Definir", visitante: "Sin Definir", fecha: "09 Jul", hora: "15:00", golesL: null, golesV: null },
+            { id: "p6", fase: "Semifinal", local: "Sin Definir", visitante: "Sin Definir", fecha: "14 Jul", hora: "20:00", golesL: null, golesV: null },
+            { id: "p7", fase: "Gran Final 🏆", local: "Sin Definir", visitante: "Sin Definir", fecha: "19 Jul", hora: "17:00", golesL: null, golesV: null }
         ];
 
-        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_final_seguro_v15";
+        const DB_URL = "https://kvdb.io/MN9vC63w1g6L3rN96WdF7a/prode_mundial_v25";
         let clienteActual = "";
         let passwordActual = "";
         let baseDeDatosCompleta = {};
 
         window.onload = async function() {
+            // El reloj ahora SOLO cambia el texto de la hora, NO borra los inputs ni redibuja la pantalla
             setInterval(() => {
                 const ahora = new Date();
-                document.getElementById('live-clock').innerText = `🕒 Hora actual: ${ahora.toLocaleTimeString()}`;
+                document.getElementById('live-clock').innerText = `🕒 Hora Actual: ${ahora.toTimeString().split(' ')[0]}`;
             }, 1000);
 
-            const userGuardado = localStorage.getItem('prode_secure_user');
-            const passGuardado = localStorage.getItem('prode_secure_pass');
+            const userGuardado = localStorage.getItem('mundial_secure_user');
+            const passGuardado = localStorage.getItem('mundial_secure_pass');
             
             if (userGuardado && passGuardado) {
                 clienteActual = userGuardado.toUpperCase();
                 passwordActual = passGuardado;
-                
                 document.getElementById('login-msg').innerText = "⏳ Conectando automáticamente...";
                 await descargarDatos();
                 ejecutarAccesoValido();
@@ -194,7 +293,6 @@
                 let respuesta = await fetch(DB_URL);
                 if (respuesta.ok) {
                     let texto = await respuesta.text();
-                    // Si la BD devuelve texto vacío o no es un JSON válido, inicializa un objeto limpio
                     baseDeDatosCompleta = texto ? JSON.parse(texto) : {};
                 } else {
                     baseDeDatosCompleta = {};
@@ -224,19 +322,18 @@
 
             const btn = document.getElementById('btn-login');
             btn.disabled = true;
-            document.getElementById('login-msg').innerText = "🔒 Validando con la base de datos...";
+            document.getElementById('login-msg').innerText = "🔒 Validando cuenta en la nube...";
 
             await descargarDatos();
 
             if (baseDeDatosCompleta[alias]) {
                 if (baseDeDatosCompleta[alias].password !== pass) {
-                    alert("❌ Error: Contraseña incorrecta para este usuario.");
+                    alert("❌ Error: Este usuario ya está registrado y la contraseña es incorrecta.");
                     document.getElementById('login-msg').innerText = "";
                     btn.disabled = false;
                     return;
                 }
             } else {
-                // Registro por primera vez
                 baseDeDatosCompleta[alias] = {
                     password: pass,
                     pronosticos: {}
@@ -246,69 +343,94 @@
 
             clienteActual = alias;
             passwordActual = pass;
-            localStorage.setItem('prode_secure_user', clienteActual);
-            localStorage.setItem('prode_secure_pass', passwordActual);
+            localStorage.setItem('mundial_secure_user', clienteActual);
+            localStorage.setItem('mundial_secure_pass', passwordActual);
 
             ejecutarAccesoValido();
         }
 
         function ejecutarAccesoValido() {
-            document.getElementById('user-display').innerText = `👤 Usuario: ${clienteActual}`;
+            document.getElementById('user-display').innerText = `👤 Jugador: ${clienteActual}`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
-            renderizarFixture();
+            evaluarEstadosYRenderizar();
         }
 
-        function renderizarFixture() {
+        function evaluarEstadosYRenderizar() {
+            const ahora = new Date();
+            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+            
+            const liveContainer = document.getElementById('live-panel-container');
             const fixtureContainer = document.getElementById('fixture-container');
+            
+            liveContainer.innerHTML = "";
             fixtureContainer.innerHTML = "";
 
             let misPredicciones = baseDeDatosCompleta[clienteActual]?.pronosticos || {};
             let fasesMap = {};
 
             multiWebsMatches.forEach(match => {
+                // Validación de partidos En Vivo (solo si es 3 de Julio y pasó el horario)
+                let estaLive = false;
+                if (match.fecha === "03 Jul" && horaActualStr >= match.hora) {
+                    estaLive = true;
+                }
+
+                const predSavedL = misPredicciones[match.id]?.l;
+                const predSavedV = misPredicciones[match.id]?.v;
+                const tienePrediccion = (predSavedL !== undefined && predSavedL !== null && predSavedL !== "");
+
+                if (estaLive) {
+                    let textStatus = !tienePrediccion 
+                        ? `<span style="color: var(--live-color); font-weight: bold;">⚠️ No lo predeciste (Bloqueado)</span>`
+                        : `Tu predicción enviada: <b style="color: var(--secondary);">${predSavedL} - ${predSavedV}</b>`;
+
+                    liveContainer.innerHTML += `
+                        <div class="live-card">
+                            <span class="live-badge">EN VIVO</span>
+                            <div class="scoreboard">
+                                <span>${match.local}</span>
+                                <span class="score-display">${match.golesL} - ${match.golesV}</span>
+                                <span>${match.visitante}</span>
+                            </div>
+                            <div style="margin-top:0.5rem; font-size:0.85rem; border-top:1px dashed #334155; padding-top:0.5rem;">${textStatus}</div>
+                        </div>
+                    `;
+                }
+
                 if (!fasesMap[match.fase]) fasesMap[match.fase] = [];
-                fasesMap[match.fase].push(match);
+                fasesMap[match.fase].push({ ...match, estaLive });
             });
 
-            const ordenFases = ["Dieciseisavos de Final", "Octavos de Final", "Cuartos de Final", "Semifinales", "¡Gran Final del Mundial! 🏆"];
+            if (liveContainer.innerHTML === "") {
+                liveContainer.innerHTML = `<p style="color: var(--text-muted); font-size:0.9rem; padding: 0.5rem;">Ningún partido de hoy ha comenzado aún según el horario oficial.</p>`;
+            }
 
-            ordenFases.forEach(fase => {
-                if (!fasesMap[fase]) return;
+            for (const fase in fasesMap) {
                 let divFase = `<div class="fase-bloque"><div class="fase-nombre">${fase}</div>`;
                 
                 fasesMap[fase].forEach(match => {
-                    const lVal = match.yaJugado ? match.realL : (misPredicciones[match.id]?.l ?? "");
-                    const vVal = match.yaJugado ? match.realV : (misPredicciones[match.id]?.v ?? "");
-                    const disableAttr = match.yaJugado ? "disabled" : "";
-                    const claseFila = match.yaJugado ? "partido-fila jugado" : "partido-fila";
-                    const textoMeta = match.yaJugado ? "✅ FINALIZADO" : "⏳ PENDIENTE";
-                    const infoPenales = match.penales ? `<span class="penales-label">${match.penales}</span>` : "";
+                    const lVal = misPredicciones[match.id]?.l ?? "";
+                    const vVal = misPredicciones[match.id]?.v ?? "";
+                    const isFrozen = match.estaLive ? "disabled" : "";
 
                     divFase += `
-                        <div class="${claseFila}">
-                            <div class="partido-meta">📺 DIRECTV<br>${textoMeta}</div>
-                            <div class="partido-equipos">
-                                <div class="equipo-bloque local">${match.local}</div>
-                                <span class="vs-label">VS</span>
-                                <div class="equipo-bloque visitante">${match.visitante}</div>
-                            </div>
-                            <div>
-                                <div class="partido-inputs">
-                                    <input type="number" min="0" id="gl-${match.id}" value="${lVal}" ${disableAttr}>
-                                    <span>-</span>
-                                    <input type="number" min="0" id="gv-${match.id}" value="${vVal}" ${disableAttr}>
-                                </div>
-                                ${infoPenales}
+                        <div class="partido-fila">
+                            <div class="partido-meta">📅 ${match.fecha}<br>⏰ ${match.hora} HS</div>
+                            <div class="partido-equipos">${match.local} vs. ${match.visitante}</div>
+                            <div class="partido-inputs">
+                                <input type="number" min="0" id="gl-${match.id}" value="${lVal}" ${isFrozen}>
+                                <span style="color: var(--text-muted)">:</span>
+                                <input type="number" min="0" id="gv-${match.id}" value="${vVal}" ${isFrozen}>
                             </div>
                         </div>
                     `;
                 });
                 divFase += `</div>`;
                 fixtureContainer.innerHTML += divFase;
-            });
+            }
 
-            actualizarLeaderboard();
+            procesarPosicionesAmigos();
         }
 
         async function guardarProde() {
@@ -322,17 +444,22 @@
                 baseDeDatosCompleta[clienteActual] = { password: passwordActual, pronosticos: {} };
             }
 
+            const ahora = new Date();
+            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+
             multiWebsMatches.forEach(match => {
-                if (match.yaJugado) return;
+                let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
+                
+                if (!estaLive) {
+                    const inputL = document.getElementById(`gl-${match.id}`).value;
+                    const inputV = document.getElementById(`gv-${match.id}`).value;
 
-                const inputL = document.getElementById(`gl-${match.id}`).value;
-                const inputV = document.getElementById(`gv-${match.id}`).value;
-
-                if (inputL !== "" && inputV !== "") {
-                    baseDeDatosCompleta[clienteActual].pronosticos[match.id] = {
-                        l: parseInt(inputL),
-                        v: parseInt(inputV)
-                    };
+                    if (inputL !== "" && inputV !== "") {
+                        baseDeDatosCompleta[clienteActual].pronosticos[match.id] = {
+                            l: parseInt(inputL),
+                            v: parseInt(inputV)
+                        };
+                    }
                 }
             });
 
@@ -340,39 +467,67 @@
             
             btn.innerText = "✅ ¡GUARDADO CON ÉXITO!";
             setTimeout(() => {
-                btn.innerText = "💾 GUARDAR MIS RESULTADOS";
+                btn.innerText = "💾 Guardar Predicciones";
                 btn.disabled = false;
             }, 2000);
 
-            renderizarFixture();
+            evaluarEstadosYRenderizar();
         }
 
-        function actualizarLeaderboard() {
+        function procesarPosicionesAmigos() {
+            let leaderboard = [];
+            const ahora = new Date();
+            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+
+            for (const nombreAmigo in baseDeDatosCompleta) {
+                let scoreCalculado = 0;
+                let prediccionesDeAmigo = baseDeDatosCompleta[nombreAmigo].pronosticos || {};
+
+                multiWebsMatches.forEach(match => {
+                    let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
+                    if (estaLive && prediccionesDeAmigo[match.id]) {
+                        const predL = prediccionesDeAmigo[match.id].l;
+                        const predV = prediccionesDeAmigo[match.id].v;
+
+                        if (predL === match.golesL && predV === match.golesV) {
+                            scoreCalculado += 10; // Pleno
+                        } else if ((predL > predV && match.golesL > match.golesV) || 
+                                 (predL < predV && match.golesL < match.golesV) || 
+                                 (predL === predV && match.golesL === match.golesV)) {
+                            scoreCalculado += 5; // Acertar resultado sin goles exactos
+                        }
+                    }
+                });
+
+                leaderboard.push({ name: nombreAmigo, score: scoreCalculado });
+            }
+
+            // Ordena el ranking de mayor a menor puntuación
+            leaderboard.sort((a, b) => b.score - a.score);
+
             const containerTabla = document.getElementById('ranking-rows');
             containerTabla.innerHTML = "";
             
-            let listaFamiliares = Object.keys(baseDeDatosCompleta);
-            
-            if(listaFamiliares.length === 0) {
+            if (leaderboard.length === 0) {
                 containerTabla.innerHTML = "<tr><td colspan='3'>Nadie ingresó todavía</td></tr>";
                 return;
             }
 
-            listaFamiliares.forEach((nombreFamiliar, index) => {
-                const esPropio = nombreFamiliar === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
+            leaderboard.forEach((jugador, i) => {
+                const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
                 containerTabla.innerHTML += `
                     <tr ${esPropio}>
-                        <td>${index + 1}</td>
-                        <td>${nombreFamiliar}</td>
-                        <td>0 Pts</td>
+                        <td>${i + 1}</td>
+                        <td>${jugador.name}</td>
+                        <td>${jugador.score} Pts</td>
                     </tr>
                 `;
             });
         }
 
         function cerrarSesion() {
-            localStorage.removeItem('prode_secure_user');
-            localStorage.removeItem('prode_secure_pass');
+            localStorage.removeItem('mundial_secure_user');
+            localStorage.removeItem('mundial_secure_pass');
             window.location.reload();
         }
     </script>
