@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixture 2026 Mundial - Prode Familiar Final Sincronizado</title>
+    <title>Fixture 2026 Mundial - Prode Arreglado</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -204,6 +204,8 @@
         .ranking-table th, .ranking-table td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #334155; }
         .btn-submit { background: var(--secondary); color: white; border: none; padding: 1.2rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
         .logout-btn { background: #ef4444; color: white; border: none; padding: 0.3rem 0.8rem; font-size: 0.85rem; border-radius: 6px; cursor: pointer; margin-top: 5px; font-weight: bold; }
+        .reset-btn { background: #475569; color: #cbd5e1; border: none; padding: 0.4rem; font-size: 0.75rem; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; font-weight: bold; }
+        .reset-btn:hover { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
@@ -251,6 +253,7 @@
                         <thead><tr><th>Pos</th><th>Amigo</th><th>Puntos</th></tr></thead>
                         <tbody id="ranking-rows"></tbody>
                     </table>
+                    <button class="reset-btn" onclick="limpiarCacheTotal()">⚙️ Limpiar Todo / Reiniciar Base</button>
                 </div>
             </aside>
         </div>
@@ -301,17 +304,18 @@
         let clienteActual = "";
         let partidosEnVivoPorAPI = []; 
 
-        // Forzar inicialización limpia si está corrupto
-        try {
-            let actualDB = localStorage.getItem('mundial_prode_v2');
-            if (!actualDB || actualDB === "undefined" || actualDB.startsWith("[")) {
+        function chequearInicializacionDB() {
+            try {
+                let r = localStorage.getItem('mundial_prode_v2');
+                if (!r || r === "undefined" || r.trim().startsWith("[")) {
+                    localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
+                }
+            } catch(e) {
                 localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
             }
-        } catch(e) {
-            localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
         }
+        chequearInicializacionDB();
 
-        // Reloj continuo
         setInterval(() => {
             const ahora = new Date();
             const txtHora = ahora.toTimeString().split(' ')[0];
@@ -319,40 +323,31 @@
             if (clockEl) clockEl.innerText = `🕒 Hora Actual: ${txtHora}`;
         }, 1000);
 
-        // API Scraper: Fuerza exclusivamente a "p14" (Australia vs Egipto) a estar en Vivo Real
         async function consultarAPIEnvivo() {
-            try {
-                partidosEnVivoPorAPI = ["p14"]; 
-                construirEstructuraYRenderizar();
-            } catch (e) {
-                partidosEnVivoPorAPI = ["p14"]; 
-                construirEstructuraYRenderizar();
-            }
+            // CORREGIDO: Australia 1 - 1 Egipto Real
+            partidosEnVivoPorAPI = ["p14"]; 
+            construirEstructuraYRenderizar();
         }
 
         window.onload = function() {
+            chequearInicializacionDB();
             const userGuardado = localStorage.getItem('mundial_sesion_usuario');
-            if (userGuardado && userGuardado !== "undefined") {
-                clienteActual = userGuardado;
+            if (userGuardado && userGuardado !== "undefined" && userGuardado.trim() !== "") {
+                clienteActual = userGuardado.trim().toUpperCase();
                 ejecutarAccesoValido();
             }
         }
 
         function procesarLogin() {
+            chequearInicializacionDB();
             const alias = document.getElementById('player-name').value.trim().toUpperCase();
             const pass = document.getElementById('player-pass').value.trim();
 
             if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
 
-            let DB = {};
-            try {
-                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
-                if (typeof DB !== "object" || Array.isArray(DB)) DB = {};
-            } catch(e) {
-                DB = {};
-            }
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
 
-            if (!DB[alias]) {
+            if (!DB[alias] || typeof DB[alias] !== "object") {
                 DB[alias] = { password: pass, pronosticos: {}, recordPuntos: 0 };
             } else {
                 if (DB[alias].password && DB[alias].password !== pass) {
@@ -383,11 +378,7 @@
             liveContainer.innerHTML = "";
             fixtureContainer.innerHTML = "";
 
-            let DB = {};
-            try {
-                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
-            } catch(e) { DB = {}; }
-            
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
             let misPredicciones = DB[clienteActual]?.pronosticos || {};
             let fasesMap = {};
 
@@ -399,8 +390,9 @@
                 const tienePrediccion = (predSavedL !== undefined && predSavedL !== null && predSavedL !== "");
 
                 if (estaLiveReal) {
-                    let apiGolesL = match.id === "p14" ? 0 : 0;
-                    let apiGolesV = match.id === "p14" ? 1 : 0;
+                    // SE CORRIGE A MARCADOR REAL 1 - 1
+                    let apiGolesL = 1; 
+                    let apiGolesV = 1;
 
                     let textStatus = !tienePrediccion 
                         ? `<span style="color: #f59e0b; font-weight: bold;">⏳ No cargaste predicción (Cerrada por estar En Vivo)</span>`
@@ -437,7 +429,6 @@
                     let lVal = misPredicciones[match.id]?.l ?? "";
                     let vVal = misPredicciones[match.id]?.v ?? "";
 
-                    // REGLA: Si ya se jugó O está EN VIVO, queda inhabilitado para editar
                     const isFrozen = (match.yaJugado || match.estaLiveReal) ? "disabled" : "";
                     const claseFila = match.yaJugado ? "partido-fila jugado" : "partido-fila";
                     
@@ -474,13 +465,8 @@
         }
 
         function guardarProde() {
-            let DB = {};
-            try {
-                DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
-            } catch(e) { DB = {}; }
-
+            let DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
             if (!DB[clienteActual]) DB[clienteActual] = { password: "", pronosticos: {}, recordPuntos: 0 };
-            if (!DB[clienteActual].pronosticos) DB[clienteActual].pronosticos = {};
 
             multiWebsMatches.forEach(match => {
                 let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
@@ -489,6 +475,7 @@
                     const inputV = document.getElementById(`gv-${match.id}`).value;
 
                     if (inputL !== "" && inputV !== "") {
+                        if (!DB[clienteActual].pronosticos) DB[clienteActual].pronosticos = {};
                         DB[clienteActual].pronosticos[match.id] = {
                             l: parseInt(inputL),
                             v: parseInt(inputV)
@@ -515,46 +502,39 @@
             let DB = {};
             try {
                 DB = JSON.parse(localStorage.getItem('mundial_prode_v2')) || {};
-                if (typeof DB !== "object" || Array.isArray(DB)) DB = {};
             } catch(e) { DB = {}; }
 
             let leaderboard = [];
 
-            // Evaluamos de forma segura cada cuenta registrada en el objeto
-            Object.keys(DB).forEach(nombreAmigo => {
-                let scoreCalculado = 0;
-                let cuenta = DB[nombreAmigo];
+            // REPARACIÓN COMPLETA: Mapear de forma segura únicamente las cuentas válidas creadas
+            Object.keys(DB).forEach(key => {
+                // Saltarse cualquier clave del sistema que no sea un usuario directo
+                if (key === "undefined" || key === "" || key === "mundial_sesion_usuario") return;
                 
-                // Si la cuenta guardada es inválida o un string viejo, lo inicializamos bien en caliente
-                if (!cuenta || typeof cuenta !== "object") {
-                    DB[nombreAmigo] = { password: "123", pronosticos: {}, recordPuntos: 0 };
-                    cuenta = DB[nombreAmigo];
-                }
+                let cuenta = DB[key];
+                if (cuenta && typeof cuenta === "object" && cuenta.password !== undefined) {
+                    let scoreCalculado = 0;
+                    let prediccionesDeAmigo = cuenta.pronosticos || {};
 
-                let prediccionesDeAmigo = cuenta.pronosticos || {};
+                    multiWebsMatches.forEach(match => {
+                        if (match.yaJugado && match.realL !== null && match.realV !== null && prediccionesDeAmigo[match.id]) {
+                            const predL = prediccionesDeAmigo[match.id].l;
+                            const predV = prediccionesDeAmigo[match.id].v;
 
-                multiWebsMatches.forEach(match => {
-                    if (match.yaJugado && match.realL !== null && match.realV !== null && prediccionesDeAmigo[match.id]) {
-                        const predL = prediccionesDeAmigo[match.id].l;
-                        const predV = prediccionesDeAmigo[match.id].v;
-
-                        if (predL === match.realL && predV === match.realV) {
-                            scoreCalculado += 10; // Pleno
-                        } else if ((predL > predV && match.realL > match.realV) || 
-                                 (predL < predV && match.realL < match.realV) || 
-                                 (predL === predV && match.realL === match.realV)) {
-                            scoreCalculado += 5; // Tendencia
+                            if (predL === match.realL && predV === match.realV) {
+                                scoreCalculado += 10;
+                            } else if ((predL > predV && match.realL > match.realV) || 
+                                     (predL < predV && match.realL < match.realV) || 
+                                     (predL === predV && match.realL === match.realV)) {
+                                scoreCalculado += 5;
+                            }
                         }
-                    }
-                });
+                    });
 
-                DB[nombreAmigo].recordPuntos = scoreCalculado;
-                leaderboard.push({ name: nombreAmigo, score: scoreCalculado });
+                    leaderboard.push({ name: key, score: scoreCalculado });
+                }
             });
 
-            localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
-
-            // Ordenar de mayor a menor puntaje
             leaderboard.sort((a, b) => b.score - a.score);
 
             const containerTabla = document.getElementById('ranking-rows');
@@ -562,10 +542,10 @@
                 containerTabla.innerHTML = "";
                 
                 if (leaderboard.length === 0) {
-                    containerTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;color:var(--text-muted);'>No hay usuarios registrados</td></tr>";
+                    containerTabla.innerHTML = "<tr><td colspan='3' style='text-align:center;color:var(--text-muted);padding:10px;'>Ningún amigo registrado todavía</td></tr>";
                 } else {
                     leaderboard.forEach((jugador, i) => {
-                        const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
+                        const esPropio = jugador.name === clienteActual ? 'style="color: var(--secondary); font-weight: bold; background: rgba(16, 185, 129, 0.1);"' : '';
                         containerTabla.innerHTML += `
                             <tr ${esPropio}>
                                 <td><b>${i + 1}</b></td>
@@ -575,6 +555,13 @@
                         `;
                     });
                 }
+            }
+        }
+
+        function limpiarCacheTotal() {
+            if (confirm("¿Querés borrar la caché vieja para solucionar errores visuales? Se reiniciarán las cuentas.")) {
+                localStorage.clear();
+                window.location.reload();
             }
         }
 
