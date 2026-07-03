@@ -260,7 +260,7 @@ function savePredictions(){ localStorage.setItem('mundial_predicciones_' + curre
 
 async function fetchLiveScores(){
   try{
-    var res = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2026', {cache:"no-store"});
+    var res = await fetch('https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2025-2026', {cache:"no-store"});
     if(!res.ok) throw new Error('bad response');
     var data = await res.json();
     if(!data || !data.events || !data.events.length) throw new Error('sin eventos');
@@ -360,40 +360,60 @@ function rankingConfigured(){ return BUCKET_ID && BUCKET_ID.indexOf('REEMPLAZAR'
 async function ensureSetupBanner(){
   if(rankingConfigured()) return;
   var cached = localStorage.getItem('ranking_setup_id');
-  if(!cached){
-    try{
-      var res = await fetch('https://kvdb.io/', {
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded'},
-        body:'email=ranking' + Date.now() + '@example.com&default_ttl=0'
-      });
-      if(res.ok){
-        cached = (await res.text()).trim();
-        localStorage.setItem('ranking_setup_id', cached);
-      }
-    }catch(e){ console.warn('No se pudo generar el codigo de ranking:', e); }
+  if(cached){ showSetupBanner(cached); return; }
+  showSetupBanner(null, 'generando');
+  try{
+    var res = await fetch('https://kvdb.io/', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'email=ranking' + Date.now() + '@example.com&default_ttl=0'
+    });
+    if(!res.ok) throw new Error('bad response: ' + res.status);
+    cached = (await res.text()).trim();
+    if(!cached) throw new Error('respuesta vacia');
+    localStorage.setItem('ranking_setup_id', cached);
+    showSetupBanner(cached);
+  }catch(e){
+    console.warn('No se pudo generar el codigo de ranking:', e);
+    showSetupBanner(null, 'error');
   }
-  if(cached) showSetupBanner(cached);
 }
 
-function showSetupBanner(id){
-  if(document.getElementById('setup-banner')) return;
+function showSetupBanner(id, state){
+  var old = document.getElementById('setup-banner');
+  if(old) old.remove();
   var div = document.createElement('div');
   div.id = 'setup-banner';
   div.style.cssText = 'max-width:760px;margin:14px auto 0;padding:14px 16px;background:rgba(242,193,78,.12);border:1.5px solid var(--gold);border-radius:12px;font-size:13px;';
-  div.innerHTML =
-    '<b style="color:var(--gold);">Falta un paso para el ranking</b><br>' +
-    'Copiá este código y pasáselo a la IA para que termine de activar el ranking compartido:<br>' +
-    '<div style="background:var(--navy);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;font-weight:700;color:var(--gold);word-break:break-all;user-select:all;" id="setup-code">' + id + '</div>' +
-    '<button type="button" id="setup-copy" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Copiar código</button>';
+  if(state==='generando'){
+    div.innerHTML = '<b style="color:var(--gold);">Generando código del ranking…</b>';
+  } else if(state==='error'){
+    div.innerHTML =
+      '<b style="color:var(--live);">No se pudo generar el código del ranking</b><br>' +
+      'Puede ser un problema de conexión momentáneo.<br>' +
+      '<button type="button" id="setup-retry" style="margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Reintentar</button>';
+  } else {
+    div.innerHTML =
+      '<b style="color:var(--gold);">Falta un paso para el ranking</b><br>' +
+      'Copiá este código y pasáselo a la IA para que termine de activar el ranking compartido:<br>' +
+      '<div style="background:var(--navy);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;font-weight:700;color:var(--gold);word-break:break-all;user-select:all;" id="setup-code">' + id + '</div>' +
+      '<button type="button" id="setup-copy" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Copiar código</button>';
+  }
   document.querySelector('header.top').insertAdjacentElement('afterend', div);
-  document.getElementById('setup-copy').onclick = function(){
-    navigator.clipboard.writeText(id).then(function(){
-      var b = document.getElementById('setup-copy');
-      b.textContent = '¡Copiado!';
-      setTimeout(function(){ b.textContent = 'Copiar código'; }, 1500);
-    });
-  };
+  if(state==='error'){
+    document.getElementById('setup-retry').onclick = function(){
+      localStorage.removeItem('ranking_setup_id');
+      ensureSetupBanner();
+    };
+  } else if(!state){
+    document.getElementById('setup-copy').onclick = function(){
+      navigator.clipboard.writeText(id).then(function(){
+        var b = document.getElementById('setup-copy');
+        b.textContent = '¡Copiado!';
+        setTimeout(function(){ b.textContent = 'Copiar código'; }, 1500);
+      });
+    };
+  }
 }
 
 async function pushMyScore(){
