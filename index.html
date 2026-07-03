@@ -1031,11 +1031,30 @@ function renderStats(){
   document.getElementById('stat-preds').textContent = s.preds;
 }
 
+// CORRECCIÓN (bug de celular): renderPartidos()/renderMios() reemplazan
+// TODO el innerHTML de la pestaña con .innerHTML = html. Como el reloj de
+// "minuto en vivo" corre cada 1s y llamaba a estas funciones sin condición,
+// si en ese instante el usuario tenía el dedo escribiendo un resultado en
+// un input, ese input se destruía y se creaba uno nuevo de cero: en el
+// celular eso le cierra el teclado o le borra lo que estaba tipeando antes
+// de terminar de escribir el número (por eso "no se puede escribir"). En
+// escritorio se nota menos porque se tipea más rápido que el intervalo.
+// Ahora, si el foco actual está en un input de esa pestaña, NO la
+// volvemos a dibujar en ese tick: dejamos que el usuario termine de
+// escribir tranquilo. En cuanto guarda o toca afuera, se vuelve a
+// actualizar normalmente.
+function isTypingInside(tabEl){
+  var active = document.activeElement;
+  return !!(active && tabEl && tabEl.contains(active) && active.tagName === 'INPUT');
+}
+
 function refreshAll(){
   autoCorrectStatuses();
   renderStats();
-  renderPartidos();
-  renderMios();
+  var tabPartidos = document.getElementById('tab-partidos');
+  var tabMios = document.getElementById('tab-mios');
+  if(!isTypingInside(tabPartidos)) renderPartidos();
+  if(!isTypingInside(tabMios)) renderMios();
   // Mejora de rendimiento: el cuadro es la pestaña más pesada de armar
   // (recorre todas las rondas y calcula ganadores); solo la recalculamos si
   // el usuario la está mirando en este momento.
