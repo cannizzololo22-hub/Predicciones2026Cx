@@ -211,9 +211,10 @@
     <div id="login-screen">
         <div class="login-box">
             <h1>🏆 Fixture 2026 Mundial</h1>
-            <p>Ingresá tu nombre o alias para jugar en este dispositivo:</p>
+            <p>Ingresá tu usuario y contraseña familiar:</p>
             <input type="text" id="player-name" placeholder="Tu Nombre (Ej: LOLO, JUAN)">
-            <button onclick="entrarAlEstadio()">Entrar A Cancha</button>
+            <input type="password" id="player-pass" placeholder="Tu Contraseña Secreta">
+            <button onclick="procesarLogin()">Entrar A Cancha</button>
         </div>
     </div>
 
@@ -299,33 +300,59 @@
 
         let clienteActual = "";
 
+        // Inicializar almacenamiento global en memoria del buscador si no existe
         if (!localStorage.getItem('mundial_prode_v2')) {
             localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
         }
 
-        // Reloj en tiempo real: AHORA SOLO CAMBIA EL TEXTO DE LA HORA, nunca borra los inputs mientras escribís
+        // Reloj en tiempo real: SOLO cambia las letras de la hora para no congelar inputs
         setInterval(() => {
             const ahora = new Date();
             const txtHora = ahora.toTimeString().split(' ')[0];
             document.getElementById('live-clock').innerText = `🕒 Hora Actual: ${txtHora}`;
         }, 1000);
 
-        function entrarAlEstadio() {
+        // Al cargar la ventana, revisa si hay una sesión guardada y entra directo
+        window.onload = function() {
+            const userGuardado = localStorage.getItem('mundial_sesion_usuario');
+            if (userGuardado) {
+                clienteActual = userGuardado;
+                ejecutarAccesoValido();
+            }
+        }
+
+        function procesarLogin() {
             const alias = document.getElementById('player-name').value.trim().toUpperCase();
-            if (!alias) return alert("Escribe un nombre válido.");
-            clienteActual = alias;
-            document.getElementById('user-display').innerText = `👤 Jugador: ${clienteActual}`;
+            const pass = document.getElementById('player-pass').value.trim();
+
+            if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
 
             let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
-            if (!DB[clienteActual]) {
-                DB[clienteActual] = { pronosticos: {}, recordPuntos: 0 };
-                localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
+
+            // Si el usuario no existe, creamos el perfil y guardamos su contraseña elegida
+            if (!DB[alias]) {
+                DB[alias] = { password: pass, pronosticos: {}, recordPuntos: 0 };
+            } else {
+                // Si ya existe, validamos que la contraseña ingresada coincida con la registrada
+                if (DB[alias].password && DB[alias].password !== pass) {
+                    return alert("❌ Contraseña incorrecta para este usuario.");
+                }
             }
 
+            localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
+            
+            // Guardar la sesión en la memoria para que recuerde al recargar
+            clienteActual = alias;
+            localStorage.setItem('mundial_sesion_usuario', clienteActual);
+
+            ejecutarAccesoValido();
+        }
+
+        function ejecutarAccesoValido() {
+            document.getElementById('user-display').innerText = `👤 Jugador: ${clienteActual}`;
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-interface').style.display = 'block';
             
-            // Renderizamos UNA SOLA VEZ al entrar para heredar lo guardado y evitar bucles
             construirEstructuraYRenderizar();
         }
 
@@ -345,7 +372,6 @@
 
             multiWebsMatches.forEach(match => {
                 let estaLive = false;
-                // Si es 3 de julio y el horario pasó, se congela porque ya empezó
                 if (match.fecha === "03 Jul" && horaActualStr >= match.hora && !match.yaJugado) {
                     estaLive = true;
                 }
@@ -432,7 +458,7 @@
         function guardarProde() {
             let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
             const ahora = new Date();
-            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + algo = ahora.getMinutes().toString().padStart(2, '0');
 
             multiWebsMatches.forEach(match => {
                 let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
@@ -442,6 +468,7 @@
                     const inputV = document.getElementById(`gv-${match.id}`).value;
 
                     if (inputL !== "" && inputV !== "") {
+                        if (!DB[clienteActual].pronosticos) DB[clienteActual].pronosticos = {};
                         DB[clienteActual].pronosticos[match.id] = {
                             l: parseInt(inputL),
                             v: parseInt(inputV)
@@ -453,7 +480,7 @@
             localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
             
             const btn = document.getElementById('btn-save');
-            btn.innerText = "✅ ¡Cargado en Memoria!";
+            btn.innerText = "✅ ¡Guardado con Éxito!";
             btn.style.background = "#059669";
             
             setTimeout(() => {
@@ -461,7 +488,6 @@
                 btn.style.background = "var(--secondary)";
             }, 2000);
 
-            // Actualizamos la interfaz una vez guardado de forma segura
             construirEstructuraYRenderizar();
         }
 
@@ -479,11 +505,11 @@
                         const predV = prediccionesDeAmigo[match.id].v;
 
                         if (predL === match.realL && predV === match.realV) {
-                            scoreCalculado += 10; // Pleno exacto
+                            scoreCalculado += 10;
                         } else if ((predL > predV && match.realL > match.realV) || 
                                  (predL < predV && match.realL < match.realV) || 
                                  (predL === predV && match.realL === match.realV)) {
-                            scoreCalculado += 5; // Acertó ganador
+                            scoreCalculado += 5;
                         }
                     }
                 });
@@ -511,6 +537,7 @@
         }
 
         function cerrarSesion() {
+            localStorage.removeItem('mundial_sesion_usuario');
             clienteActual = "";
             window.location.reload();
         }
