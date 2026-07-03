@@ -245,16 +245,24 @@ const MATCHES = [
   {id:"53452553", home:"USA", homeN:"Estados Unidos", away:"BIH", awayN:"Bosnia y Herz.", status:"finished", hs:2, as:0, date:"1 jul", round:"grupos"},
   {id:"53452551", home:"ESP", homeN:"España", away:"AUT", awayN:"Austria", status:"finished", hs:3, as:0, date:"2 jul", round:"grupos"},
   {id:"53452549", home:"POR", homeN:"Portugal", away:"CRO", awayN:"Croacia", status:"finished", hs:2, as:1, date:"2 jul", round:"grupos"},
-  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"live", hs:1, as:0, date:"hoy", start:"2026-07-03T15:00:00Z", round:"16avos"},
-  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"scheduled", start:"2026-07-03T18:00:00Z", date:"3 jul, 15:00", round:"16avos"},
-  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"scheduled", start:"2026-07-03T22:00:00Z", date:"3 jul, 19:00", round:"16avos"},
-  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"scheduled", start:"2026-07-04T01:30:00Z", date:"3 jul, 22:30", round:"16avos"},
-  {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00", round:"16avos"},
-  {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00", round:"16avos"},
-  {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00", round:"16avos"},
-  {id:"53452519", home:"MEX", homeN:"México", away:"ENG", awayN:"Inglaterra", status:"scheduled", start:"2026-07-06T00:00:00Z", date:"5 jul, 21:00", round:"16avos"},
-  {id:"53452513", home:"POR", homeN:"Portugal", away:"ESP", awayN:"España", status:"scheduled", start:"2026-07-06T19:00:00Z", date:"6 jul, 16:00", round:"16avos"},
-  {id:"53452515", home:"USA", homeN:"Estados Unidos", away:"BEL", awayN:"Bélgica", status:"scheduled", start:"2026-07-07T00:00:00Z", date:"6 jul, 21:00", round:"16avos"},
+  // NUEVO: cada partido de 16avos ahora declara "feedsTo" (a qué casillero
+  // de Octavos alimenta su ganador, y si va en la posición A o B de ese
+  // cruce). Esto es lo que permite que el ganador avance SOLO al cuadro en
+  // cuanto el partido termina, en vez de quedar "Por definir" para siempre.
+  // El emparejamiento 16avos -> Octavos usado acá es un orden provisional
+  // (no hay todavía un fixture oficial de FIFA con los cruces reales); el
+  // mecanismo de avance automático funciona igual apenas se sepa el cruce
+  // real, solo hay que ajustar estos feedsTo.
+  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"live", hs:1, as:0, date:"hoy", start:"2026-07-03T15:00:00Z", round:"16avos", feedsTo:{id:"b8-1", slot:"A"}},
+  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"scheduled", start:"2026-07-03T18:00:00Z", date:"3 jul, 15:00", round:"16avos", feedsTo:{id:"b8-1", slot:"B"}},
+  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"scheduled", start:"2026-07-03T22:00:00Z", date:"3 jul, 19:00", round:"16avos", feedsTo:{id:"b8-2", slot:"A"}},
+  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"scheduled", start:"2026-07-04T01:30:00Z", date:"3 jul, 22:30", round:"16avos", feedsTo:{id:"b8-2", slot:"B"}},
+  {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00", round:"16avos", feedsTo:{id:"b8-3", slot:"A"}},
+  {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00", round:"16avos", feedsTo:{id:"b8-3", slot:"B"}},
+  {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00", round:"16avos", feedsTo:{id:"b8-4", slot:"A"}},
+  {id:"53452519", home:"MEX", homeN:"México", away:"ENG", awayN:"Inglaterra", status:"scheduled", start:"2026-07-06T00:00:00Z", date:"5 jul, 21:00", round:"16avos", feedsTo:{id:"b8-4", slot:"B"}},
+  {id:"53452513", home:"POR", homeN:"Portugal", away:"ESP", awayN:"España", status:"scheduled", start:"2026-07-06T19:00:00Z", date:"6 jul, 16:00", round:"16avos", feedsTo:{id:"b8-5", slot:"A"}},
+  {id:"53452515", home:"USA", homeN:"Estados Unidos", away:"BEL", awayN:"Bélgica", status:"scheduled", start:"2026-07-07T00:00:00Z", date:"6 jul, 21:00", round:"16avos", feedsTo:{id:"b8-5", slot:"B"}},
 ];
 
 // ------- Cuadro de eliminación (Octavos en adelante) -------
@@ -269,15 +277,31 @@ const MATCHES = [
 // La columna de 16avos NO se repite acá: se arma en renderCuadro() a partir
 // de MATCHES (round:"16avos") más estos 6 cruces que todavía no están
 // definidos porque dependen de equipos que salen 2°/3° de grupo.
+// Estos 6 cruces siguen sin poder resolverse automáticamente porque ni
+// siquiera sabemos qué equipos los van a jugar (depende de puestos 2°/3° de
+// grupo, y esta app no modela la tabla de posiciones de grupos). Por eso NO
+// tienen feedsTo hacia un equipo real: solo alimentan el casillero de
+// Octavos con el texto genérico "Por definir" hasta que se sepan los
+// equipos. El feedsTo de acá sirve únicamente para que renderCuadro sepa en
+// qué casillero de Octavos va cada uno.
 const BRACKET_16_PENDING = [
-  {id:"b16-p1", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
-  {id:"b16-p2", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
-  {id:"b16-p3", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
-  {id:"b16-p4", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
-  {id:"b16-p5", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null},
-  {id:"b16-p6", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null}
+  {id:"b16-p1", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-6", slot:"A"}},
+  {id:"b16-p2", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-6", slot:"B"}},
+  {id:"b16-p3", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-7", slot:"A"}},
+  {id:"b16-p4", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-7", slot:"B"}},
+  {id:"b16-p5", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-8", slot:"A"}},
+  {id:"b16-p6", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-8", slot:"B"}}
 ];
 
+// NOTA para cuando se vayan jugando las siguientes rondas: si en algún
+// momento agregás a MATCHES un partido real de Octavos/Cuartos/Semis (con
+// su id igual al de acá abajo, por ej. "b8-1", y home/away/status/hs/as
+// reales), renderCuadro lo va a usar automáticamente en lugar del
+// casillero genérico. Y si además le agregás su propio "feedsTo" apuntando
+// a la ronda siguiente (b8-1,b8-2 -> b4-1 · b8-3,b8-4 -> b4-2 ·
+// b8-5,b8-6 -> b4-3 · b8-7,b8-8 -> b4-4 · b4-1,b4-2 -> bs-1 ·
+// b4-3,b4-4 -> bs-2 · bs-1,bs-2 -> bf-1), el ganador va a seguir avanzando
+// solo, ronda tras ronda, sin tocar nada más en el código.
 const BRACKET_ROUNDS = [
   {
     key:"8vos", label:"Octavos de final",
@@ -382,6 +406,49 @@ function applyEventToMatch(ev, match){
   return true;
 }
 
+// ------- Respaldo local si la API de resultados falla -------
+// Cada vez que logramos traer datos reales de la API, guardamos una foto de
+// los partidos (status/hs/as) en localStorage. Si en una visita posterior
+// la API no responde (viaje sin señal, API caída, CORS, lo que sea), al
+// cargar la página aplicamos ese último dato conocido en vez de arrancar
+// siempre desde el estado "de fábrica" escrito a mano en MATCHES. Así la
+// página sigue funcionando (mostrando el último resultado real que se supo)
+// aunque la API esté abajo en este momento.
+function cacheMatchesSnapshot(){
+  try{
+    var snap = {};
+    MATCHES.forEach(function(m){ snap[m.id] = {status:m.status, hs:m.hs, as:m.as}; });
+    localStorage.setItem('mundial_matches_cache', JSON.stringify(snap));
+  }catch(e){
+    // localStorage puede fallar (modo privado, cuota llena, etc.). No es
+    // grave: simplemente no vamos a tener respaldo esta vez.
+    console.warn('No se pudo guardar el respaldo local de resultados:', e);
+  }
+}
+function applyMatchesSnapshot(){
+  try{
+    var raw = localStorage.getItem('mundial_matches_cache');
+    if(!raw) return;
+    var snap = JSON.parse(raw);
+    MATCHES.forEach(function(m){
+      var c = snap[m.id];
+      if(!c) return;
+      // Nunca "retrocedemos" un partido (ej: de finished a live). Solo
+      // aplicamos el snapshot si trae el partido más avanzado de lo que ya
+      // tenemos, y solo copiamos el marcador si es un número válido.
+      var order = {scheduled:0, live:1, finished:2};
+      if(order[c.status] > order[m.status]){
+        m.status = c.status;
+      }
+      if(Number.isFinite(c.hs) && Number.isFinite(c.as) && !(Number.isFinite(m.hs) && Number.isFinite(m.as))){
+        m.hs = c.hs; m.as = c.as;
+      }
+    });
+  }catch(e){
+    console.warn('No se pudo aplicar el respaldo local de resultados:', e);
+  }
+}
+
 async function fetchLiveScores(){
   lastSyncError = null;
   var attemptLog = [];
@@ -405,7 +472,10 @@ async function fetchLiveScores(){
         if(!match) return;
         if(applyEventToMatch(ev, match)) updated++;
       });
-      if(updated > 0) return true;
+      if(updated > 0){
+        cacheMatchesSnapshot(); // respaldo: guardamos lo que sí pudimos confirmar
+        return true;
+      }
       attemptLog.push(attempt.label + ': trajo ' + events.length + ' eventos pero ninguno coincidió con los nombres de equipo guardados');
     }catch(e){
       // Nota: si esto es un bloqueo CORS del navegador, "e" no trae detalle
@@ -442,6 +512,15 @@ async function refreshSource(){
 // pasó de sobra el tiempo típico de un partido lo pasa a "finished" (con el
 // último resultado que tengamos), para que la app no se quede mostrando
 // "próximo" o "en vivo" para siempre mientras espera a la API.
+// CORRECCIÓN: antes esta función pasaba un partido a "finished" solo por el
+// reloj, sin importar si ya teníamos el resultado real (hs/as). Si la API
+// nunca llegó a traer el marcador, el partido quedaba "Finalizado" con
+// hs/as en "undefined": la tarjeta mostraba "undefined - undefined" y
+// calcPoints le daba 0 puntos a todo el mundo aunque el resultado real
+// fuera otro. Ahora solo marcamos "finished" por reloj cuando YA tenemos
+// un marcador numérico válido. Si no lo tenemos, el partido se queda en
+// "live" (las predicciones ya están bloqueadas igual después del minuto 10
+// por canPredictLive/isLocked) hasta que la API traiga el resultado oficial.
 function autoCorrectStatuses(){
   var now = Date.now();
   MATCHES.forEach(function(m){
@@ -452,7 +531,8 @@ function autoCorrectStatuses(){
     }
     if(m.status === 'live'){
       var elapsedMin = (now - start) / 60000;
-      if(elapsedMin > 130){
+      var hasScore = Number.isFinite(m.hs) && Number.isFinite(m.as);
+      if(elapsedMin > 130 && hasScore){
         m.status = 'finished';
       }
     }
@@ -485,16 +565,19 @@ function isLocked(m){
   return new Date() >= new Date(m.start);
 }
 function computeStats(){
-  var points=0, exact=0, preds=0;
+  var points=0, exact=0, acertados=0, preds=0;
   MATCHES.forEach(function(m){
     var p = predictions[m.id];
     if(!p) return;
     preds++;
     var pts = calcPoints(p, m);
-    if(pts===10){ points+=10; exact++; }
-    else if(pts===5){ points+=5; }
+    // "acertados" = partidos donde le pegaste al resultado (exacto o solo
+    // el ganador/empate). Es lo que pide el Ranking como columna aparte de
+    // "resultados exactos".
+    if(pts===10){ points+=10; exact++; acertados++; }
+    else if(pts===5){ points+=5; acertados++; }
   });
-  return {points:points, exact:exact, preds:preds};
+  return {points:points, exact:exact, acertados:acertados, preds:preds};
 }
 
 function flag(code){
@@ -624,30 +707,57 @@ async function ensureDisplayName(){
   saveProfile(currentUser);
   var lbl = document.getElementById('user-label');
   if(lbl) lbl.textContent = currentUser.displayName;
+  // CORRECCIÓN: antes, si el nombre se deduplicaba (ej. "Juan" -> "Juan
+  // (1)"), el ranking ya había recibido el nombre SIN deduplicar en el
+  // primer pushMyScore de enterApp (porque ensureDisplayName corría
+  // después). Forzamos un nuevo push acá para que el ranking muestre el
+  // nombre final correcto.
+  pushMyScore(true);
 }
 
-async function pushMyScore(){
+// Evita golpear la API de ranking (kvdb.io) de más: solo mandamos un PUT
+// nuevo si las estadísticas realmente cambiaron desde el último envío, o si
+// se pide explícitamente con force=true (por ejemplo, justo al registrarse,
+// para que el usuario aparezca en el Ranking al toque aunque tenga 0 puntos).
+let lastPushedStatsKey = null;
+async function pushMyScore(force){
   if(!currentUser || !rankingConfigured()) return;
   var s = computeStats();
+  var key = currentUser.uid + ':' + (currentUser.displayName || currentUser.name) + ':' + JSON.stringify(s);
+  if(!force && key === lastPushedStatsKey) return;
+  lastPushedStatsKey = key;
   try{
     await fetch('https://kvdb.io/' + BUCKET_ID + '/user:' + encodeURIComponent(currentUser.uid), {
       method:'PUT',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         uid: currentUser.uid, name: currentUser.displayName || currentUser.name, picture: currentUser.picture || '',
-        points:s.points, exact:s.exact, preds:s.preds, updated:Date.now()
+        points:s.points, exact:s.exact, acertados:s.acertados, preds:s.preds, updated:Date.now()
       })
     });
-  }catch(e){ console.warn('No se pudo sincronizar el ranking:', e); }
+  }catch(e){
+    lastPushedStatsKey = null; // si falló, dejamos que el próximo intento reintente igual
+    console.warn('No se pudo sincronizar el ranking:', e);
+  }
 }
 
-async function loadRanking(){
+// Throttle de lectura: si loadRanking() se llama seguido (por ejemplo desde
+// el refresco de 1s), no repetimos el pedido a kvdb.io si ya se hizo hace
+// menos de 5s, salvo que se pida explícitamente con force=true (al cambiar
+// de pestaña, o desde el intervalo dedicado de 15s).
+let lastRankingLoadTs = 0;
+async function loadRanking(force){
   var el = document.getElementById('tab-ranking');
   if(!rankingConfigured()){
     el.innerHTML = '<div class="empty-state"><div class="ico">🏆</div>Esta función todavía no está activada.<br>Por ahora podés ver tus puntos en "Mis pronósticos".</div>';
     return;
   }
-  el.innerHTML = '<div class="empty-state"><div class="ico">⏳</div>Cargando ranking…</div>';
+  var now = Date.now();
+  if(!force && (now - lastRankingLoadTs) < 5000) return;
+  lastRankingLoadTs = now;
+  if(!el.querySelector('.rank-row')) {
+    el.innerHTML = '<div class="empty-state"><div class="ico">⏳</div>Cargando ranking…</div>';
+  }
   try{
     var res = await fetch('https://kvdb.io/' + BUCKET_ID + '/?prefix=user:&values=true&format=json', {cache:'no-store'});
     if(!res.ok) throw new Error('bad response');
@@ -657,7 +767,10 @@ async function loadRanking(){
       if(typeof v === 'string'){ try{ v = JSON.parse(v); }catch(e){ return null; } }
       return v;
     }).filter(Boolean);
-    rows.sort(function(a,b){ return (b.points - a.points) || (b.exact - a.exact); });
+    // Ordena por puntos y, en caso de empate, por resultados exactos (según
+    // lo pedido). Se usa "|| 0" por las dudas de que haya registros viejos
+    // guardados antes de que existiera el campo "exact"/"acertados".
+    rows.sort(function(a,b){ return ((b.points||0) - (a.points||0)) || ((b.exact||0) - (a.exact||0)); });
     if(!rows.length){
       el.innerHTML = '<div class="empty-state"><div class="ico">🏆</div>Todavía nadie tiene pronósticos guardados.</div>';
       return;
@@ -666,13 +779,21 @@ async function loadRanking(){
       var isMe = currentUser && (r.uid ? r.uid === currentUser.uid : r.name === (currentUser.displayName || currentUser.name));
       return '<div class="rank-row' + (isMe ? ' me' : '') + '">' +
         '<span class="rank-pos">' + (i + 1) + '</span>' +
-        '<span class="rank-name">' + escapeHtml(r.name).toUpperCase() + (isMe ? ' (VOS)' : '') + '</span>' +
-        '<span class="rank-exact">' + r.exact + ' exactos</span>' +
-        '<span class="rank-pts">' + r.points + ' PUNTOS</span>' +
+        '<span>' +
+          '<span class="rank-name">' + escapeHtml(r.name).toUpperCase() + (isMe ? ' (VOS)' : '') + '</span>' +
+          '<div class="rank-exact">' + (r.acertados||0) + ' acertados · ' + (r.preds||0) + ' pronósticos</div>' +
+        '</span>' +
+        '<span class="rank-exact">' + (r.exact||0) + ' exactos</span>' +
+        '<span class="rank-pts">' + (r.points||0) + ' PUNTOS</span>' +
       '</div>';
     }).join('');
   }catch(e){
-    el.innerHTML = '<div class="empty-state"><div class="ico">⚠️</div>No se pudo cargar el ranking.<br>Probá de nuevo en un momento.</div>';
+    // Si ya había un ranking mostrado, lo dejamos (mejor mostrar el último
+    // dato conocido que dejar la pestaña en blanco); solo mostramos el
+    // aviso de error si todavía no había nada cargado.
+    if(!el.querySelector('.rank-row')){
+      el.innerHTML = '<div class="empty-state"><div class="ico">⚠️</div>No se pudo cargar el ranking.<br>Probá de nuevo en un momento.</div>';
+    }
   }
 }
 
@@ -777,6 +898,65 @@ function winnerOf(match){
   return null; // empate -> penales, no lo sabemos con los datos que tenemos
 }
 
+// ------- Motor de avance automático del cuadro -------
+// CORRECCIÓN: antes las rondas de Octavos/Cuartos/Semis/Final eran tarjetas
+// 100% estáticas (slotA/slotB siempre null) que NUNCA se completaban solas,
+// aunque un partido de 16avos ya hubiera terminado: el "refA"/"refB" era
+// solo un texto fijo, no un enlace real a ningún partido. Ahora cada
+// partido que declara "feedsTo" (ver MATCHES/BRACKET_16_PENDING más arriba)
+// empuja su ganador al casillero correspondiente de la ronda siguiente en
+// cuanto termina, y esto se recalcula en cada render, así que el cuadro se
+// actualiza solo apenas hay un resultado nuevo.
+function computeSlotWinners(){
+  var slotWinners = {};
+  function feed(source){
+    if(!source || !source.feedsTo) return;
+    var w = winnerOf(source);
+    if(!w) return; // no terminó, o terminó empatado (va a penales: no sabemos el ganador)
+    slotWinners[source.feedsTo.id + source.feedsTo.slot] = w;
+  }
+  MATCHES.forEach(feed);
+  // Si en el futuro se cargan partidos reales de Octavos/Cuartos/Semis
+  // directamente en MATCHES (con su propio feedsTo hacia la ronda
+  // siguiente), el mismo bucle de arriba ya los toma en cuenta solo, sin
+  // que haga falta tocar esta función: por eso alcanza con recorrer MATCHES.
+  return slotWinners;
+}
+
+// Arma los partidos de una ronda del cuadro (Octavos, Cuartos, Semis,
+// Final) combinando 3 fuentes posibles, en este orden de prioridad:
+//   1) Si ya existe un partido REAL cargado en MATCHES con este mismo id
+//      (por ejemplo, cuando se sepa el cruce real y se agregue el
+//      partido con sus equipos), se usa ese dato real tal cual.
+//   2) Si el motor de avance automático (computeSlotWinners) ya resolvió
+//      el ganador de alguno de los dos casilleros, se muestra ese equipo.
+//   3) Si no hay nada de lo anterior, se muestra el texto genérico
+//      ("Ganador Octavos", etc.) como "Por definir".
+// Así el cuadro nunca queda vacío si ya existe un resultado que lo llene.
+function resolveRoundMatches(roundMatches, slotWinners){
+  return roundMatches.map(function(m){
+    var real = MATCHES.find(function(x){ return x.id === m.id; });
+    if(real){
+      return {
+        id:real.id,
+        slotA:real.home, slotAName:real.homeN, refA:null,
+        slotB:real.away, slotBName:real.awayN, refB:null,
+        date: real.status === 'finished' ? (real.date + ' · Terminado ' + real.hs + '-' + real.as)
+            : real.status === 'live' ? 'En vivo ahora'
+            : real.date
+      };
+    }
+    var wA = slotWinners[m.id + 'A'];
+    var wB = slotWinners[m.id + 'B'];
+    return {
+      id:m.id,
+      slotA: wA ? wA.code : m.slotA, slotAName: wA ? wA.name : m.slotAName, refA: wA ? null : m.refA,
+      slotB: wB ? wB.code : m.slotB, slotBName: wB ? wB.name : m.slotBName, refB: wB ? null : m.refB,
+      date: m.date
+    };
+  });
+}
+
 function bracketSlotHtml(code, name, refText){
   if(code){
     return '<div class="bracket-slot">' + flag(code) + '<span class="team-name">' + escapeHtml(name) + '</span></div>';
@@ -796,6 +976,17 @@ function bracketCard(m, isFinal){
 
 function renderCuadro(){
   var el = document.getElementById('tab-cuadro');
+  try{
+    renderCuadroInner(el);
+  }catch(e){
+    // Salvavidas: si algo inesperado rompe el cálculo del cuadro, mostramos
+    // un aviso en vez de dejar la pestaña completamente en blanco.
+    console.error('Error al armar el cuadro:', e);
+    el.innerHTML = '<div class="empty-state"><div class="ico">⚠️</div>No se pudo armar el cuadro en este momento.<br>Probá recargar la página.</div>';
+  }
+}
+
+function renderCuadroInner(el){
 
   // Columna de 16avos: los partidos ya definidos vienen de MATCHES, más los
   // cruces que todavía dependen de puestos de grupo (BRACKET_16_PENDING).
@@ -812,8 +1003,11 @@ function renderCuadro(){
     return {id:p.id, slotA:null, slotB:null, refA:p.refA, refB:p.refB, date:p.date};
   }));
 
+  var slotWinners = computeSlotWinners();
   var columns = [{key:'16avos', label:'16avos de final', matches: col16}];
-  BRACKET_ROUNDS.forEach(function(r){ columns.push({key:r.key, label:r.label, matches:r.matches}); });
+  BRACKET_ROUNDS.forEach(function(r){
+    columns.push({key:r.key, label:r.label, matches: resolveRoundMatches(r.matches, slotWinners)});
+  });
 
   var html = '<div class="bracket-hint">Cuadro de eliminación directa. Los cruces que todavía no están definidos ' +
     'muestran quién los va a ocupar y, si ya hay fecha, cuándo se juegan.</div>' +
@@ -842,7 +1036,14 @@ function refreshAll(){
   renderStats();
   renderPartidos();
   renderMios();
-  renderCuadro();
+  // Mejora de rendimiento: el cuadro es la pestaña más pesada de armar
+  // (recorre todas las rondas y calcula ganadores); solo la recalculamos si
+  // el usuario la está mirando en este momento.
+  if(document.getElementById('tab-cuadro').style.display !== 'none') renderCuadro();
+  // pushMyScore/loadRanking tienen su propio throttle interno, así que
+  // llamarlos seguido (por ej. desde el refresco de 1s) no golpea la API de
+  // más: solo salen pedidos de verdad cuando cambió algo o pasó el tiempo
+  // mínimo entre pedidos.
   pushMyScore();
   if(document.getElementById('tab-ranking').style.display !== 'none') loadRanking();
 }
@@ -851,8 +1052,16 @@ function attachCardEvents(){
   document.querySelectorAll('[data-save]').forEach(function(btn){
     btn.onclick = function(){
       var id = btn.getAttribute('data-save');
-      var hInput = document.querySelector('input[data-h="' + id + '"]');
-      var aInput = document.querySelector('input[data-a="' + id + '"]');
+      // CORRECCIÓN: antes se buscaba el input con document.querySelector,
+      // que devuelve el PRIMER input con ese data-h/data-a que encuentre en
+      // TODO el documento. Como el mismo partido puede estar renderizado a
+      // la vez en la pestaña "Partidos" y en "Mis pronósticos" (la que no
+      // se ve solo tiene display:none, sigue en el DOM), guardar desde una
+      // pestaña podía leer el valor del input de la OTRA pestaña. Ahora
+      // buscamos el input dentro de la misma tarjeta que el botón apretado.
+      var card = btn.closest('.match-card');
+      var hInput = card.querySelector('input[data-h="' + id + '"]');
+      var aInput = card.querySelector('input[data-a="' + id + '"]');
       var h = parseInt(hInput.value, 10);
       var a = parseInt(aInput.value, 10);
       if(isNaN(h) || isNaN(a) || h<0 || a<0){
@@ -876,7 +1085,7 @@ document.querySelectorAll('.tab-btn').forEach(function(btn){
     document.getElementById('tab-mios').style.display = tab==='mios' ? 'block':'none';
     document.getElementById('tab-ranking').style.display = tab==='ranking' ? 'block':'none';
     document.getElementById('tab-cuadro').style.display = tab==='cuadro' ? 'block':'none';
-    if(tab==='ranking') loadRanking();
+    if(tab==='ranking') loadRanking(true); // force: el usuario recién abrió la pestaña, queremos datos frescos ya
     if(tab==='cuadro') renderCuadro();
   };
 });
@@ -922,6 +1131,7 @@ document.getElementById('logout-btn').addEventListener('click', function(){
 });
 
 (function init(){
+  applyMatchesSnapshot(); // aplica el último resultado real conocido antes de dibujar nada
   var profile = loadProfile();
   if(profile && profile.uid){
     enterApp(profile);
@@ -934,18 +1144,23 @@ document.getElementById('logout-btn').addEventListener('click', function(){
 // ritmo más rápido que soporta la API gratuita sin que nos empiece a
 // bloquear pedidos (un polling literal de 1 pedido por segundo contra una
 // API pública gratuita termina en rate-limit y deja de funcionar).
+// CORRECCIÓN: antes este intervalo de 1s solo llamaba a
+// autoCorrectStatuses/renderPartidos/renderMios, así que si un partido
+// pasaba a "finished" acá (por el respaldo de reloj), el marcador
+// (scoreboard), el cuadro visible y el ranking NO se enteraban hasta el
+// siguiente refreshSource() (cada 20s). Ahora llamamos a refreshAll(), que
+// hace todo eso, y es seguro llamarlo cada 1s porque pushMyScore/
+// loadRanking tienen throttle interno (no generan pedidos de más).
 setInterval(function(){
   if(!currentUser) return;
-  autoCorrectStatuses();
-  renderPartidos();
-  renderMios();
+  refreshAll();
 }, 1000);
 setInterval(function(){
   if(!currentUser) return;
   refreshSource();
 }, 20000);
 setInterval(function(){
-  if(currentUser && document.getElementById('tab-ranking').style.display !== 'none') loadRanking();
+  if(currentUser && document.getElementById('tab-ranking').style.display !== 'none') loadRanking(true);
 }, 15000);
 </script>
 </body>
