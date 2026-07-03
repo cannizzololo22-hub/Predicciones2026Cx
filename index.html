@@ -166,6 +166,85 @@
   .bracket-date{text-align:center; color:var(--muted); font-size:10px; margin-top:4px; padding-top:4px; border-top:1px dashed var(--line);}
   .bracket-hint{font-size:12px; color:var(--muted); text-align:center; margin-bottom:12px; line-height:1.5;}
 
+  /* ------- Cuadro estilo "llave de mundial" (según imagen de referencia) ------- */
+  .cuadro-hero{
+    position:relative; overflow:hidden; border-radius:18px; padding:26px 8px 22px;
+    background:
+      radial-gradient(circle at 18% 8%, rgba(45,130,85,.35), transparent 55%),
+      radial-gradient(circle at 85% 92%, rgba(45,130,85,.28), transparent 50%),
+      var(--pitch);
+    border:1px solid var(--line);
+    box-shadow:inset 0 0 60px rgba(0,0,0,.4);
+  }
+  .cuadro-grid-overlay{
+    position:absolute; inset:0; pointer-events:none; opacity:.16;
+    background-image:
+      linear-gradient(var(--gold) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gold) 1px, transparent 1px);
+    background-size:32px 32px;
+    -webkit-mask-image:radial-gradient(circle at 12% 8%, black, transparent 50%), radial-gradient(circle at 88% 92%, black, transparent 45%);
+    mask-image:radial-gradient(circle at 12% 8%, black, transparent 50%), radial-gradient(circle at 88% 92%, black, transparent 45%);
+  }
+  .cuadro-title{position:relative; text-align:center; margin-bottom:22px;}
+  .cuadro-title-main{font-family:'Anton',sans-serif; font-size:clamp(26px,7vw,40px); color:#fdfdf8; letter-spacing:1px; line-height:1; text-shadow:0 3px 10px rgba(0,0,0,.5);}
+  .cuadro-title-sub{font-family:'Oswald',sans-serif; font-weight:600; font-size:clamp(12px,3vw,16px); color:var(--gold); letter-spacing:3px; margin-top:4px; text-transform:uppercase;}
+
+  .cuadro-bracket{position:relative; display:flex; align-items:stretch; gap:2px; overflow-x:auto; padding:26px 2px 10px;}
+  .cuadro-half{display:flex; flex:1 1 0; min-width:300px; padding-top:0;}
+  .cuadro-half.right{flex-direction:row-reverse;}
+  .cuadro-round{display:flex; flex-direction:column; justify-content:space-around; flex:1; padding:0 7px; position:relative;}
+  .cuadro-round-title{
+    position:absolute; top:-22px; left:0; right:0; text-align:center; font-family:'Oswald',sans-serif;
+    font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--gold); font-weight:600;
+  }
+
+  .cuadro-match{position:relative; padding:0 13px; margin:7px 0;}
+  .cuadro-half.left .cuadro-round:not(:last-child) .cuadro-match::after{
+    content:''; position:absolute; top:50%; right:-6px; width:13px; height:1px; background:var(--line);
+  }
+  .cuadro-half.left .cuadro-round:not(:first-child) .cuadro-match::before{
+    content:''; position:absolute; top:0; bottom:50%; left:-6px; width:13px;
+    border-left:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .cuadro-half.left .cuadro-round:not(:first-child) .cuadro-match:nth-child(even)::before{
+    top:50%; bottom:auto; border-bottom:none; border-top:1px solid var(--line);
+  }
+  .cuadro-half.right .cuadro-round:not(:last-child) .cuadro-match::after{
+    content:''; position:absolute; top:50%; left:-6px; width:13px; height:1px; background:var(--line);
+  }
+  .cuadro-half.right .cuadro-round:not(:first-child) .cuadro-match::before{
+    content:''; position:absolute; top:0; bottom:50%; right:-6px; width:13px;
+    border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .cuadro-half.right .cuadro-round:not(:first-child) .cuadro-match:nth-child(even)::before{
+    top:50%; bottom:auto; border-bottom:none; border-top:1px solid var(--line);
+  }
+
+  .cuadro-slot{
+    display:flex; align-items:center; gap:5px; background:var(--card); border:1px solid var(--line);
+    border-radius:6px; padding:5px 7px; font-size:10.5px; min-height:20px;
+  }
+  .cuadro-slot + .cuadro-slot{margin-top:3px;}
+  .cuadro-slot .flag-img{width:17px; height:12px; flex:0 0 auto;}
+  .cuadro-slot .tn{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cuadro-slot.tbd{color:var(--muted); font-style:italic; font-size:9.5px; justify-content:center; text-align:center;}
+  .cuadro-slot.winner{border-color:var(--gold); background:rgba(242,193,78,.14);}
+
+  .cuadro-center{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    min-width:118px; padding:0 8px; flex:0 0 auto;
+  }
+  .cuadro-final-label{font-family:'Anton',sans-serif; font-size:22px; color:var(--gold); letter-spacing:1px; text-shadow:0 2px 8px rgba(0,0,0,.5);}
+  .cuadro-final-slots{display:flex; flex-direction:column; gap:6px; width:100%;}
+  .cuadro-trophy-wrap{margin-top:6px; text-align:center;}
+  .cuadro-trophy{font-size:44px; filter:drop-shadow(0 8px 12px rgba(0,0,0,.55));}
+  .cuadro-final-date{font-size:9.5px; color:var(--muted); text-align:center; margin-top:2px; line-height:1.4;}
+
+  @media (max-width:640px){
+    .cuadro-slot{font-size:9px; padding:4px 5px;} .cuadro-slot .flag-img{width:15px; height:10px;}
+    .cuadro-trophy{font-size:32px;} .cuadro-half{min-width:250px;}
+  }
+
   @media (max-width:420px){
     .team-name{font-size:11.5px;} .flag-img{width:24px; height:17px;}
     .score-mid{font-size:22px; min-width:60px;} .login-card{padding:28px 20px;}
@@ -253,10 +332,10 @@ const MATCHES = [
   // (no hay todavía un fixture oficial de FIFA con los cruces reales); el
   // mecanismo de avance automático funciona igual apenas se sepa el cruce
   // real, solo hay que ajustar estos feedsTo.
-  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"live", hs:1, as:0, date:"hoy", start:"2026-07-03T15:00:00Z", round:"16avos", feedsTo:{id:"b8-1", slot:"A"}},
-  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"scheduled", start:"2026-07-03T18:00:00Z", date:"3 jul, 15:00", round:"16avos", feedsTo:{id:"b8-1", slot:"B"}},
-  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"scheduled", start:"2026-07-03T22:00:00Z", date:"3 jul, 19:00", round:"16avos", feedsTo:{id:"b8-2", slot:"A"}},
-  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"scheduled", start:"2026-07-04T01:30:00Z", date:"3 jul, 22:30", round:"16avos", feedsTo:{id:"b8-2", slot:"B"}},
+  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"finished", hs:2, as:0, date:"3 jul", start:"2026-07-03T15:00:00Z", round:"16avos", feedsTo:{id:"b8-1", slot:"A"}},
+  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"finished", hs:1, as:0, date:"3 jul", start:"2026-07-03T18:00:00Z", round:"16avos", feedsTo:{id:"b8-1", slot:"B"}},
+  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"finished", hs:3, as:0, date:"3 jul", start:"2026-07-03T22:00:00Z", round:"16avos", feedsTo:{id:"b8-2", slot:"A"}},
+  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"finished", hs:2, as:1, date:"3 jul", start:"2026-07-04T01:30:00Z", round:"16avos", feedsTo:{id:"b8-2", slot:"B"}},
   {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00", round:"16avos", feedsTo:{id:"b8-3", slot:"A"}},
   {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00", round:"16avos", feedsTo:{id:"b8-3", slot:"B"}},
   {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00", round:"16avos", feedsTo:{id:"b8-4", slot:"A"}},
