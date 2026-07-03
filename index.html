@@ -330,22 +330,27 @@
 
             if (!alias || !pass) return alert("Por favor completá tu Nombre y Contraseña.");
 
-            // Traemos los datos directamente desde Supabase en la nube
-            let { data: usuario, error } = await _supabase.from('prode_usuarios').select('*').eq('username', alias).maybeSingle();
+            try {
+                let { data: usuario, error } = await _supabase.from('prode_usuarios').select('*').eq('username', alias).maybeSingle();
 
-            if (usuario) {
-                if (usuario.password && usuario.password !== pass) {
-                    return alert("❌ Contraseña incorrecta para este usuario.");
+                if (usuario) {
+                    if (usuario.password && usuario.password !== pass) {
+                        return alert("❌ Contraseña incorrecta para este usuario.");
+                    }
+                } else {
+                    // Crear usuario si no existe
+                    const { error: insertError } = await _supabase.from('prode_usuarios').insert([{ username: alias, password: pass, pronosticos: {} }]);
+                    if (insertError) throw insertError;
                 }
-            } else {
-                // Si el usuario no existe en la tabla de Supabase, lo creamos de forma automática
-                await _supabase.from('prode_usuarios').insert([{ username: alias, password: pass, pronosticos: {} }]);
+
+                clienteActual = alias;
+                localStorage.setItem('mundial_sesion_usuario', clienteActual);
+                ejecutarAccesoValido();
+
+            } catch (err) {
+                console.error(err);
+                alert("Hubo un error al conectar con la base de datos.");
             }
-
-            clienteActual = alias;
-            localStorage.setItem('mundial_sesion_usuario', clienteActual);
-
-            ejecutarAccesoValido();
         }
 
         function ejecutarAccesoValido() {
@@ -355,22 +360,25 @@
             
             consultarAPIEnvivo();
             setInterval(consultarAPIEnvivo, 15000); 
-            // Bucle forzado de seguridad para el ranking cada 5 segundos
             setInterval(procesarPosicionesAmigos, 5000); 
         }
 
         async function cargarDatosDesdeSupabase() {
-            let DB_Supabase = {};
-            // Obtenemos todos los jugadores registrados en tu base de datos en tiempo real
-            let { data: todos } = await _supabase.from('prode_usuarios').select('*');
-            
-            if (todos) {
-                todos.forEach(u => {
-                    DB_Supabase[u.username] = { password: u.password, pronosticos: u.pronosticos || {} };
-                });
-            }
+            try {
+                let DB_Supabase = {};
+                let { data: todos, error } = await _supabase.from('prode_usuarios').select('*');
+                
+                if (error) throw error;
 
-            construirEstructuraYRenderizar(DB_Supabase);
+                if (todos) {
+                    todos.forEach(u => {
+                        DB_Supabase[u.username] = { password: u.password, pronosticos: u.pronosticos || {} };
+                    });
+                }
+                construirEstructuraYRenderizar(DB_Supabase);
+            } catch (err) {
+                console.error("Error cargando base de datos:", err);
+            }
         }
 
         function construirEstructuraYRenderizar(DB) {
@@ -465,50 +473,62 @@
         }
 
         async function guardarProde() {
-            // Traemos el estado más actual del usuario desde Supabase para no pisar pronósticos anteriores
-            let { data: actual } = await _supabase.from('prode_usuarios').select('pronosticos').eq('username', clienteActual).single();
-            let pronosticosNuevos = actual?.pronosticos || {};
+            try {
+                // Traemos los últimos datos reales para no pisar nada de lo anterior
+                let { data: actual, error: fetchError } = await _supabase.from('prode_usuarios').select('pronosticos').eq('username', clienteActual).single();
+                if (fetchError) throw fetchError;
 
-            multiWebsMatches.forEach(match => {
-                let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
-                if (!match.yaJugado && !estaLiveReal) {
-                    const inputL = document.getElementById(`gl-${match.id}`).value;
-                    const inputV = document.getElementById(`gv-${match.id}`).value;
+                let pronosticosNuevos = actual?.pronosticos || {};
 
-                    if (inputL !== "" && inputV !== "") {
-                        pronosticosNuevos[match.id] = {
-                            l: parseInt(inputL),
-                            v: parseInt(inputV)
-                        };
+                multiWebsMatches.forEach(match => {
+                    let estaLiveReal = partidosEnVivoPorAPI.includes(match.id);
+                    if (!match.yaJugado && !estaLiveReal) {
+                        const inputL = document.getElementById(`gl-${match.id}`).value;
+                        const inputV = document.getElementById(`gv-${match.id}`).value;
+
+                        if (inputL !== "" && inputV !== "") {
+                            pronosticosNuevos[match.id] = {
+                                l: parseInt(inputL),
+                                v: parseInt(inputV)
+                            };
+                        }
                     }
-                }
-            });
+                });
 
-            // Guardamos directamente en la nube de Supabase
-            await _supabase.from('prode_usuarios').update({ pronosticos: pronosticosNuevos }).eq('username', clienteActual);
-            
-            const btn = document.getElementById('btn-save');
-            btn.innerText = "✅ ¡Guardado con Éxito!";
-            btn.style.background = "#059669";
-            
-            setTimeout(() => {
-                btn.innerText = "💾 Guardar Mis Predicciones";
-                btn.style.background = "var(--secondary)";
-            }, 2000);
+                // Guardamos en Supabase
+                let { error: updateError } = await _supabase.from('prode_usuarios').update({ pronosticos: pronosticosNuevos }).eq('username', clienteActual);
+                if (updateError) throw updateError;
 
-            await cargarDatosDesdeSupabase();
+                const btn = document.getElementById('btn-save');
+                btn.innerText = "✅ ¡Guardado con Éxito!";
+                btn.style.background = "#059669";
+                
+                setTimeout(() => {
+                    btn.innerText = "💾 Guardar Mis Predicciones";
+                    btn.style.background = "var(--secondary)";
+                }, 2000);
+
+                await cargarDatosDesdeSupabase();
+            } catch (err) {
+                console.error("Error al guardar pronósticos:", err);
+                alert("Error al intentar guardar tus predicciones.");
+            }
         }
 
         async function procesarPosicionesAmigos() {
-            let DB_Supabase = {};
-            let { data: todos } = await _supabase.from('prode_usuarios').select('*');
-            
-            if (todos) {
-                todos.forEach(u => {
-                    DB_Supabase[u.username] = { password: u.password, pronosticos: u.pronosticos || {} };
-                });
+            try {
+                let DB_Supabase = {};
+                let { data: todos } = await _supabase.from('prode_usuarios').select('*');
+                
+                if (todos) {
+                    todos.forEach(u => {
+                        DB_Supabase[u.username] = { password: u.password, pronosticos: u.pronosticos || {} };
+                    });
+                }
+                renderizarTablaUI(DB_Supabase);
+            } catch (err) {
+                console.error(err);
             }
-            renderizarTablaUI(DB_Supabase);
         }
 
         function renderizarTablaUI(DB) {
@@ -566,14 +586,18 @@
 
         async function limpiarCacheTotal() {
             if (confirm("¿Querés vaciar las predicciones de la nube y reiniciar la base?")) {
-                let { data: todos } = await _supabase.from('prode_usuarios').select('username');
-                if (todos) {
-                    for (let u of todos) {
-                        await _supabase.from('prode_usuarios').update({ pronosticos: {} }).eq('username', u.username);
+                try {
+                    let { data: todos } = await _supabase.from('prode_usuarios').select('username');
+                    if (todos) {
+                        for (let u of todos) {
+                            await _supabase.from('prode_usuarios').update({ pronosticos: {} }).eq('username', u.username);
+                        }
                     }
+                    localStorage.clear();
+                    window.location.reload();
+                } catch (err) {
+                    console.error(err);
                 }
-                localStorage.clear();
-                window.location.reload();
             }
         }
 
