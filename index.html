@@ -1,1265 +1,281 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pronósticos Mundial 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --pitch:#0e2f1f; --pitch-2:#123a27; --gold:#f2c14e; --gold-2:#d9a72e;
-    --chalk:#f4f1e8; --navy:#0a1c14; --live:#e63946; --line:#2c5240; --muted:#9db8a8; --card:#153826;
-  }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  body{
-    background:
-      radial-gradient(circle at 15% 0%, #1a4a30 0%, transparent 45%),
-      radial-gradient(circle at 90% 10%, #17402a 0%, transparent 40%),
-      var(--navy);
-    color:var(--chalk); font-family:'Inter', sans-serif; min-height:100vh; padding-bottom:60px;
-  }
-  .wrap{max-width:760px; margin:0 auto; padding:0 16px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prode Mundial 2026 - Familia</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --dark-bg: #0b0f19;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
 
-  #login-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
-  .login-card{
-    background:var(--card); border:1px solid var(--line); border-radius:18px; padding:36px 28px;
-    max-width:380px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.4); position:relative; overflow:hidden;
-  }
-  .login-ball{font-size:40px; margin-bottom:6px;}
-  .login-card h1{font-family:'Anton', sans-serif; font-size:30px; letter-spacing:.5px; color:var(--gold); line-height:1.05; margin-bottom:4px;}
-  .login-card p{color:var(--muted); font-size:14px; margin-bottom:22px;}
-  .login-card input{
-    width:100%; padding:14px 16px; border-radius:10px; border:1.5px solid var(--line);
-    background:var(--navy); color:var(--chalk); font-size:16px; font-family:'Inter', sans-serif; outline:none; margin-bottom:14px;
-  }
-  .login-card input:focus{border-color:var(--gold);}
-  .btn-primary{
-    width:100%; padding:14px; border-radius:10px; border:none; background:var(--gold); color:var(--navy);
-    font-weight:800; font-size:15px; letter-spacing:.3px; cursor:pointer; transition:transform .15s ease, background .15s ease;
-    font-family:'Oswald',sans-serif; text-transform:uppercase;
-  }
-  .btn-primary:hover{transform:translateY(-1px); background:var(--gold-2);}
-  .btn-primary:active{transform:translateY(0);}
-  .login-err{color:var(--live); font-size:13px; margin-top:10px; min-height:16px;}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: var(--dark-bg); color: var(--text-main); min-height: 100vh; }
 
-  header.top{padding:22px 16px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(242,193,78,.06), transparent);}
-  .top-row{display:flex; justify-content:space-between; align-items:flex-start; max-width:760px; margin:0 auto;}
-  .brand{font-family:'Anton', sans-serif; font-size:22px; letter-spacing:.4px; color:var(--gold);}
-  .brand span{color:var(--chalk);}
-  .user-chip{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; color:var(--muted); display:flex; align-items:center; gap:6px;}
-  .user-chip b{color:var(--chalk); font-weight:700;}
-  .user-chip button{background:none; border:none; color:var(--live); font-size:11px; cursor:pointer; font-weight:600; padding:0 0 0 4px;}
+        /* Pantalla de Entrada */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1e3a8a 0%, var(--dark-bg) 100%);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .login-box {
+            background: var(--card-bg); padding: 2.5rem; border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; max-width: 420px; width: 90%; border: 1px solid #334155;
+        }
+        .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .login-box p { color: var(--text-muted); margin-bottom: 2rem; font-size: 1rem; }
+        .login-box input {
+            width: 100%; padding: 0.9rem; margin-bottom: 1.5rem;
+            border: 2px solid #334155; background: #0f172a; color: white;
+            border-radius: 8px; font-size: 1.2rem; text-align: center; outline: none;
+        }
+        .login-box button {
+            background: var(--secondary); color: white; border: none;
+            padding: 1rem; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%;
+        }
 
-  .scoreboard{max-width:760px; margin:16px auto 0; padding:0 16px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
-  .score-box{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center;}
-  .score-box .num{font-family:'Anton'; font-size:28px; color:var(--gold); line-height:1;}
-  .score-box .lbl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-top:4px;}
+        /* Interfaz Principal */
+        #main-interface { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid #334155; margin-bottom: 2rem; }
+        .clock-bar { font-size: 1rem; color: #fff; background: #1e293b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; border: 1px solid #334155; }
 
-  .tabs{display:flex; gap:6px; max-width:760px; margin:18px auto 6px; padding:0 16px;}
-  .tab-btn{
-    flex:1; padding:11px 8px; text-align:center; border-radius:10px; border:1px solid var(--line);
-    background:transparent; color:var(--muted); font-family:'Oswald'; font-size:13.5px; letter-spacing:.3px;
-    cursor:pointer; text-transform:uppercase; font-weight:500;
-  }
-  .tab-btn.active{background:var(--gold); color:var(--navy); border-color:var(--gold); font-weight:700;}
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+        @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
 
-  main{max-width:760px; margin:0 auto; padding:12px 16px 40px;}
-  .section-title{
-    font-family:'Oswald'; text-transform:uppercase; letter-spacing:.6px; font-size:13px;
-    color:var(--muted); margin:22px 0 10px; display:flex; align-items:center; gap:8px;
-  }
-  .section-title::after{content:""; flex:1; height:1px; background:var(--line);}
-  .dot-live{width:8px; height:8px; border-radius:50%; background:var(--live); display:inline-block; animation:pulse 1.4s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+        .panel { background: var(--card-bg); border-radius: 14px; padding: 1.5rem; border: 1px solid #334155; margin-bottom: 2rem; }
+        .panel h3 { font-size: 1.4rem; margin-bottom: 1.5rem; border-left: 5px solid var(--primary); padding-left: 0.6rem; }
 
-  .match-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; position:relative; overflow:hidden;}
-  .match-top{display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--muted); margin-bottom:10px;}
-  .badge{padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px;}
-  .badge.finished{background:rgba(157,184,168,.15); color:var(--muted);}
-  .badge.live{background:rgba(230,57,70,.18); color:#ff8087; display:flex; align-items:center; gap:5px;}
-  .badge.scheduled{background:rgba(242,193,78,.15); color:var(--gold);}
+        /* Estructura del Fixture Claro */
+        .fase-bloque { margin-top: 2.5rem; }
+        .fase-nombre { background: linear-gradient(90deg, #1e3a8a, #2563eb); padding: 1rem; font-weight: bold; border-radius: 8px; margin-bottom: 1.2rem; color: #fff; font-size: 1.3rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .partido-fila { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 1.2rem; border-radius: 10px; margin-bottom: 0.8rem; border: 1px solid #1e293b; }
+        .partido-meta { font-size: 0.9rem; color: var(--text-muted); width: 120px; line-height: 1.5; font-weight: bold; }
+        .partido-equipos { flex-grow: 1; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .equipo-bloque { display: flex; align-items: center; gap: 12px; width: 43%; font-size: 1.15rem; font-weight: bold; }
+        .equipo-bloque.local { justify-content: flex-end; text-align: right; }
+        .equipo-bloque.visitante { justify-content: flex-start; text-align: left; }
+        .vs-label { color: var(--text-muted); font-size: 0.9rem; font-weight: bold; width: 14%; text-align: center; background: #1e293b; padding: 0.2rem 0.5rem; border-radius: 4px; }
+        
+        .partido-inputs { display: flex; align-items: center; gap: 8px; }
+        .partido-inputs input { width: 55px; height: 45px; text-align: center; background: #1e293b; border: 2px solid #475569; color: white; font-size: 1.4rem; font-weight: bold; border-radius: 8px; outline: none; }
+        .partido-inputs input:focus { border-color: var(--secondary); }
 
-  .teams-row{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;}
-  .team{display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;}
-  .team.left{align-items:flex-end;}
-  .team.right{align-items:flex-start;}
-  .flag-img{width:28px; height:20px; object-fit:cover; border-radius:3px; box-shadow:0 0 0 1px rgba(255,255,255,.12); display:inline-block; background:#0003;}
-  .team-name{font-size:13px; font-weight:600;}
-
-  .score-mid{display:flex; align-items:center; gap:8px; font-family:'Anton'; font-size:26px; min-width:70px; justify-content:center;}
-  .score-mid .dash{color:var(--muted); font-size:16px;}
-  .score-mid input{
-    width:38px; text-align:center; background:var(--navy); border:1.5px solid var(--line); border-radius:8px;
-    color:var(--gold); font-family:'Anton'; font-size:20px; padding:6px 0; outline:none;
-  }
-  .score-mid input:focus{border-color:var(--gold);}
-  .score-mid input:disabled{opacity:.6;}
-
-  .predict-row{display:flex; justify-content:center; margin-top:12px;}
-  .save-btn{
-    background:transparent; border:1.5px solid var(--gold); color:var(--gold); font-family:'Oswald';
-    text-transform:uppercase; font-size:12px; padding:8px 20px; border-radius:8px; cursor:pointer; letter-spacing:.4px; font-weight:600;
-  }
-  .save-btn:hover{background:var(--gold); color:var(--navy);}
-
-  .saved-note{text-align:center; font-size:11.5px; color:var(--muted); margin-top:8px;}
-  .saved-note b{color:var(--gold);}
-
-  .points-strip{
-    margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);
-    display:flex; justify-content:space-between; align-items:center; font-size:12px;
-  }
-  .points-strip .pred-txt{color:var(--muted);}
-  .points-strip .pts{font-family:'Oswald'; font-weight:700; padding:3px 10px; border-radius:6px; font-size:12px;}
-  .pts.p10{background:rgba(242,193,78,.2); color:var(--gold);}
-  .pts.p5{background:rgba(120,190,150,.18); color:#8fd6ab;}
-  .pts.p0{background:rgba(230,57,70,.15); color:#ff8087;}
-
-  .empty-state{text-align:center; padding:40px 20px; color:var(--muted); font-size:14px;}
-  .empty-state .ico{font-size:34px; margin-bottom:10px;}
-
-  .rules-box{
-    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:16px;
-    font-size:12.5px; color:var(--muted); display:flex; gap:14px; justify-content:space-around; text-align:center;
-  }
-  .rules-box div b{display:block; font-family:'Anton'; font-size:17px; color:var(--gold);}
-
-  .source-bar{
-    display:flex; align-items:center; justify-content:space-between; gap:10px; max-width:760px; margin:0 auto;
-    padding:10px 16px; font-size:11.5px; color:var(--muted); flex-wrap:wrap;
-  }
-  .source-bar .dot{width:7px; height:7px; border-radius:50%; background:var(--muted); display:inline-block; margin-right:5px;}
-  .source-bar .dot.ok{background:#8fd6ab;}
-  .source-bar button{
-    background:none; border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:5px 10px;
-    font-size:11px; cursor:pointer; font-family:'Inter';
-  }
-  .source-bar button:disabled{opacity:.5;}
-
-  .live-note{font-size:11px; color:#ff8087; text-align:center; margin-top:8px; font-weight:600;}
-  .live-min{font-size:10px; opacity:.85;}
-
-  .rank-row{
-    display:grid; grid-template-columns:26px 1fr auto auto; align-items:center; gap:10px;
-    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:8px;
-  }
-  .rank-row.me{border-color:var(--gold); background:rgba(242,193,78,.08);}
-  .rank-pos{font-family:'Anton'; color:var(--muted); font-size:15px; text-align:center;}
-  .rank-row:nth-child(2) .rank-pos{color:var(--gold);}
-  .rank-name{font-weight:700; font-size:13.5px;}
-  .rank-exact{font-size:11px; color:var(--muted);}
-  .rank-pts{font-family:'Oswald'; font-weight:700; color:var(--gold); font-size:14px;}
-
-  .bracket-scroll{display:flex; gap:14px; overflow-x:auto; padding:6px 2px 16px;}
-  .bracket-col{min-width:190px; flex:0 0 auto; display:flex; flex-direction:column; gap:10px;}
-  .bracket-col-title{
-    font-family:'Oswald'; text-transform:uppercase; letter-spacing:.5px; font-size:11.5px;
-    color:var(--gold); text-align:center; padding-bottom:6px; border-bottom:1px solid var(--line); margin-bottom:2px;
-  }
-  .bracket-card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12px;}
-  .bracket-card.final{border-color:var(--gold); background:rgba(242,193,78,.08);}
-  .bracket-slot{display:flex; align-items:center; gap:6px; padding:3px 0;}
-  .bracket-slot img.flag-img{width:20px; height:14px;}
-  .bracket-slot .tbd{color:var(--muted); font-style:italic; font-size:11px;}
-  .bracket-vs{text-align:center; color:var(--muted); font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; padding:1px 0;}
-  .bracket-date{text-align:center; color:var(--muted); font-size:10px; margin-top:4px; padding-top:4px; border-top:1px dashed var(--line);}
-  .bracket-hint{font-size:12px; color:var(--muted); text-align:center; margin-bottom:12px; line-height:1.5;}
-
-  /* ------- Cuadro estilo "llave de mundial" (según imagen de referencia) ------- */
-  .cuadro-hero{
-    position:relative; overflow:hidden; border-radius:18px; padding:26px 8px 22px;
-    background:
-      radial-gradient(circle at 18% 8%, rgba(45,130,85,.35), transparent 55%),
-      radial-gradient(circle at 85% 92%, rgba(45,130,85,.28), transparent 50%),
-      var(--pitch);
-    border:1px solid var(--line);
-    box-shadow:inset 0 0 60px rgba(0,0,0,.4);
-  }
-  .cuadro-grid-overlay{
-    position:absolute; inset:0; pointer-events:none; opacity:.16;
-    background-image:
-      linear-gradient(var(--gold) 1px, transparent 1px),
-      linear-gradient(90deg, var(--gold) 1px, transparent 1px);
-    background-size:32px 32px;
-    -webkit-mask-image:radial-gradient(circle at 12% 8%, black, transparent 50%), radial-gradient(circle at 88% 92%, black, transparent 45%);
-    mask-image:radial-gradient(circle at 12% 8%, black, transparent 50%), radial-gradient(circle at 88% 92%, black, transparent 45%);
-  }
-  .cuadro-title{position:relative; text-align:center; margin-bottom:22px;}
-  .cuadro-title-main{font-family:'Anton',sans-serif; font-size:clamp(26px,7vw,40px); color:#fdfdf8; letter-spacing:1px; line-height:1; text-shadow:0 3px 10px rgba(0,0,0,.5);}
-  .cuadro-title-sub{font-family:'Oswald',sans-serif; font-weight:600; font-size:clamp(12px,3vw,16px); color:var(--gold); letter-spacing:3px; margin-top:4px; text-transform:uppercase;}
-
-  .cuadro-bracket{position:relative; display:flex; align-items:stretch; gap:2px; overflow-x:auto; padding:26px 2px 10px;}
-  .cuadro-half{display:flex; flex:1 1 0; min-width:300px; padding-top:0;}
-  .cuadro-half.right{flex-direction:row-reverse;}
-  .cuadro-round{display:flex; flex-direction:column; justify-content:space-around; flex:1; padding:0 7px; position:relative;}
-  .cuadro-round-title{
-    position:absolute; top:-22px; left:0; right:0; text-align:center; font-family:'Oswald',sans-serif;
-    font-size:10px; letter-spacing:.8px; text-transform:uppercase; color:var(--gold); font-weight:600;
-  }
-
-  .cuadro-match{position:relative; padding:0 13px; margin:7px 0;}
-  .cuadro-half.left .cuadro-round:not(:last-child) .cuadro-match::after{
-    content:''; position:absolute; top:50%; right:-6px; width:13px; height:1px; background:var(--line);
-  }
-  .cuadro-half.left .cuadro-round:not(:first-child) .cuadro-match::before{
-    content:''; position:absolute; top:0; bottom:50%; left:-6px; width:13px;
-    border-left:1px solid var(--line); border-bottom:1px solid var(--line);
-  }
-  .cuadro-half.left .cuadro-round:not(:first-child) .cuadro-match:nth-child(even)::before{
-    top:50%; bottom:auto; border-bottom:none; border-top:1px solid var(--line);
-  }
-  .cuadro-half.right .cuadro-round:not(:last-child) .cuadro-match::after{
-    content:''; position:absolute; top:50%; left:-6px; width:13px; height:1px; background:var(--line);
-  }
-  .cuadro-half.right .cuadro-round:not(:first-child) .cuadro-match::before{
-    content:''; position:absolute; top:0; bottom:50%; right:-6px; width:13px;
-    border-right:1px solid var(--line); border-bottom:1px solid var(--line);
-  }
-  .cuadro-half.right .cuadro-round:not(:first-child) .cuadro-match:nth-child(even)::before{
-    top:50%; bottom:auto; border-bottom:none; border-top:1px solid var(--line);
-  }
-
-  .cuadro-slot{
-    display:flex; align-items:center; gap:5px; background:var(--card); border:1px solid var(--line);
-    border-radius:6px; padding:5px 7px; font-size:10.5px; min-height:20px;
-  }
-  .cuadro-slot + .cuadro-slot{margin-top:3px;}
-  .cuadro-slot .flag-img{width:17px; height:12px; flex:0 0 auto;}
-  .cuadro-slot .tn{font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .cuadro-slot.tbd{color:var(--muted); font-style:italic; font-size:9.5px; justify-content:center; text-align:center;}
-  .cuadro-slot.winner{border-color:var(--gold); background:rgba(242,193,78,.14);}
-
-  .cuadro-center{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-    min-width:118px; padding:0 8px; flex:0 0 auto;
-  }
-  .cuadro-final-label{font-family:'Anton',sans-serif; font-size:22px; color:var(--gold); letter-spacing:1px; text-shadow:0 2px 8px rgba(0,0,0,.5);}
-  .cuadro-final-slots{display:flex; flex-direction:column; gap:6px; width:100%;}
-  .cuadro-trophy-wrap{margin-top:6px; text-align:center;}
-  .cuadro-trophy{font-size:44px; filter:drop-shadow(0 8px 12px rgba(0,0,0,.55));}
-  .cuadro-final-date{font-size:9.5px; color:var(--muted); text-align:center; margin-top:2px; line-height:1.4;}
-
-  @media (max-width:640px){
-    .cuadro-slot{font-size:9px; padding:4px 5px;} .cuadro-slot .flag-img{width:15px; height:10px;}
-    .cuadro-trophy{font-size:32px;} .cuadro-half{min-width:250px;}
-  }
-
-  @media (max-width:420px){
-    .team-name{font-size:11.5px;} .flag-img{width:24px; height:17px;}
-    .score-mid{font-size:22px; min-width:60px;} .login-card{padding:28px 20px;}
-  }
-</style>
+        .ranking-table { width: 100%; border-collapse: collapse; font-size: 1.1rem; }
+        .ranking-table th, .ranking-table td { padding: 0.9rem; text-align: left; border-bottom: 1px solid #334155; }
+        .btn-submit { background: #10b981; color: white; border: none; padding: 1.3rem; font-size: 1.3rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; margin-top: 1.5rem; position: sticky; bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: background 0.2s; }
+        .btn-submit:hover { background: #059669; }
+    </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-ball">⚽</div>
-    <h1>PRONÓSTICOS<br>MUNDIAL 2026</h1>
-    <p>Ingresá tu nombre para empezar a pronosticar</p>
-    <input id="name-input" type="text" placeholder="Tu nombre" maxlength="24" autocomplete="off">
-    <button class="btn-primary" id="enter-btn" type="button">Entrar a la cancha</button>
-    <div class="login-err" id="login-err"></div>
-  </div>
-</div>
-
-<div id="app" style="display:none;">
-  <header class="top">
-    <div class="top-row">
-      <div class="brand"><span>⚽</span> PRONÓS<span>TICOS</span></div>
-      <div class="user-chip"><span id="user-icon">👤</span> <b id="user-label"></b><button id="logout-btn" type="button">salir</button></div>
-    </div>
-  </header>
-
-  <div class="source-bar">
-    <span><span class="dot" id="source-dot"></span><span id="source-label">Usando datos locales</span></span>
-    <button id="refresh-btn" type="button">🔄 Actualizar resultados</button>
-  </div>
-
-  <div class="scoreboard">
-    <div class="score-box"><div class="num" id="stat-points">0</div><div class="lbl">Puntos</div></div>
-    <div class="score-box"><div class="num" id="stat-exact">0</div><div class="lbl">Exactos</div></div>
-    <div class="score-box"><div class="num" id="stat-preds">0</div><div class="lbl">Pronósticos</div></div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="partidos" type="button">Partidos</button>
-    <button class="tab-btn" data-tab="mios" type="button">Mis pronósticos</button>
-    <button class="tab-btn" data-tab="ranking" type="button">Ranking</button>
-    <button class="tab-btn" data-tab="cuadro" type="button">Cuadro</button>
-  </div>
-
-  <main>
-    <div class="rules-box">
-      <div><b>10</b>Resultado exacto</div>
-      <div><b>5</b>Acertás quién gana</div>
-      <div><b>0</b>Fallás el partido</div>
+    <div id="login-screen">
+        <div class="login-box">
+            <h1>🏆 Prode Familiar 2026</h1>
+            <p>Ingresá tu nombre o apodo para empezar:</p>
+            <input type="text" id="player-name" placeholder="Ej: Juan, Mamá, Tío...">
+            <button onclick="entrarAlEstadio()">¡Entrar a Jugar!</button>
+        </div>
     </div>
 
-    <div id="tab-partidos"></div>
-    <div id="tab-mios" style="display:none;"></div>
-    <div id="tab-ranking" style="display:none;"></div>
-    <div id="tab-cuadro" style="display:none;"></div>
-  </main>
-</div>
+    <div id="main-interface">
+        <header>
+            <div>
+                <h2>Fixture de la Fase Final</h2>
+                <div class="clock-bar" id="live-clock">Cargando hora...</div>
+            </div>
+            <div style="background: #2563eb; padding: 0.6rem 1.5rem; border-radius: 20px; font-weight: bold; font-size: 1.2rem;" id="user-display"></div>
+        </header>
 
-<script>
-// Códigos ISO-3166 (los que usa flagcdn.com) para cada selección.
-// Se usan imágenes reales en vez de emoji porque los emoji de banderas
-// no se ven en Windows ni en varios navegadores/celulares.
-const FLAGS = {SUI:"ch",DZA:"dz",GER:"de",PAR:"py",NED:"nl",MAR:"ma",CIV:"ci",NOR:"no",
-  FRA:"fr",SWE:"se",MEX:"mx",ECU:"ec",ENG:"gb-eng",COD:"cd",BEL:"be",SEN:"sn",USA:"us",
-  BIH:"ba",ESP:"es",AUT:"at",POR:"pt",CRO:"hr",AUS:"au",EGY:"eg",ARG:"ar",CPV:"cv",
-  COL:"co",GHA:"gh",CAN:"ca",BRA:"br"};
+        <div class="grid">
+            <main>
+                <div class="panel">
+                    <h3>✍️ Anotás tus resultados acá abajo:</h3>
+                    <div id="fixture-container"></div>
+                    <button class="btn-submit" onclick="guardarProde()">💾 GUARDAR MIS RESULTADOS</button>
+                </div>
+            </main>
 
-const MATCHES = [
-  {id:"53452541", home:"GER", homeN:"Alemania", away:"PAR", awayN:"Paraguay", status:"finished", hs:1, as:1, date:"29 jun", round:"grupos"},
-  {id:"53452547", home:"NED", homeN:"Países Bajos", away:"MAR", awayN:"Marruecos", status:"finished", hs:1, as:1, date:"29 jun", round:"grupos"},
-  {id:"53452561", home:"CIV", homeN:"Costa de Marfil", away:"NOR", awayN:"Noruega", status:"finished", hs:1, as:2, date:"30 jun", round:"grupos"},
-  {id:"53452543", home:"FRA", homeN:"Francia", away:"SWE", awayN:"Suecia", status:"finished", hs:3, as:0, date:"30 jun", round:"grupos"},
-  {id:"53452563", home:"MEX", homeN:"México", away:"ECU", awayN:"Ecuador", status:"finished", hs:2, as:0, date:"30 jun", round:"grupos"},
-  {id:"53452565", home:"ENG", homeN:"Inglaterra", away:"COD", awayN:"Rep. Dem. del Congo", status:"finished", hs:2, as:1, date:"1 jul", round:"grupos"},
-  {id:"53452555", home:"BEL", homeN:"Bélgica", away:"SEN", awayN:"Senegal", status:"finished", hs:3, as:2, date:"1 jul", round:"grupos"},
-  {id:"53452553", home:"USA", homeN:"Estados Unidos", away:"BIH", awayN:"Bosnia y Herz.", status:"finished", hs:2, as:0, date:"1 jul", round:"grupos"},
-  {id:"53452551", home:"ESP", homeN:"España", away:"AUT", awayN:"Austria", status:"finished", hs:3, as:0, date:"2 jul", round:"grupos"},
-  {id:"53452549", home:"POR", homeN:"Portugal", away:"CRO", awayN:"Croacia", status:"finished", hs:2, as:1, date:"2 jul", round:"grupos"},
-  // NUEVO: cada partido de 16avos ahora declara "feedsTo" (a qué casillero
-  // de Octavos alimenta su ganador, y si va en la posición A o B de ese
-  // cruce). Esto es lo que permite que el ganador avance SOLO al cuadro en
-  // cuanto el partido termina, en vez de quedar "Por definir" para siempre.
-  // El emparejamiento 16avos -> Octavos usado acá es un orden provisional
-  // (no hay todavía un fixture oficial de FIFA con los cruces reales); el
-  // mecanismo de avance automático funciona igual apenas se sepa el cruce
-  // real, solo hay que ajustar estos feedsTo.
-  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"finished", hs:2, as:0, date:"3 jul", start:"2026-07-03T15:00:00Z", round:"16avos", feedsTo:{id:"b8-1", slot:"A"}},
-  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"finished", hs:1, as:0, date:"3 jul", start:"2026-07-03T18:00:00Z", round:"16avos", feedsTo:{id:"b8-1", slot:"B"}},
-  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"finished", hs:3, as:0, date:"3 jul", start:"2026-07-03T22:00:00Z", round:"16avos", feedsTo:{id:"b8-2", slot:"A"}},
-  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"finished", hs:2, as:1, date:"3 jul", start:"2026-07-04T01:30:00Z", round:"16avos", feedsTo:{id:"b8-2", slot:"B"}},
-  {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00", round:"16avos", feedsTo:{id:"b8-3", slot:"A"}},
-  {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00", round:"16avos", feedsTo:{id:"b8-3", slot:"B"}},
-  {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00", round:"16avos", feedsTo:{id:"b8-4", slot:"A"}},
-  {id:"53452519", home:"MEX", homeN:"México", away:"ENG", awayN:"Inglaterra", status:"scheduled", start:"2026-07-06T00:00:00Z", date:"5 jul, 21:00", round:"16avos", feedsTo:{id:"b8-4", slot:"B"}},
-  {id:"53452513", home:"POR", homeN:"Portugal", away:"ESP", awayN:"España", status:"scheduled", start:"2026-07-06T19:00:00Z", date:"6 jul, 16:00", round:"16avos", feedsTo:{id:"b8-5", slot:"A"}},
-  {id:"53452515", home:"USA", homeN:"Estados Unidos", away:"BEL", awayN:"Bélgica", status:"scheduled", start:"2026-07-07T00:00:00Z", date:"6 jul, 21:00", round:"16avos", feedsTo:{id:"b8-5", slot:"B"}},
-];
+            <aside>
+                <div class="panel">
+                    <h3>⭐ Tabla de Posiciones</h3>
+                    <table class="ranking-table">
+                        <thead><tr><th>Pos</th><th>Nombre</th><th>Puntos</th></tr></thead>
+                        <tbody id="ranking-rows"></tbody>
+                    </table>
+                </div>
+            </aside>
+        </div>
+    </div>
 
-// ------- Cuadro de eliminación (Octavos en adelante) -------
-// Todavía no se sabe qué equipos llegan a estas instancias (dependen de
-// quién gana los 16avos de arriba), así que cada casillero se arma con
-// "slotA/slotB": si hay un equipo confirmado va el código de país; si no,
-// va null y en su lugar se muestra un texto genérico ("Ganador 16avos …")
-// más la fecha (o "Fecha a confirmar" si tampoco hay fecha todavía).
-// Cuando quieras ir completando el cuadro a medida que se conocen los
-// cruces reales, solo hay que reemplazar los "slotA:null" por el código de
-// país correspondiente (ej: slotA:"ARG").
-// La columna de 16avos NO se repite acá: se arma en renderCuadro() a partir
-// de MATCHES (round:"16avos") más estos 6 cruces que todavía no están
-// definidos porque dependen de equipos que salen 2°/3° de grupo.
-// Estos 6 cruces siguen sin poder resolverse automáticamente porque ni
-// siquiera sabemos qué equipos los van a jugar (depende de puestos 2°/3° de
-// grupo, y esta app no modela la tabla de posiciones de grupos). Por eso NO
-// tienen feedsTo hacia un equipo real: solo alimentan el casillero de
-// Octavos con el texto genérico "Por definir" hasta que se sepan los
-// equipos. El feedsTo de acá sirve únicamente para que renderCuadro sepa en
-// qué casillero de Octavos va cada uno.
-const BRACKET_16_PENDING = [
-  {id:"b16-p1", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-6", slot:"A"}},
-  {id:"b16-p2", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-6", slot:"B"}},
-  {id:"b16-p3", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-7", slot:"A"}},
-  {id:"b16-p4", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-7", slot:"B"}},
-  {id:"b16-p5", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-8", slot:"A"}},
-  {id:"b16-p6", refA:"Ganador Grupo", refB:"2° de otro grupo", date:null, feedsTo:{id:"b8-8", slot:"B"}}
-];
+    <script>
+        // LISTA DE PARTIDOS CON PAÍSES REALES Y BANDERAS CLARAS
+        const multiWebsMatches = [
+            // === DIECISEISAVOS DE FINAL ===
+            { id: "p1", fase: "Dieciseisavos de Final", local: "Argentina 🇦🇷", visitante: "Cabo Verde 🇨🇻", fecha: "03 Jul", hora: "19:00" },
+            { id: "p2", fase: "Dieciseisavos de Final", local: "Colombia 🇨🇴", visitante: "Ghana 🇬🇭", fecha: "03 Jul", hora: "22:00" },
+            { id: "p3", fase: "Dieciseisavos de Final", local: "Estados Unidos 🇺🇸", visitante: "Uruguay 🇺🇾", fecha: "28 Jun", hora: "16:00" },
+            { id: "p4", fase: "Dieciseisavos de Final", local: "México 🇲🇽", visitante: "Arabia Saudita 🇸🇦", fecha: "28 Jun", hora: "20:00" },
+            { id: "p5", fase: "Dieciseisavos de Final", local: "Canadá 🇨🇦", visitante: "Ecuador 🇪🇨", fecha: "29 Jun", hora: "15:00" },
+            { id: "p6", fase: "Dieciseisavos de Final", local: "Alemania 🇩🇪", visitante: "Argelia 🇩🇿", fecha: "29 Jun", hora: "19:00" },
+            { id: "p7", fase: "Dieciseisavos de Final", local: "Bélgica 🇧🇪", visitante: "Corea del Sur 🇰🇷", fecha: "29 Jun", hora: "22:00" },
+            { id: "p8", fase: "Dieciseisavos de Final", local: "Brasil 🇧🇷", visitante: "Ucrania 🇺🇦", fecha: "30 Jun", hora: "14:00" },
+            { id: "p9", fase: "Dieciseisavos de Final", local: "Chile 🇨🇱", visitante: "Polonia 🇵🇱", fecha: "30 Jun", hora: "18:00" },
+            { id: "p10", fase: "Dieciseisavos de Final", local: "Francia 🇫🇷", visitante: "Egipto 🇪🇬", fecha: "30 Jun", hora: "21:00" },
+            { id: "p11", fase: "Dieciseisavos de Final", local: "Países Bajos 🇳🇱", visitante: "Perú 🇵🇪", fecha: "01 Jul", hora: "15:00" },
+            { id: "p12", fase: "Dieciseisavos de Final", local: "España 🇪🇦", visitante: "Túnez 🇹🇳", fecha: "01 Jul", hora: "19:00" },
+            { id: "p13", fase: "Dieciseisavos de Final", local: "Italia 🇮🇹", visitante: "Camerún 🇨🇲", fecha: "01 Jul", hora: "22:00" },
+            { id: "p14", fase: "Dieciseisavos de Final", local: "Portugal 🇵🇹", visitante: "Australia 🇦🇺", fecha: "02 Jul", hora: "14:00" },
+            { id: "p15", fase: "Dieciseisavos de Final", local: "Marruecos 🇲🇦", visitante: "Japón 🇯🇵", fecha: "02 Jul", hora: "18:00" },
+            { id: "p16", fase: "Dieciseisavos de Final", local: "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿", visitante: "Suiza 🇨🇭", fecha: "02 Jul", hora: "21:00" },
 
-// NOTA para cuando se vayan jugando las siguientes rondas: si en algún
-// momento agregás a MATCHES un partido real de Octavos/Cuartos/Semis (con
-// su id igual al de acá abajo, por ej. "b8-1", y home/away/status/hs/as
-// reales), renderCuadro lo va a usar automáticamente en lugar del
-// casillero genérico. Y si además le agregás su propio "feedsTo" apuntando
-// a la ronda siguiente (b8-1,b8-2 -> b4-1 · b8-3,b8-4 -> b4-2 ·
-// b8-5,b8-6 -> b4-3 · b8-7,b8-8 -> b4-4 · b4-1,b4-2 -> bs-1 ·
-// b4-3,b4-4 -> bs-2 · bs-1,bs-2 -> bf-1), el ganador va a seguir avanzando
-// solo, ronda tras ronda, sin tocar nada más en el código.
-const BRACKET_ROUNDS = [
-  {
-    key:"8vos", label:"Octavos de final",
-    matches: Array.from({length:8}, function(_, i){
-      return {id:"b8-"+(i+1), slotA:null, slotB:null, refA:"Ganador 16avos", refB:"Ganador 16avos", date:"9-11 jul"};
-    })
-  },
-  {
-    key:"4tos", label:"Cuartos de final",
-    matches: Array.from({length:4}, function(_, i){
-      return {id:"b4-"+(i+1), slotA:null, slotB:null, refA:"Ganador Octavos", refB:"Ganador Octavos", date:"13-14 jul"};
-    })
-  },
-  {
-    key:"semis", label:"Semifinales",
-    matches: [
-      {id:"bs-1", slotA:null, slotB:null, refA:"Ganador Cuartos", refB:"Ganador Cuartos", date:"18 jul"},
-      {id:"bs-2", slotA:null, slotB:null, refA:"Ganador Cuartos", refB:"Ganador Cuartos", date:"19 jul"}
-    ]
-  },
-  {
-    key:"final", label:"Final",
-    matches: [
-      {id:"bf-1", slotA:null, slotB:null, refA:"Ganador Semi 1", refB:"Ganador Semi 2", date:"19 jul · MetLife Stadium, NJ"}
-    ]
-  }
-];
+            // === OCTAVOS DE FINAL ===
+            { id: "p17", fase: "Octavos de Final", local: "Ganador [Argentina / Cabo Verde]", visitante: "Ganador [Colombia / Ghana]", fecha: "11 Jul", hora: "14:00" },
+            { id: "p18", fase: "Octavos de Final", local: "Ganador [EE.UU. / Uruguay]", visitante: "Ganador [México / Arabia]", fecha: "11 Jul", hora: "18:00" },
+            { id: "p19", fase: "Octavos de Final", local: "Ganador [Canadá / Ecuador]", visitante: "Ganador [Alemania / Argelia]", fecha: "11 Jul", hora: "21:00" },
+            { id: "p20", fase: "Octavos de Final", local: "Ganador [Bélgica / Corea del Sur]", visitante: "Ganador [Brasil / Ucrania]", fecha: "12 Jul", hora: "15:00" },
+            { id: "p21", fase: "Octavos de Final", local: "Ganador [Chile / Polonia]", visitante: "Ganador [Francia / Egipto]", fecha: "12 Jul", hora: "19:00" },
+            { id: "p22", fase: "Octavos de Final", local: "Ganador [Países Bajos / Perú]", visitante: "Ganador [España / Túnez]", fecha: "12 Jul", hora: "22:00" },
+            { id: "p23", fase: "Octavos de Final", local: "Ganador [Italia / Camerún]", visitante: "Ganador [Portugal / Australia]", fecha: "13 Jul", hora: "14:00" },
+            { id: "p24", fase: "Octavos de Final", local: "Ganador [Marruecos / Japón]", visitante: "Ganador [Inglaterra / Suiza]", fecha: "13 Jul", hora: "18:00" },
 
-const EN_NAMES = {GER:"Germany",PAR:"Paraguay",NED:"Netherlands",MAR:"Morocco",CIV:"Ivory Coast",NOR:"Norway",
-  FRA:"France",SWE:"Sweden",MEX:"Mexico",ECU:"Ecuador",ENG:"England",COD:"DR Congo",BEL:"Belgium",SEN:"Senegal",
-  USA:"USA",BIH:"Bosnia-Herzegovina",ESP:"Spain",AUT:"Austria",POR:"Portugal",CRO:"Croatia",SUI:"Switzerland",
-  DZA:"Algeria",AUS:"Australia",EGY:"Egypt",ARG:"Argentina",CPV:"Cape Verde",COL:"Colombia",GHA:"Ghana",CAN:"Canada",BRA:"Brazil"};
+            // === CUARTOS DE FINAL ===
+            { id: "p25", fase: "Cuartos de Final", local: "Ganador Octavos Partido 17", visitante: "Ganador Octavos Partido 18", fecha: "18 Jul", hora: "14:00" },
+            { id: "p26", fase: "Cuartos de Final", local: "Ganador Octavos Partido 19", visitante: "Ganador Octavos Partido 20", fecha: "18 Jul", hora: "18:00" },
+            { id: "p27", fase: "Cuartos de Final", local: "Ganador Octavos Partido 21", visitante: "Ganador Octavos Partido 22", fecha: "19 Jul", hora: "15:00" },
+            { id: "p28", fase: "Cuartos de Final", local: "Ganador Octavos Partido 23", visitante: "Ganador Octavos Partido 24", fecha: "19 Jul", hora: "19:00" },
 
-let currentUser = null; // ahora es un objeto {uid, name, email, picture, provider}
-let predictions = {};
+            // === SEMIFINALES ===
+            { id: "p29", fase: "Semifinales", local: "Ganador Cuartos Partido 25", visitante: "Ganador Cuartos Partido 26", fecha: "24 Jul", hora: "16:00" },
+            { id: "p30", fase: "Semifinales", local: "Ganador Cuartos Partido 27", visitante: "Ganador Cuartos Partido 28", fecha: "24 Jul", hora: "20:00" },
 
-function escapeHtml(s){
-  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
-  });
-}
-function slugify(s){ return String(s).trim().toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
+            // === FINALES ===
+            { id: "p31", fase: "Partido por el 3er Puesto 🥉", local: "Perdedor Semifinal 1", visitante: "Perdedor Semifinal 2", fecha: "28 Jul", hora: "16:00" },
+            { id: "p32", fase: "¡Gran Final del Mundial! 🏆", local: "Ganador Semifinal 1", visitante: "Ganador Semifinal 2", fecha: "29 Jul", hora: "17:00" }
+        ];
 
-function loadProfile(){
-  try{ var raw = localStorage.getItem('mundial_profile'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
-}
-function saveProfile(profile){ localStorage.setItem('mundial_profile', JSON.stringify(profile)); }
-function clearProfile(){ localStorage.removeItem('mundial_profile'); }
-function loadPredictions(){
-  try{ var raw = localStorage.getItem('mundial_predicciones_' + currentUser.uid); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; }
-}
-function savePredictions(){ localStorage.setItem('mundial_predicciones_' + currentUser.uid, JSON.stringify(predictions)); }
+        let clienteActual = "";
 
-let lastSyncError = null;
+        if (!localStorage.getItem('prode_familiar_2026')) {
+            localStorage.setItem('prode_familiar_2026', JSON.stringify({}));
+        }
 
-function todayISO(){
-  var d = new Date();
-  return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
-}
+        setInterval(() => {
+            const ahora = new Date();
+            document.getElementById('live-clock').innerText = `🕒 Hora actual: ${ahora.toLocaleTimeString()}`;
+        }, 1000);
 
-// La API gratuita de TheSportsDB es inconsistente con el formato de
-// "temporada" para torneos que no son ligas domésticas (el Mundial no usa
-// "2025-2026" como una liga, a veces usa solo "2026"). En vez de apostar a
-// un solo formato, probamos 3 endpoints distintos en orden y nos quedamos
-// con el primero que realmente traiga partidos.
-// 5 intentos distintos contra la API gratuita de TheSportsDB (no hace falta
-// API key). No son 5 proveedores distintos —las APIs gratuitas de fútbol en
-// vivo sin key son escasas— pero sí son 5 endpoints/estrategias diferentes:
-// si uno falla o no trae el partido buscado, se prueba el siguiente. El
-// orden va de "más específico y liviano" a "más general".
-var SYNC_ATTEMPTS = [
-  {label:'livescore del torneo', url:'https://www.thesportsdb.com/api/v1/json/123/livescore.php?id=4429'},
-  {label:'partidos de hoy', url:'https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d=' + todayISO() + '&l=4429'},
-  {label:'próxima fecha del torneo', url:'https://www.thesportsdb.com/api/v1/json/123/eventsnextleague.php?id=4429'},
-  {label:'temporada 2026', url:'https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2026'},
-  {label:'temporada 2025-2026', url:'https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2025-2026'}
-];
+        function entrarAlEstadio() {
+            const alias = document.getElementById('player-name').value.trim().toUpperCase();
+            if (!alias) return alert("Por favor, ingresá tu nombre para empezar.");
+            clienteActual = alias;
+            document.getElementById('user-display').innerText = `👤 Participante: ${clienteActual}`;
 
-// Compara nombres de equipo de forma tolerante: sin mayúsculas ni acentos,
-// para que "México" (el nuestro) y "Mexico" (el de la API) coincidan.
-function normName(s){
-  return String(s || '').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]/g, '');
-}
+            let DB = JSON.parse(localStorage.getItem('prode_familiar_2026'));
+            if (!DB[clienteActual]) {
+                DB[clienteActual] = { pronosticos: {} };
+                localStorage.setItem('prode_familiar_2026', JSON.stringify(DB));
+            }
 
-function applyEventToMatch(ev, match){
-  var hs = parseInt(ev.intHomeScore, 10), as = parseInt(ev.intAwayScore, 10);
-  if(isNaN(hs) || isNaN(as)) return false;
-  match.hs = hs; match.as = as;
-  var st = (ev.strStatus || ev.strProgress || '').toLowerCase();
-  if(st.indexOf('finish') !== -1 || st === 'ft' || st === 'aet' || st === 'pen'){
-    match.status = 'finished';
-  } else if(st && st !== 'not started' && st !== 'ns'){
-    match.status = 'live';
-  } else if(!st && match.status === 'scheduled'){
-    // Algunas respuestas no traen status explícito para partidos en curso;
-    // si ya venció la hora de arranque lo pasamos a "en vivo" igual.
-    var startMs = match.start ? new Date(match.start).getTime() : null;
-    if(startMs && Date.now() >= startMs) match.status = 'live';
-  }
-  return true;
-}
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-interface').style.display = 'block';
+            renderizarFixture();
+        }
 
-// ------- Respaldo local si la API de resultados falla -------
-// Cada vez que logramos traer datos reales de la API, guardamos una foto de
-// los partidos (status/hs/as) en localStorage. Si en una visita posterior
-// la API no responde (viaje sin señal, API caída, CORS, lo que sea), al
-// cargar la página aplicamos ese último dato conocido en vez de arrancar
-// siempre desde el estado "de fábrica" escrito a mano en MATCHES. Así la
-// página sigue funcionando (mostrando el último resultado real que se supo)
-// aunque la API esté abajo en este momento.
-function cacheMatchesSnapshot(){
-  try{
-    var snap = {};
-    MATCHES.forEach(function(m){ snap[m.id] = {status:m.status, hs:m.hs, as:m.as}; });
-    localStorage.setItem('mundial_matches_cache', JSON.stringify(snap));
-  }catch(e){
-    // localStorage puede fallar (modo privado, cuota llena, etc.). No es
-    // grave: simplemente no vamos a tener respaldo esta vez.
-    console.warn('No se pudo guardar el respaldo local de resultados:', e);
-  }
-}
-function applyMatchesSnapshot(){
-  try{
-    var raw = localStorage.getItem('mundial_matches_cache');
-    if(!raw) return;
-    var snap = JSON.parse(raw);
-    MATCHES.forEach(function(m){
-      var c = snap[m.id];
-      if(!c) return;
-      // Nunca "retrocedemos" un partido (ej: de finished a live). Solo
-      // aplicamos el snapshot si trae el partido más avanzado de lo que ya
-      // tenemos, y solo copiamos el marcador si es un número válido.
-      var order = {scheduled:0, live:1, finished:2};
-      if(order[c.status] > order[m.status]){
-        m.status = c.status;
-      }
-      if(Number.isFinite(c.hs) && Number.isFinite(c.as) && !(Number.isFinite(m.hs) && Number.isFinite(m.as))){
-        m.hs = c.hs; m.as = c.as;
-      }
-    });
-  }catch(e){
-    console.warn('No se pudo aplicar el respaldo local de resultados:', e);
-  }
-}
+        function renderizarFixture() {
+            const fixtureContainer = document.getElementById('fixture-container');
+            fixtureContainer.innerHTML = "";
 
-async function fetchLiveScores(){
-  lastSyncError = null;
-  var attemptLog = [];
-  for(var i=0; i<SYNC_ATTEMPTS.length; i++){
-    var attempt = SYNC_ATTEMPTS[i];
-    try{
-      var res = await fetch(attempt.url, {cache:"no-store"});
-      if(!res.ok){ attemptLog.push(attempt.label + ': HTTP ' + res.status); continue; }
-      var data = await res.json();
-      var events = data && (data.events || data.results);
-      if(!events || !events.length){ attemptLog.push(attempt.label + ': sin partidos'); continue; }
-      var updated = 0;
-      events.forEach(function(ev){
-        var match = MATCHES.find(function(m){
-          var hN = normName(EN_NAMES[m.home]), aN = normName(EN_NAMES[m.away]);
-          var evH = normName(ev.strHomeTeam), evA = normName(ev.strAwayTeam);
-          if(!evH || !evA) return false;
-          return (evH.indexOf(hN) !== -1 && evA.indexOf(aN) !== -1) ||
-                 (evH.indexOf(aN) !== -1 && evA.indexOf(hN) !== -1);
-        });
-        if(!match) return;
-        if(applyEventToMatch(ev, match)) updated++;
-      });
-      if(updated > 0){
-        cacheMatchesSnapshot(); // respaldo: guardamos lo que sí pudimos confirmar
-        return true;
-      }
-      attemptLog.push(attempt.label + ': trajo ' + events.length + ' eventos pero ninguno coincidió con los nombres de equipo guardados');
-    }catch(e){
-      // Nota: si esto es un bloqueo CORS del navegador, "e" no trae detalle
-      // (el navegador lo oculta por seguridad); en la consola (F12) vas a
-      // ver "Failed to fetch", y eso confirma que es un bloqueo del
-      // navegador y no un problema del código.
-      attemptLog.push(attempt.label + ': ' + ((e && e.message) ? e.message : 'error de red'));
-    }
-  }
-  lastSyncError = attemptLog.join(' · ');
-  console.warn('No se pudo conectar a la fuente de datos en vivo:', lastSyncError);
-  return false;
-}
+            let DB = JSON.parse(localStorage.getItem('prode_familiar_2026'));
+            let misPredicciones = DB[clienteActual]?.pronosticos || {};
+            let fasesMap = {};
 
-async function refreshSource(){
-  var dot = document.getElementById('source-dot');
-  var label = document.getElementById('source-label');
-  var btn = document.getElementById('refresh-btn');
-  btn.disabled = true; btn.textContent = 'Actualizando…';
-  var ok = await fetchLiveScores();
-  var timeTxt = new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
-  dot.classList.toggle('ok', ok);
-  label.textContent = ok
-    ? 'Conectado a datos en vivo · última sync ' + timeTxt
-    : 'Sin datos en vivo (' + (lastSyncError || 'error desconocido') + ') · intentado ' + timeTxt;
-  btn.disabled = false; btn.textContent = '🔄 Actualizar resultados';
-  refreshAll();
-}
+            multiWebsMatches.forEach(match => {
+                if (!fasesMap[match.fase]) fasesMap[match.fase] = [];
+                fasesMap[match.fase].push(match);
+            });
 
-// Los partidos tienen un status fijo ("scheduled"/"live"/"finished") escrito
-// a mano en MATCHES. Si la sincronización con la API falla (por la razón que
-// sea), ese status nunca cambia solo. Esto corrige el status localmente
-// usando el reloj: si ya pasó la hora de arranque lo pasa a "live", y si ya
-// pasó de sobra el tiempo típico de un partido lo pasa a "finished" (con el
-// último resultado que tengamos), para que la app no se quede mostrando
-// "próximo" o "en vivo" para siempre mientras espera a la API.
-// CORRECCIÓN: antes esta función pasaba un partido a "finished" solo por el
-// reloj, sin importar si ya teníamos el resultado real (hs/as). Si la API
-// nunca llegó a traer el marcador, el partido quedaba "Finalizado" con
-// hs/as en "undefined": la tarjeta mostraba "undefined - undefined" y
-// calcPoints le daba 0 puntos a todo el mundo aunque el resultado real
-// fuera otro. Ahora solo marcamos "finished" por reloj cuando YA tenemos
-// un marcador numérico válido. Si no lo tenemos, el partido se queda en
-// "live" (las predicciones ya están bloqueadas igual después del minuto 10
-// por canPredictLive/isLocked) hasta que la API traiga el resultado oficial.
-function autoCorrectStatuses(){
-  var now = Date.now();
-  MATCHES.forEach(function(m){
-    if(!m.start) return;
-    var start = new Date(m.start).getTime();
-    if(m.status === 'scheduled' && now >= start){
-      m.status = 'live';
-    }
-    if(m.status === 'live'){
-      var elapsedMin = (now - start) / 60000;
-      var hasScore = Number.isFinite(m.hs) && Number.isFinite(m.as);
-      if(elapsedMin > 130 && hasScore){
-        m.status = 'finished';
-      }
-    }
-  });
-}
+            const ordenFases = [
+                "Dieciseisavos de Final",
+                "Octavos de Final",
+                "Cuartos de Final",
+                "Semifinales",
+                "Partido por el 3er Puesto 🥉",
+                "¡Gran Final del Mundial! 🏆"
+            ];
 
-function outcome(h,a){ return h>a?'H':h<a?'A':'D'; }
-function calcPoints(pred, m){
-  if(m.status!=='finished') return null;
-  if(pred.h===m.hs && pred.a===m.as) return 10;
-  if(outcome(pred.h,pred.a)===outcome(m.hs,m.as)) return 5;
-  return 0;
-}
+            ordenFases.forEach(fase => {
+                if (!fasesMap[fase]) return;
+                let divFase = `<div class="fase-bloque"><div class="fase-nombre">${fase}</div>`;
+                
+                fasesMap[fase].forEach(match => {
+                    const lVal = misPredicciones[match.id]?.l || "";
+                    const vVal = misPredicciones[match.id]?.v || "";
 
-// Minutos transcurridos desde el arranque del partido (según el campo "start").
-function minutesElapsed(m){
-  if(!m.start) return null;
-  var min = (Date.now() - new Date(m.start).getTime()) / 60000;
-  return min;
-}
-// Un partido "en vivo" solo se puede pronosticar entre el minuto 0 y el 10.
-function canPredictLive(m){
-  if(m.status!=='live') return false;
-  var min = minutesElapsed(m);
-  return min !== null && min >= 0 && min <= 10;
-}
-function isLocked(m){
-  if(m.status==='finished') return true;
-  if(m.status==='live') return !canPredictLive(m);
-  return new Date() >= new Date(m.start);
-}
-function computeStats(){
-  var points=0, exact=0, acertados=0, preds=0;
-  MATCHES.forEach(function(m){
-    var p = predictions[m.id];
-    if(!p) return;
-    preds++;
-    var pts = calcPoints(p, m);
-    // "acertados" = partidos donde le pegaste al resultado (exacto o solo
-    // el ganador/empate). Es lo que pide el Ranking como columna aparte de
-    // "resultados exactos".
-    if(pts===10){ points+=10; exact++; acertados++; }
-    else if(pts===5){ points+=5; acertados++; }
-  });
-  return {points:points, exact:exact, acertados:acertados, preds:preds};
-}
+                    divFase += `
+                        <div class="partido-fila">
+                            <div class="partido-meta">📅 ${match.fecha}<br>⏰ ${match.hora} HS</div>
+                            <div class="partido-equipos">
+                                <div class="equipo-bloque local">${match.local}</div>
+                                <span class="vs-label">VS</span>
+                                <div class="equipo-bloque visitante">${match.visitante}</div>
+                            </div>
+                            <div class="partido-inputs">
+                                <input type="number" min="0" id="gl-${match.id}" value="${lVal}">
+                                <span>-</span>
+                                <input type="number" min="0" id="gv-${match.id}" value="${vVal}">
+                            </div>
+                        </div>
+                    `;
+                });
+                divFase += `</div>`;
+                fixtureContainer.innerHTML += divFase;
+            });
 
-function flag(code){
-  var iso = FLAGS[code];
-  if(!iso) return '';
-  return '<img class="flag-img" src="https://flagcdn.com/w40/' + iso + '.png" alt="' + code + '" loading="lazy">';
-}
+            actualizarLeaderboard();
+        }
 
-// ------- Ranking compartido entre amigos (kvdb.io) -------
-// No hace falta que hagas nada a mano: la primera vez que alguien abre la
-// página con el ranking sin configurar, la propia app genera un código
-// gratis (via kvdb.io) y te lo muestra en un cartel arriba, con los pasos
-// para pegarlo en la línea de BUCKET_ID de este archivo. Es un solo paso,
-// una sola vez: después queda compartido para todos los que entren a la
-// página (viene de que es un sitio estático sin servidor propio; sin ese
-// código no hay dónde guardar un ranking que vean todos).
-const BUCKET_ID = "REEMPLAZAR_CON_TU_BUCKET_ID";
+        function guardarProde() {
+            let DB = JSON.parse(localStorage.getItem('prode_familiar_2026'));
 
-function rankingConfigured(){ return BUCKET_ID && BUCKET_ID.indexOf('REEMPLAZAR') !== 0; }
+            multiWebsMatches.forEach(match => {
+                const inputL = document.getElementById(`gl-${match.id}`).value;
+                const inputV = document.getElementById(`gv-${match.id}`).value;
 
-// Si todavía no está configurado el ranking, la app genera sola un código
-// (sin que el usuario tenga que tocar la consola del navegador) y lo
-// muestra en un cartel con los pasos para pegarlo en el archivo.
-async function ensureSetupBanner(){
-  if(rankingConfigured()) return;
-  var cached = localStorage.getItem('ranking_setup_id');
-  if(cached){ showSetupBanner(cached); return; }
-  showSetupBanner(null, 'generando');
-  try{
-    var res = await fetch('https://kvdb.io/', {
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:'email=ranking' + Date.now() + '@example.com&default_ttl=0'
-    });
-    if(!res.ok) throw new Error('bad response: ' + res.status);
-    cached = (await res.text()).trim();
-    if(!cached) throw new Error('respuesta vacia');
-    localStorage.setItem('ranking_setup_id', cached);
-    showSetupBanner(cached);
-  }catch(e){
-    var detail = (e && e.message) ? e.message : 'error desconocido';
-    console.warn('No se pudo generar el codigo de ranking:', e);
-    showSetupBanner(null, 'error', detail);
-  }
-}
+                if (inputL !== "" && inputV !== "") {
+                    DB[clienteActual].pronosticos[match.id] = {
+                        l: parseInt(inputL),
+                        v: parseInt(inputV)
+                    };
+                }
+            });
 
-function showSetupBanner(id, state, detail){
-  var old = document.getElementById('setup-banner');
-  if(old) old.remove();
-  var div = document.createElement('div');
-  div.id = 'setup-banner';
-  div.style.cssText = 'max-width:760px;margin:14px auto 0;padding:14px 16px;background:rgba(242,193,78,.12);border:1.5px solid var(--gold);border-radius:12px;font-size:13px;';
-  if(state==='generando'){
-    div.innerHTML = '<b style="color:var(--gold);">Generando código del ranking…</b>';
-  } else if(state==='error'){
-    div.innerHTML =
-      '<b style="color:var(--live);">No se pudo generar el código del ranking</b><br>' +
-      'Detalle: ' + escapeHtml(detail || 'desconocido') + '<br>' +
-      '<button type="button" id="setup-retry" style="margin-top:8px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Reintentar</button>';
-  } else {
-    div.innerHTML =
-      '<b style="color:var(--gold);">Falta 1 paso para activar el ranking compartido</b><br>' +
-      'Este código ya está listo, solo hay que pegarlo en el archivo:<br>' +
-      '<div style="background:var(--navy);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;font-weight:700;color:var(--gold);word-break:break-all;user-select:all;" id="setup-code">' + id + '</div>' +
-      '<button type="button" id="setup-copy" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Copiar código</button>' +
-      '<div style="margin-top:10px;color:var(--muted);font-size:12px;line-height:1.5;">' +
-      '1. Copiá el código de arriba.<br>' +
-      '2. En GitHub, abrí <b>index.html</b> y tocá el lápiz (editar).<br>' +
-      '3. Buscá la línea <code style="background:var(--navy);padding:1px 4px;border-radius:4px;">const BUCKET_ID = "REEMPLAZAR_CON_TU_BUCKET_ID";</code><br>' +
-      '4. Reemplazá el texto entre comillas por el código copiado.<br>' +
-      '5. Guardá (Commit changes). Listo — el ranking va a quedar compartido para todos los que entren a la página.' +
-      '</div>';
-  }
-  document.querySelector('header.top').insertAdjacentElement('afterend', div);
-  if(state==='error'){
-    document.getElementById('setup-retry').onclick = function(){
-      localStorage.removeItem('ranking_setup_id');
-      ensureSetupBanner();
-    };
-  } else if(!state){
-    document.getElementById('setup-copy').onclick = function(){
-      navigator.clipboard.writeText(id).then(function(){
-        var b = document.getElementById('setup-copy');
-        b.textContent = '¡Copiado!';
-        setTimeout(function(){ b.textContent = 'Copiar código'; }, 1500);
-      });
-    };
-  }
-}
+            localStorage.setItem('prode_familiar_2026', JSON.stringify(DB));
+            alert("✅ ¡Tus resultados se guardaron correctamente!");
+            renderizarFixture();
+        }
 
-// Si dos personas distintas entran con el mismo nombre (dos "uid" distintos,
-// ej. dos que escribieron "Juan" a mano), el ranking compartido quedaría con
-// nombres iguales y no se podría distinguir quién es quién. Por eso, antes
-// de mostrar/publicar el nombre, se revisa el ranking: si el nombre base ya
-// lo está usando OTRO uid, se le agrega "(1)", "(2)", etc. hasta encontrar
-// uno libre. El resultado se guarda en el perfil (displayName) para que no
-// cambie solo entre sesiones.
-async function resolveDisplayName(profile){
-  var base = (profile.name || '').trim();
-  if(!base) return base;
-  if(!rankingConfigured()) return base;
-  try{
-    var res = await fetch('https://kvdb.io/' + BUCKET_ID + '/?prefix=user:&values=true&format=json', {cache:'no-store'});
-    if(!res.ok) return base;
-    var data = await res.json();
-    var rows = data.map(function(kv){
-      var v = kv[1];
-      if(typeof v === 'string'){ try{ v = JSON.parse(v); }catch(e){ return null; } }
-      return v;
-    }).filter(Boolean);
-    var takenByOthers = rows.filter(function(r){ return r.uid !== profile.uid; })
-      .map(function(r){ return String(r.name || '').trim().toLowerCase(); });
-    if(takenByOthers.indexOf(base.toLowerCase()) === -1) return base;
-    var n = 1;
-    while(takenByOthers.indexOf((base + ' (' + n + ')').toLowerCase()) !== -1){ n++; }
-    return base + ' (' + n + ')';
-  }catch(e){
-    console.warn('No se pudo verificar nombres repetidos en el ranking:', e);
-    return base;
-  }
-}
-
-async function ensureDisplayName(){
-  if(!currentUser) return;
-  if(currentUser.displayName) return; // ya resuelto antes, se mantiene estable
-  currentUser.displayName = await resolveDisplayName(currentUser);
-  saveProfile(currentUser);
-  var lbl = document.getElementById('user-label');
-  if(lbl) lbl.textContent = currentUser.displayName;
-  // CORRECCIÓN: antes, si el nombre se deduplicaba (ej. "Juan" -> "Juan
-  // (1)"), el ranking ya había recibido el nombre SIN deduplicar en el
-  // primer pushMyScore de enterApp (porque ensureDisplayName corría
-  // después). Forzamos un nuevo push acá para que el ranking muestre el
-  // nombre final correcto.
-  pushMyScore(true);
-}
-
-// Evita golpear la API de ranking (kvdb.io) de más: solo mandamos un PUT
-// nuevo si las estadísticas realmente cambiaron desde el último envío, o si
-// se pide explícitamente con force=true (por ejemplo, justo al registrarse,
-// para que el usuario aparezca en el Ranking al toque aunque tenga 0 puntos).
-let lastPushedStatsKey = null;
-async function pushMyScore(force){
-  if(!currentUser || !rankingConfigured()) return;
-  var s = computeStats();
-  var key = currentUser.uid + ':' + (currentUser.displayName || currentUser.name) + ':' + JSON.stringify(s);
-  if(!force && key === lastPushedStatsKey) return;
-  lastPushedStatsKey = key;
-  try{
-    await fetch('https://kvdb.io/' + BUCKET_ID + '/user:' + encodeURIComponent(currentUser.uid), {
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        uid: currentUser.uid, name: currentUser.displayName || currentUser.name, picture: currentUser.picture || '',
-        points:s.points, exact:s.exact, acertados:s.acertados, preds:s.preds, updated:Date.now()
-      })
-    });
-  }catch(e){
-    lastPushedStatsKey = null; // si falló, dejamos que el próximo intento reintente igual
-    console.warn('No se pudo sincronizar el ranking:', e);
-  }
-}
-
-// Throttle de lectura: si loadRanking() se llama seguido (por ejemplo desde
-// el refresco de 1s), no repetimos el pedido a kvdb.io si ya se hizo hace
-// menos de 5s, salvo que se pida explícitamente con force=true (al cambiar
-// de pestaña, o desde el intervalo dedicado de 15s).
-let lastRankingLoadTs = 0;
-async function loadRanking(force){
-  var el = document.getElementById('tab-ranking');
-  if(!rankingConfigured()){
-    el.innerHTML = '<div class="empty-state"><div class="ico">🏆</div>Esta función todavía no está activada.<br>Por ahora podés ver tus puntos en "Mis pronósticos".</div>';
-    return;
-  }
-  var now = Date.now();
-  if(!force && (now - lastRankingLoadTs) < 5000) return;
-  lastRankingLoadTs = now;
-  if(!el.querySelector('.rank-row')) {
-    el.innerHTML = '<div class="empty-state"><div class="ico">⏳</div>Cargando ranking…</div>';
-  }
-  try{
-    var res = await fetch('https://kvdb.io/' + BUCKET_ID + '/?prefix=user:&values=true&format=json', {cache:'no-store'});
-    if(!res.ok) throw new Error('bad response');
-    var data = await res.json();
-    var rows = data.map(function(kv){
-      var v = kv[1];
-      if(typeof v === 'string'){ try{ v = JSON.parse(v); }catch(e){ return null; } }
-      return v;
-    }).filter(Boolean);
-    // Ordena por puntos y, en caso de empate, por resultados exactos (según
-    // lo pedido). Se usa "|| 0" por las dudas de que haya registros viejos
-    // guardados antes de que existiera el campo "exact"/"acertados".
-    rows.sort(function(a,b){ return ((b.points||0) - (a.points||0)) || ((b.exact||0) - (a.exact||0)); });
-    if(!rows.length){
-      el.innerHTML = '<div class="empty-state"><div class="ico">🏆</div>Todavía nadie tiene pronósticos guardados.</div>';
-      return;
-    }
-    el.innerHTML = '<div class="section-title">Ranking de amigos <span style="font-weight:400;text-transform:none;letter-spacing:0;">· se actualiza solo</span></div>' + rows.map(function(r, i){
-      var isMe = currentUser && (r.uid ? r.uid === currentUser.uid : r.name === (currentUser.displayName || currentUser.name));
-      return '<div class="rank-row' + (isMe ? ' me' : '') + '">' +
-        '<span class="rank-pos">' + (i + 1) + '</span>' +
-        '<span>' +
-          '<span class="rank-name">' + escapeHtml(r.name).toUpperCase() + (isMe ? ' (VOS)' : '') + '</span>' +
-          '<div class="rank-exact">' + (r.acertados||0) + ' acertados · ' + (r.preds||0) + ' pronósticos</div>' +
-        '</span>' +
-        '<span class="rank-exact">' + (r.exact||0) + ' exactos</span>' +
-        '<span class="rank-pts">' + (r.points||0) + ' PUNTOS</span>' +
-      '</div>';
-    }).join('');
-  }catch(e){
-    // Si ya había un ranking mostrado, lo dejamos (mejor mostrar el último
-    // dato conocido que dejar la pestaña en blanco); solo mostramos el
-    // aviso de error si todavía no había nada cargado.
-    if(!el.querySelector('.rank-row')){
-      el.innerHTML = '<div class="empty-state"><div class="ico">⚠️</div>No se pudo cargar el ranking.<br>Probá de nuevo en un momento.</div>';
-    }
-  }
-}
-
-function matchCard(m){
-  var p = predictions[m.id];
-  var locked = isLocked(m);
-  var pts = p ? calcPoints(p, m) : null;
-
-  var liveMin = m.status==='live' ? minutesElapsed(m) : null;
-  var predictableLive = canPredictLive(m);
-
-  var badge;
-  if(m.status==='finished') badge = '<span class="badge finished">Terminado</span>';
-  else if(m.status==='live'){
-    var minTxt = (liveMin!==null && liveMin>=0) ? ' <span class="live-min">· min ' + Math.floor(liveMin) + '</span>' : '';
-    badge = '<span class="badge live"><span class="dot-live"></span>En vivo' + minTxt + '</span>';
-  }
-  else badge = '<span class="badge scheduled">' + m.date + '</span>';
-
-  var hVal = p ? p.h : '';
-  var aVal = p ? p.a : '';
-  // Mostramos el resultado real siempre que el partido ya arrancó, salvo que
-  // esté en vivo y todavía se pueda pronosticar (minuto 0 a 10).
-  var showActualScore = (m.status==='finished' || (m.status==='live' && !predictableLive));
-
-  var midHtml;
-  if(showActualScore){
-    midHtml = '<div class="score-mid"><b>' + m.hs + '</b><span class="dash">-</span><b>' + m.as + '</b></div>';
-  } else {
-    midHtml = '<div class="score-mid">' +
-      '<input type="number" min="0" max="20" inputmode="numeric" data-h="' + m.id + '" value="' + hVal + '" ' + (locked?'disabled':'') + '>' +
-      '<span class="dash">-</span>' +
-      '<input type="number" min="0" max="20" inputmode="numeric" data-a="' + m.id + '" value="' + aVal + '" ' + (locked?'disabled':'') + '>' +
-      '</div>';
-  }
-
-  var bottomHtml = '';
-  if((m.status==='scheduled' || (m.status==='live' && predictableLive)) && !locked){
-    bottomHtml = '<div class="predict-row"><button class="save-btn" data-save="' + m.id + '" type="button">Guardar pronóstico</button></div>' +
-      (p ? '<div class="saved-note">Guardado: <b>' + p.h + ' - ' + p.a + '</b></div>' : '') +
-      (m.status==='live' ? '<div class="live-note">¡Ya arrancó! Podés predecir hasta el minuto 10.</div>' : '');
-  } else if(p){
-    var ptsClass = pts===10?'p10':pts===5?'p5':pts===0?'p0':'';
-    var ptsLabel = pts===null ? 'Pendiente' : (pts+' pts');
-    bottomHtml = '<div class="points-strip">' +
-        '<span class="pred-txt">Predijiste ' + p.h + ' - ' + p.a + '</span>' +
-        (pts!==null ? '<span class="pts ' + ptsClass + '">' + ptsLabel + '</span>' : '<span class="pred-txt">Esperando resultado</span>') +
-      '</div>';
-  } else if(m.status!=='scheduled'){
-    bottomHtml = '<div class="points-strip"><span class="pred-txt">No pronosticaste este partido</span></div>';
-  } else {
-    bottomHtml = '<div class="points-strip"><span class="pred-txt">Partido cerrado para pronósticos</span></div>';
-  }
-
-  return '<div class="match-card">' +
-    '<div class="match-top"><span>' + m.date + '</span>' + badge + '</div>' +
-    '<div class="teams-row">' +
-      '<div class="team left"><span class="flag">' + flag(m.home) + '</span><span class="team-name">' + m.homeN + '</span></div>' +
-      midHtml +
-      '<div class="team right"><span class="flag">' + flag(m.away) + '</span><span class="team-name">' + m.awayN + '</span></div>' +
-    '</div>' +
-    bottomHtml +
-  '</div>';
-}
-
-function renderPartidos(){
-  // Solo partidos en vivo y próximos. Los finalizados no se muestran acá
-  // (podés verlos, con tus puntos, en la pestaña "Mis pronósticos").
-  var live = MATCHES.filter(function(m){return m.status==='live';});
-  var scheduled = MATCHES.filter(function(m){return m.status==='scheduled';});
-
-  var html = '';
-  if(live.length) html += '<div class="section-title"><span class="dot-live"></span> En vivo</div>' + live.map(matchCard).join('');
-  if(scheduled.length) html += '<div class="section-title">Próximos partidos</div>' + scheduled.map(matchCard).join('');
-  if(!live.length && !scheduled.length){
-    html = '<div class="empty-state"><div class="ico">⚽</div>No hay partidos en vivo ni próximos por ahora.</div>';
-  }
-  document.getElementById('tab-partidos').innerHTML = html;
-  attachCardEvents();
-}
-
-function renderMios(){
-  var withPred = MATCHES.filter(function(m){ return !!predictions[m.id]; });
-  var el = document.getElementById('tab-mios');
-  if(!withPred.length){
-    el.innerHTML = '<div class="empty-state"><div class="ico">📋</div>Todavía no hiciste ningún pronóstico.<br>Andá a la pestaña "Partidos" para empezar.</div>';
-    return;
-  }
-  var ordered = withPred.slice().sort(function(a,b){ return (a.status==='scheduled') - (b.status==='scheduled'); });
-  el.innerHTML = '<div class="section-title">Tus pronósticos (' + withPred.length + ')</div>' + ordered.map(matchCard).join('');
-  attachCardEvents();
-}
-
-// Devuelve {code, name} del ganador de un partido de MATCHES, o null si
-// todavía no terminó / empató (en esta fase los empates van a penales, así
-// que si empata en el resultado que cargó la API no podemos saber el
-// ganador solos: se deja el casillero como "por definir").
-function winnerOf(match){
-  if(!match || match.status !== 'finished') return null;
-  if(match.hs > match.as) return {code:match.home, name:match.homeN};
-  if(match.as > match.hs) return {code:match.away, name:match.awayN};
-  return null; // empate -> penales, no lo sabemos con los datos que tenemos
-}
-
-// ------- Motor de avance automático del cuadro -------
-// CORRECCIÓN: antes las rondas de Octavos/Cuartos/Semis/Final eran tarjetas
-// 100% estáticas (slotA/slotB siempre null) que NUNCA se completaban solas,
-// aunque un partido de 16avos ya hubiera terminado: el "refA"/"refB" era
-// solo un texto fijo, no un enlace real a ningún partido. Ahora cada
-// partido que declara "feedsTo" (ver MATCHES/BRACKET_16_PENDING más arriba)
-// empuja su ganador al casillero correspondiente de la ronda siguiente en
-// cuanto termina, y esto se recalcula en cada render, así que el cuadro se
-// actualiza solo apenas hay un resultado nuevo.
-function computeSlotWinners(){
-  var slotWinners = {};
-  function feed(source){
-    if(!source || !source.feedsTo) return;
-    var w = winnerOf(source);
-    if(!w) return; // no terminó, o terminó empatado (va a penales: no sabemos el ganador)
-    slotWinners[source.feedsTo.id + source.feedsTo.slot] = w;
-  }
-  MATCHES.forEach(feed);
-  // Si en el futuro se cargan partidos reales de Octavos/Cuartos/Semis
-  // directamente en MATCHES (con su propio feedsTo hacia la ronda
-  // siguiente), el mismo bucle de arriba ya los toma en cuenta solo, sin
-  // que haga falta tocar esta función: por eso alcanza con recorrer MATCHES.
-  return slotWinners;
-}
-
-// Arma los partidos de una ronda del cuadro (Octavos, Cuartos, Semis,
-// Final) combinando 3 fuentes posibles, en este orden de prioridad:
-//   1) Si ya existe un partido REAL cargado en MATCHES con este mismo id
-//      (por ejemplo, cuando se sepa el cruce real y se agregue el
-//      partido con sus equipos), se usa ese dato real tal cual.
-//   2) Si el motor de avance automático (computeSlotWinners) ya resolvió
-//      el ganador de alguno de los dos casilleros, se muestra ese equipo.
-//   3) Si no hay nada de lo anterior, se muestra el texto genérico
-//      ("Ganador Octavos", etc.) como "Por definir".
-// Así el cuadro nunca queda vacío si ya existe un resultado que lo llene.
-function resolveRoundMatches(roundMatches, slotWinners){
-  return roundMatches.map(function(m){
-    var real = MATCHES.find(function(x){ return x.id === m.id; });
-    if(real){
-      return {
-        id:real.id,
-        slotA:real.home, slotAName:real.homeN, refA:null,
-        slotB:real.away, slotBName:real.awayN, refB:null,
-        date: real.status === 'finished' ? (real.date + ' · Terminado ' + real.hs + '-' + real.as)
-            : real.status === 'live' ? 'En vivo ahora'
-            : real.date
-      };
-    }
-    var wA = slotWinners[m.id + 'A'];
-    var wB = slotWinners[m.id + 'B'];
-    return {
-      id:m.id,
-      slotA: wA ? wA.code : m.slotA, slotAName: wA ? wA.name : m.slotAName, refA: wA ? null : m.refA,
-      slotB: wB ? wB.code : m.slotB, slotBName: wB ? wB.name : m.slotBName, refB: wB ? null : m.refB,
-      date: m.date
-    };
-  });
-}
-
-function bracketSlotHtml(code, name, refText){
-  if(code){
-    return '<div class="bracket-slot">' + flag(code) + '<span class="team-name">' + escapeHtml(name) + '</span></div>';
-  }
-  return '<div class="bracket-slot"><span class="tbd">' + escapeHtml(refText || 'Por definir') + '</span></div>';
-}
-
-function bracketCard(m, isFinal){
-  var dateTxt = m.date ? m.date : 'Fecha a confirmar';
-  return '<div class="bracket-card' + (isFinal ? ' final' : '') + '">' +
-    bracketSlotHtml(m.slotA, m.slotAName, m.refA) +
-    '<div class="bracket-vs">vs</div>' +
-    bracketSlotHtml(m.slotB, m.slotBName, m.refB) +
-    '<div class="bracket-date">' + escapeHtml(dateTxt) + '</div>' +
-  '</div>';
-}
-
-function renderCuadro(){
-  var el = document.getElementById('tab-cuadro');
-  try{
-    renderCuadroInner(el);
-  }catch(e){
-    // Salvavidas: si algo inesperado rompe el cálculo del cuadro, mostramos
-    // un aviso en vez de dejar la pestaña completamente en blanco.
-    console.error('Error al armar el cuadro:', e);
-    el.innerHTML = '<div class="empty-state"><div class="ico">⚠️</div>No se pudo armar el cuadro en este momento.<br>Probá recargar la página.</div>';
-  }
-}
-
-function renderCuadroInner(el){
-
-  // Columna de 16avos: los partidos ya definidos vienen de MATCHES, más los
-  // cruces que todavía dependen de puestos de grupo (BRACKET_16_PENDING).
-  var col16 = MATCHES.filter(function(m){ return m.round === '16avos'; }).map(function(m){
-    return {
-      id:m.id,
-      slotA:m.home, slotAName:m.homeN, refA:null,
-      slotB:m.away, slotBName:m.awayN, refB:null,
-      date: m.status === 'finished' ? (m.date + ' · Terminado ' + m.hs + '-' + m.as)
-          : m.status === 'live' ? 'En vivo ahora'
-          : m.date
-    };
-  }).concat(BRACKET_16_PENDING.map(function(p){
-    return {id:p.id, slotA:null, slotB:null, refA:p.refA, refB:p.refB, date:p.date};
-  }));
-
-  var slotWinners = computeSlotWinners();
-  var columns = [{key:'16avos', label:'16avos de final', matches: col16}];
-  BRACKET_ROUNDS.forEach(function(r){
-    columns.push({key:r.key, label:r.label, matches: resolveRoundMatches(r.matches, slotWinners)});
-  });
-
-  var html = '<div class="bracket-hint">Cuadro de eliminación directa. Los cruces que todavía no están definidos ' +
-    'muestran quién los va a ocupar y, si ya hay fecha, cuándo se juegan.</div>' +
-    '<div class="bracket-scroll">' +
-    columns.map(function(col){
-      var isFinal = col.key === 'final';
-      return '<div class="bracket-col">' +
-        '<div class="bracket-col-title">' + escapeHtml(col.label) + '</div>' +
-        col.matches.map(function(m){ return bracketCard(m, isFinal); }).join('') +
-      '</div>';
-    }).join('') +
-    '</div>';
-
-  el.innerHTML = html;
-}
-
-function renderStats(){
-  var s = computeStats();
-  document.getElementById('stat-points').textContent = s.points;
-  document.getElementById('stat-exact').textContent = s.exact;
-  document.getElementById('stat-preds').textContent = s.preds;
-}
-
-// CORRECCIÓN (bug de celular): renderPartidos()/renderMios() reemplazan
-// TODO el innerHTML de la pestaña con .innerHTML = html. Como el reloj de
-// "minuto en vivo" corre cada 1s y llamaba a estas funciones sin condición,
-// si en ese instante el usuario tenía el dedo escribiendo un resultado en
-// un input, ese input se destruía y se creaba uno nuevo de cero: en el
-// celular eso le cierra el teclado o le borra lo que estaba tipeando antes
-// de terminar de escribir el número (por eso "no se puede escribir"). En
-// escritorio se nota menos porque se tipea más rápido que el intervalo.
-// Ahora, si el foco actual está en un input de esa pestaña, NO la
-// volvemos a dibujar en ese tick: dejamos que el usuario termine de
-// escribir tranquilo. En cuanto guarda o toca afuera, se vuelve a
-// actualizar normalmente.
-function isTypingInside(tabEl){
-  var active = document.activeElement;
-  return !!(active && tabEl && tabEl.contains(active) && active.tagName === 'INPUT');
-}
-
-function refreshAll(){
-  autoCorrectStatuses();
-  renderStats();
-  var tabPartidos = document.getElementById('tab-partidos');
-  var tabMios = document.getElementById('tab-mios');
-  if(!isTypingInside(tabPartidos)) renderPartidos();
-  if(!isTypingInside(tabMios)) renderMios();
-  // Mejora de rendimiento: el cuadro es la pestaña más pesada de armar
-  // (recorre todas las rondas y calcula ganadores); solo la recalculamos si
-  // el usuario la está mirando en este momento.
-  if(document.getElementById('tab-cuadro').style.display !== 'none') renderCuadro();
-  // pushMyScore/loadRanking tienen su propio throttle interno, así que
-  // llamarlos seguido (por ej. desde el refresco de 1s) no golpea la API de
-  // más: solo salen pedidos de verdad cuando cambió algo o pasó el tiempo
-  // mínimo entre pedidos.
-  pushMyScore();
-  if(document.getElementById('tab-ranking').style.display !== 'none') loadRanking();
-}
-
-function attachCardEvents(){
-  document.querySelectorAll('[data-save]').forEach(function(btn){
-    btn.onclick = function(){
-      var id = btn.getAttribute('data-save');
-      // CORRECCIÓN: antes se buscaba el input con document.querySelector,
-      // que devuelve el PRIMER input con ese data-h/data-a que encuentre en
-      // TODO el documento. Como el mismo partido puede estar renderizado a
-      // la vez en la pestaña "Partidos" y en "Mis pronósticos" (la que no
-      // se ve solo tiene display:none, sigue en el DOM), guardar desde una
-      // pestaña podía leer el valor del input de la OTRA pestaña. Ahora
-      // buscamos el input dentro de la misma tarjeta que el botón apretado.
-      var card = btn.closest('.match-card');
-      var hInput = card.querySelector('input[data-h="' + id + '"]');
-      var aInput = card.querySelector('input[data-a="' + id + '"]');
-      var h = parseInt(hInput.value, 10);
-      var a = parseInt(aInput.value, 10);
-      if(isNaN(h) || isNaN(a) || h<0 || a<0){
-        hInput.style.borderColor = '#e63946';
-        aInput.style.borderColor = '#e63946';
-        return;
-      }
-      predictions[id] = {h:h,a:a};
-      savePredictions();
-      refreshAll();
-    };
-  });
-}
-
-document.querySelectorAll('.tab-btn').forEach(function(btn){
-  btn.onclick = function(){
-    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-    btn.classList.add('active');
-    var tab = btn.getAttribute('data-tab');
-    document.getElementById('tab-partidos').style.display = tab==='partidos' ? 'block':'none';
-    document.getElementById('tab-mios').style.display = tab==='mios' ? 'block':'none';
-    document.getElementById('tab-ranking').style.display = tab==='ranking' ? 'block':'none';
-    document.getElementById('tab-cuadro').style.display = tab==='cuadro' ? 'block':'none';
-    if(tab==='ranking') loadRanking(true); // force: el usuario recién abrió la pestaña, queremos datos frescos ya
-    if(tab==='cuadro') renderCuadro();
-  };
-});
-
-document.getElementById('refresh-btn').addEventListener('click', refreshSource);
-
-function enterApp(profile){
-  currentUser = profile;
-  predictions = loadPredictions();
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('user-label').textContent = currentUser.displayName || currentUser.name;
-  refreshAll();
-  refreshSource();
-  ensureSetupBanner();
-  ensureDisplayName(); // si el nombre está repetido en el ranking, le agrega "(1)"
-}
-
-function doEnter(){
-  var val = document.getElementById('name-input').value.trim();
-  var errEl = document.getElementById('login-err');
-  if(val.length < 2){
-    errEl.textContent = 'Ingresá un nombre de al menos 2 letras.';
-    return;
-  }
-  errEl.textContent = '';
-  var profile = {uid:'n_' + slugify(val), name:val, email:'', picture:'', provider:'name'};
-  saveProfile(profile);
-  enterApp(profile);
-}
-
-document.getElementById('enter-btn').addEventListener('click', doEnter);
-document.getElementById('name-input').addEventListener('keydown', function(e){
-  if(e.key==='Enter'){ e.preventDefault(); doEnter(); }
-});
-
-document.getElementById('logout-btn').addEventListener('click', function(){
-  clearProfile();
-  currentUser = null;
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('name-input').value = '';
-});
-
-(function init(){
-  applyMatchesSnapshot(); // aplica el último resultado real conocido antes de dibujar nada
-  var profile = loadProfile();
-  if(profile && profile.uid){
-    enterApp(profile);
-  }
-})();
-
-// El reloj de "minuto en vivo" se actualiza cada 1 segundo (es un cálculo
-// local, no golpea ninguna API). La búsqueda de resultados nuevos contra la
-// fuente en vivo se hace cada 15s mientras haya un partido en curso: es el
-// ritmo más rápido que soporta la API gratuita sin que nos empiece a
-// bloquear pedidos (un polling literal de 1 pedido por segundo contra una
-// API pública gratuita termina en rate-limit y deja de funcionar).
-// CORRECCIÓN: antes este intervalo de 1s solo llamaba a
-// autoCorrectStatuses/renderPartidos/renderMios, así que si un partido
-// pasaba a "finished" acá (por el respaldo de reloj), el marcador
-// (scoreboard), el cuadro visible y el ranking NO se enteraban hasta el
-// siguiente refreshSource() (cada 20s). Ahora llamamos a refreshAll(), que
-// hace todo eso, y es seguro llamarlo cada 1s porque pushMyScore/
-// loadRanking tienen throttle interno (no generan pedidos de más).
-setInterval(function(){
-  if(!currentUser) return;
-  refreshAll();
-}, 1000);
-setInterval(function(){
-  if(!currentUser) return;
-  refreshSource();
-}, 20000);
-setInterval(function(){
-  if(currentUser && document.getElementById('tab-ranking').style.display !== 'none') loadRanking(true);
-}, 15000);
-</script>
+        function actualizarLeaderboard() {
+            let DB = JSON.parse(localStorage.getItem('prode_familiar_2026'));
+            const containerTabla = document.getElementById('ranking-rows');
+            containerTabla.innerHTML = "";
+            
+            let i = 1;
+            for (const nombreAmigo in DB) {
+                const esPropio = nombreAmigo === clienteActual ? 'style="color: var(--secondary); font-weight: bold;"' : '';
+                containerTabla.innerHTML += `
+                    <tr ${esPropio}>
+                        <td>${i++}</td>
+                        <td>${nombreAmigo}</td>
+                        <td>0 Pts</td>
+                    </tr>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>
