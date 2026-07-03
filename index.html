@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pronósticos Mundial 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pitch:#0e2f1f; --pitch-2:#123a27; --gold:#f2c14e; --gold-2:#d9a72e;
+    --chalk:#f4f1e8; --navy:#0a1c14; --live:#e63946; --line:#2c5240; --muted:#9db8a8; --card:#153826;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, #1a4a30 0%, transparent 45%),
+      radial-gradient(circle at 90% 10%, #17402a 0%, transparent 40%),
+      var(--navy);
+    color:var(--chalk); font-family:'Inter', sans-serif; min-height:100vh; padding-bottom:60px;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:0 16px;}
+
+  #login-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;}
+  .login-card{
+    background:var(--card); border:1px solid var(--line); border-radius:18px; padding:36px 28px;
+    max-width:380px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.4); position:relative; overflow:hidden;
+  }
+  .login-ball{font-size:40px; margin-bottom:6px;}
+  .login-card h1{font-family:'Anton', sans-serif; font-size:30px; letter-spacing:.5px; color:var(--gold); line-height:1.05; margin-bottom:4px;}
+  .login-card p{color:var(--muted); font-size:14px; margin-bottom:22px;}
+  .login-card input{
+    width:100%; padding:14px 16px; border-radius:10px; border:1.5px solid var(--line);
+    background:var(--navy); color:var(--chalk); font-size:16px; font-family:'Inter', sans-serif; outline:none; margin-bottom:14px;
+  }
+  .login-card input:focus{border-color:var(--gold);}
+  .btn-primary{
+    width:100%; padding:14px; border-radius:10px; border:none; background:var(--gold); color:var(--navy);
+    font-weight:800; font-size:15px; letter-spacing:.3px; cursor:pointer; transition:transform .15s ease, background .15s ease;
+    font-family:'Oswald',sans-serif; text-transform:uppercase;
+  }
+  .btn-primary:hover{transform:translateY(-1px); background:var(--gold-2);}
+  .btn-primary:active{transform:translateY(0);}
+  .login-err{color:var(--live); font-size:13px; margin-top:10px; min-height:16px;}
+
+  header.top{padding:22px 16px 16px; border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(242,193,78,.06), transparent);}
+  .top-row{display:flex; justify-content:space-between; align-items:flex-start; max-width:760px; margin:0 auto;}
+  .brand{font-family:'Anton', sans-serif; font-size:22px; letter-spacing:.4px; color:var(--gold);}
+  .brand span{color:var(--chalk);}
+  .user-chip{background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:13px; color:var(--muted); display:flex; align-items:center; gap:6px;}
+  .user-chip b{color:var(--chalk); font-weight:700;}
+  .user-chip button{background:none; border:none; color:var(--live); font-size:11px; cursor:pointer; font-weight:600; padding:0 0 0 4px;}
+
+  .scoreboard{max-width:760px; margin:16px auto 0; padding:0 16px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .score-box{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 10px; text-align:center;}
+  .score-box .num{font-family:'Anton'; font-size:28px; color:var(--gold); line-height:1;}
+  .score-box .lbl{font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-top:4px;}
+
+  .tabs{display:flex; gap:6px; max-width:760px; margin:18px auto 6px; padding:0 16px;}
+  .tab-btn{
+    flex:1; padding:11px 8px; text-align:center; border-radius:10px; border:1px solid var(--line);
+    background:transparent; color:var(--muted); font-family:'Oswald'; font-size:13.5px; letter-spacing:.3px;
+    cursor:pointer; text-transform:uppercase; font-weight:500;
+  }
+  .tab-btn.active{background:var(--gold); color:var(--navy); border-color:var(--gold); font-weight:700;}
+
+  main{max-width:760px; margin:0 auto; padding:12px 16px 40px;}
+  .section-title{
+    font-family:'Oswald'; text-transform:uppercase; letter-spacing:.6px; font-size:13px;
+    color:var(--muted); margin:22px 0 10px; display:flex; align-items:center; gap:8px;
+  }
+  .section-title::after{content:""; flex:1; height:1px; background:var(--line);}
+  .dot-live{width:8px; height:8px; border-radius:50%; background:var(--live); display:inline-block; animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+  .match-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; position:relative; overflow:hidden;}
+  .match-top{display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--muted); margin-bottom:10px;}
+  .badge{padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px;}
+  .badge.finished{background:rgba(157,184,168,.15); color:var(--muted);}
+  .badge.live{background:rgba(230,57,70,.18); color:#ff8087; display:flex; align-items:center; gap:5px;}
+  .badge.scheduled{background:rgba(242,193,78,.15); color:var(--gold);}
+
+  .teams-row{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px;}
+  .team{display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center;}
+  .team.left{align-items:flex-end;}
+  .team.right{align-items:flex-start;}
+  .flag-img{width:28px; height:20px; object-fit:cover; border-radius:3px; box-shadow:0 0 0 1px rgba(255,255,255,.12); display:inline-block; background:#0003;}
+  .team-name{font-size:13px; font-weight:600;}
+
+  .score-mid{display:flex; align-items:center; gap:8px; font-family:'Anton'; font-size:26px; min-width:70px; justify-content:center;}
+  .score-mid .dash{color:var(--muted); font-size:16px;}
+  .score-mid input{
+    width:38px; text-align:center; background:var(--navy); border:1.5px solid var(--line); border-radius:8px;
+    color:var(--gold); font-family:'Anton'; font-size:20px; padding:6px 0; outline:none;
+  }
+  .score-mid input:focus{border-color:var(--gold);}
+  .score-mid input:disabled{opacity:.6;}
+
+  .predict-row{display:flex; justify-content:center; margin-top:12px;}
+  .save-btn{
+    background:transparent; border:1.5px solid var(--gold); color:var(--gold); font-family:'Oswald';
+    text-transform:uppercase; font-size:12px; padding:8px 20px; border-radius:8px; cursor:pointer; letter-spacing:.4px; font-weight:600;
+  }
+  .save-btn:hover{background:var(--gold); color:var(--navy);}
+
+  .saved-note{text-align:center; font-size:11.5px; color:var(--muted); margin-top:8px;}
+  .saved-note b{color:var(--gold);}
+
+  .points-strip{
+    margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);
+    display:flex; justify-content:space-between; align-items:center; font-size:12px;
+  }
+  .points-strip .pred-txt{color:var(--muted);}
+  .points-strip .pts{font-family:'Oswald'; font-weight:700; padding:3px 10px; border-radius:6px; font-size:12px;}
+  .pts.p10{background:rgba(242,193,78,.2); color:var(--gold);}
+  .pts.p5{background:rgba(120,190,150,.18); color:#8fd6ab;}
+  .pts.p0{background:rgba(230,57,70,.15); color:#ff8087;}
+
+  .empty-state{text-align:center; padding:40px 20px; color:var(--muted); font-size:14px;}
+  .empty-state .ico{font-size:34px; margin-bottom:10px;}
+
+  .rules-box{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:16px;
+    font-size:12.5px; color:var(--muted); display:flex; gap:14px; justify-content:space-around; text-align:center;
+  }
+  .rules-box div b{display:block; font-family:'Anton'; font-size:17px; color:var(--gold);}
+
+  .source-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; max-width:760px; margin:0 auto;
+    padding:10px 16px; font-size:11.5px; color:var(--muted); flex-wrap:wrap;
+  }
+  .source-bar .dot{width:7px; height:7px; border-radius:50%; background:var(--muted); display:inline-block; margin-right:5px;}
+  .source-bar .dot.ok{background:#8fd6ab;}
+  .source-bar button{
+    background:none; border:1px solid var(--line); color:var(--chalk); border-radius:8px; padding:5px 10px;
+    font-size:11px; cursor:pointer; font-family:'Inter';
+  }
+  .source-bar button:disabled{opacity:.5;}
+
+  .live-note{font-size:11px; color:#ff8087; text-align:center; margin-top:8px; font-weight:600;}
+  .live-min{font-size:10px; opacity:.85;}
+
+  .rank-row{
+    display:grid; grid-template-columns:26px 1fr auto auto; align-items:center; gap:10px;
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:8px;
+  }
+  .rank-row.me{border-color:var(--gold); background:rgba(242,193,78,.08);}
+  .rank-pos{font-family:'Anton'; color:var(--muted); font-size:15px; text-align:center;}
+  .rank-row:nth-child(2) .rank-pos{color:var(--gold);}
+  .rank-name{font-weight:700; font-size:13.5px;}
+  .rank-exact{font-size:11px; color:var(--muted);}
+  .rank-pts{font-family:'Oswald'; font-weight:700; color:var(--gold); font-size:14px;}
+
+  @media (max-width:420px){
+    .team-name{font-size:11.5px;} .flag-img{width:24px; height:17px;}
+    .score-mid{font-size:22px; min-width:60px;} .login-card{padding:28px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-ball">⚽</div>
+    <h1>PRONÓSTICOS<br>MUNDIAL 2026</h1>
+    <p>Ingresá tu nombre para empezar a predecir resultados</p>
+    <input id="name-input" type="text" placeholder="Tu nombre" maxlength="24" autocomplete="off">
+    <button class="btn-primary" id="enter-btn" type="button">Entrar a la cancha</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <header class="top">
+    <div class="top-row">
+      <div class="brand"><span>⚽</span> PRONÓS<span>TICOS</span></div>
+      <div class="user-chip">👤 <b id="user-label"></b><button id="logout-btn" type="button">salir</button></div>
+    </div>
+  </header>
+
+  <div class="source-bar">
+    <span><span class="dot" id="source-dot"></span><span id="source-label">Usando datos locales</span></span>
+    <button id="refresh-btn" type="button">🔄 Actualizar resultados</button>
+  </div>
+
+  <div class="scoreboard">
+    <div class="score-box"><div class="num" id="stat-points">0</div><div class="lbl">Puntos</div></div>
+    <div class="score-box"><div class="num" id="stat-exact">0</div><div class="lbl">Exactos</div></div>
+    <div class="score-box"><div class="num" id="stat-preds">0</div><div class="lbl">Pronósticos</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="partidos" type="button">Partidos</button>
+    <button class="tab-btn" data-tab="mios" type="button">Mis pronósticos</button>
+    <button class="tab-btn" data-tab="ranking" type="button">Ranking</button>
+  </div>
+
+  <main>
+    <div class="rules-box">
+      <div><b>10</b>Resultado exacto</div>
+      <div><b>5</b>Acertás quién gana</div>
+      <div><b>0</b>Fallás el partido</div>
+    </div>
+
+    <div id="tab-partidos"></div>
+    <div id="tab-mios" style="display:none;"></div>
+    <div id="tab-ranking" style="display:none;"></div>
+  </main>
+</div>
+
+<script>
+// Códigos ISO-3166 (los que usa flagcdn.com) para cada selección.
+// Se usan imágenes reales en vez de emoji porque los emoji de banderas
+// no se ven en Windows ni en varios navegadores/celulares.
+const FLAGS = {SUI:"ch",DZA:"dz",GER:"de",PAR:"py",NED:"nl",MAR:"ma",CIV:"ci",NOR:"no",
+  FRA:"fr",SWE:"se",MEX:"mx",ECU:"ec",ENG:"gb-eng",COD:"cd",BEL:"be",SEN:"sn",USA:"us",
+  BIH:"ba",ESP:"es",AUT:"at",POR:"pt",CRO:"hr",AUS:"au",EGY:"eg",ARG:"ar",CPV:"cv",
+  COL:"co",GHA:"gh",CAN:"ca",BRA:"br"};
+
+const MATCHES = [
+  {id:"53452541", home:"GER", homeN:"Alemania", away:"PAR", awayN:"Paraguay", status:"finished", hs:1, as:1, date:"29 jun"},
+  {id:"53452547", home:"NED", homeN:"Países Bajos", away:"MAR", awayN:"Marruecos", status:"finished", hs:1, as:1, date:"29 jun"},
+  {id:"53452561", home:"CIV", homeN:"Costa de Marfil", away:"NOR", awayN:"Noruega", status:"finished", hs:1, as:2, date:"30 jun"},
+  {id:"53452543", home:"FRA", homeN:"Francia", away:"SWE", awayN:"Suecia", status:"finished", hs:3, as:0, date:"30 jun"},
+  {id:"53452563", home:"MEX", homeN:"México", away:"ECU", awayN:"Ecuador", status:"finished", hs:2, as:0, date:"30 jun"},
+  {id:"53452565", home:"ENG", homeN:"Inglaterra", away:"COD", awayN:"Rep. Dem. del Congo", status:"finished", hs:2, as:1, date:"1 jul"},
+  {id:"53452555", home:"BEL", homeN:"Bélgica", away:"SEN", awayN:"Senegal", status:"finished", hs:3, as:2, date:"1 jul"},
+  {id:"53452553", home:"USA", homeN:"Estados Unidos", away:"BIH", awayN:"Bosnia y Herz.", status:"finished", hs:2, as:0, date:"1 jul"},
+  {id:"53452551", home:"ESP", homeN:"España", away:"AUT", awayN:"Austria", status:"finished", hs:3, as:0, date:"2 jul"},
+  {id:"53452549", home:"POR", homeN:"Portugal", away:"CRO", awayN:"Croacia", status:"finished", hs:2, as:1, date:"2 jul"},
+  {id:"53452505", home:"SUI", homeN:"Suiza", away:"DZA", awayN:"Argelia", status:"live", hs:1, as:0, date:"hoy", start:"2026-07-03T15:00:00Z"},
+  {id:"53452503", home:"AUS", homeN:"Australia", away:"EGY", awayN:"Egipto", status:"scheduled", start:"2026-07-03T18:00:00Z", date:"3 jul, 15:00"},
+  {id:"53452569", home:"ARG", homeN:"Argentina", away:"CPV", awayN:"Cabo Verde", status:"scheduled", start:"2026-07-03T22:00:00Z", date:"3 jul, 19:00"},
+  {id:"53452507", home:"COL", homeN:"Colombia", away:"GHA", awayN:"Ghana", status:"scheduled", start:"2026-07-04T01:30:00Z", date:"3 jul, 22:30"},
+  {id:"53452511", home:"CAN", homeN:"Canadá", away:"MAR", awayN:"Marruecos", status:"scheduled", start:"2026-07-04T17:00:00Z", date:"4 jul, 14:00"},
+  {id:"53452509", home:"PAR", homeN:"Paraguay", away:"FRA", awayN:"Francia", status:"scheduled", start:"2026-07-04T21:00:00Z", date:"4 jul, 18:00"},
+  {id:"53452517", home:"BRA", homeN:"Brasil", away:"NOR", awayN:"Noruega", status:"scheduled", start:"2026-07-05T20:00:00Z", date:"5 jul, 17:00"},
+  {id:"53452519", home:"MEX", homeN:"México", away:"ENG", awayN:"Inglaterra", status:"scheduled", start:"2026-07-06T00:00:00Z", date:"5 jul, 21:00"},
+  {id:"53452513", home:"POR", homeN:"Portugal", away:"ESP", awayN:"España", status:"scheduled", start:"2026-07-06T19:00:00Z", date:"6 jul, 16:00"},
+  {id:"53452515", home:"USA", homeN:"Estados Unidos", away:"BEL", awayN:"Bélgica", status:"scheduled", start:"2026-07-07T00:00:00Z", date:"6 jul, 21:00"},
+];
+
+const EN_NAMES = {GER:"Germany",PAR:"Paraguay",NED:"Netherlands",MAR:"Morocco",CIV:"Ivory Coast",NOR:"Norway",
+  FRA:"France",SWE:"Sweden",MEX:"Mexico",ECU:"Ecuador",ENG:"England",COD:"DR Congo",BEL:"Belgium",SEN:"Senegal",
+  USA:"USA",BIH:"Bosnia and Herzegovina",ESP:"Spain",AUT:"Austria",POR:"Portugal",CRO:"Croatia",SUI:"Switzerland",
+  DZA:"Algeria",AUS:"Australia",EGY:"Egypt",ARG:"Argentina",CPV:"Cape Verde",COL:"Colombia",GHA:"Ghana",CAN:"Canada",BRA:"Brazil"};
+
+let currentUser = null;
+let predictions = {};
+
+function loadProfile(){
+  try{ var raw = localStorage.getItem('mundial_profile'); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+}
+function saveProfile(name){ localStorage.setItem('mundial_profile', JSON.stringify({name:name})); }
+function clearProfile(){ localStorage.removeItem('mundial_profile'); }
+function loadPredictions(){
+  try{ var raw = localStorage.getItem('mundial_predicciones_' + currentUser); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; }
+}
+function savePredictions(){ localStorage.setItem('mundial_predicciones_' + currentUser, JSON.stringify(predictions)); }
+
+async function fetchLiveScores(){
+  try{
+    var res = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2026', {cache:"no-store"});
+    if(!res.ok) throw new Error('bad response');
+    var data = await res.json();
+    if(!data || !data.events || !data.events.length) throw new Error('sin eventos');
+    var updated = 0;
+    data.events.forEach(function(ev){
+      var match = MATCHES.find(function(m){
+        var hN = EN_NAMES[m.home], aN = EN_NAMES[m.away];
+        return (ev.strHomeTeam && ev.strAwayTeam) &&
+          ((ev.strHomeTeam.indexOf(hN) !== -1 && ev.strAwayTeam.indexOf(aN) !== -1) ||
+           (ev.strHomeTeam.indexOf(aN) !== -1 && ev.strAwayTeam.indexOf(hN) !== -1));
+      });
+      if(!match) return;
+      var hs = parseInt(ev.intHomeScore, 10), as = parseInt(ev.intAwayScore, 10);
+      if(!isNaN(hs) && !isNaN(as)){
+        match.hs = hs; match.as = as;
+        var st = (ev.strStatus || '').toLowerCase();
+        if(st.indexOf('finish') !== -1 || st === 'ft' || st === 'match finished'){ match.status = 'finished'; }
+        else if(st && st !== 'not started' && st !== 'ns'){ match.status = 'live'; }
+        updated++;
+      }
+    });
+    return updated > 0;
+  }catch(e){
+    console.warn('No se pudo conectar a la fuente de datos en vivo, se usan los datos locales:', e);
+    return false;
+  }
+}
+
+async function refreshSource(){
+  var dot = document.getElementById('source-dot');
+  var label = document.getElementById('source-label');
+  var btn = document.getElementById('refresh-btn');
+  btn.disabled = true; btn.textContent = 'Actualizando…';
+  var ok = await fetchLiveScores();
+  dot.classList.toggle('ok', ok);
+  label.textContent = ok ? 'Conectado a datos en vivo (TheSportsDB)' : 'Usando datos locales (sin conexión a la API)';
+  btn.disabled = false; btn.textContent = '🔄 Actualizar resultados';
+  refreshAll();
+}
+
+function outcome(h,a){ return h>a?'H':h<a?'A':'D'; }
+function calcPoints(pred, m){
+  if(m.status!=='finished') return null;
+  if(pred.h===m.hs && pred.a===m.as) return 10;
+  if(outcome(pred.h,pred.a)===outcome(m.hs,m.as)) return 5;
+  return 0;
+}
+
+// Minutos transcurridos desde el arranque del partido (según el campo "start").
+function minutesElapsed(m){
+  if(!m.start) return null;
+  var min = (Date.now() - new Date(m.start).getTime()) / 60000;
+  return min;
+}
+// Un partido "en vivo" solo se puede pronosticar entre el minuto 0 y el 10.
+function canPredictLive(m){
+  if(m.status!=='live') return false;
+  var min = minutesElapsed(m);
+  return min !== null && min >= 0 && min <= 10;
+}
+function isLocked(m){
+  if(m.status==='finished') return true;
+  if(m.status==='live') return !canPredictLive(m);
+  return new Date() >= new Date(m.start);
+}
+function computeStats(){
+  var points=0, exact=0, preds=0;
+  MATCHES.forEach(function(m){
+    var p = predictions[m.id];
+    if(!p) return;
+    preds++;
+    var pts = calcPoints(p, m);
+    if(pts===10){ points+=10; exact++; }
+    else if(pts===5){ points+=5; }
+  });
+  return {points:points, exact:exact, preds:preds};
+}
+
+function flag(code){
+  var iso = FLAGS[code];
+  if(!iso) return '';
+  return '<img class="flag-img" src="https://flagcdn.com/w40/' + iso + '.png" alt="' + code + '" loading="lazy">';
+}
+
+// ------- Ranking compartido entre amigos (kvdb.io) -------
+// 1) Abrí la consola del navegador (F12) en esta misma página y pegá:
+//      fetch('https://kvdb.io/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'email=tu@email.com&default_ttl=0'}).then(r=>r.text()).then(id=>alert(id))
+//    Te va a mostrar un ID (algo como "Fd55uogXyxYdnXJvnyN8Xo").
+// 2) Pegá ese ID acá abajo, reemplazando el texto entre comillas, y volvé a subir el archivo.
+const BUCKET_ID = "REEMPLAZAR_CON_TU_BUCKET_ID";
+
+function rankingConfigured(){ return BUCKET_ID && BUCKET_ID.indexOf('REEMPLAZAR') !== 0; }
+
+// Si todavía no está configurado el ranking, la primera vez que la página
+// corre en una URL real (no en local, no en el sandbox de la IA) genera
+// sola un código y lo muestra en un cartel para que se lo pases a la IA.
+async function ensureSetupBanner(){
+  if(rankingConfigured()) return;
+  var cached = localStorage.getItem('ranking_setup_id');
+  if(!cached){
+    try{
+      var res = await fetch('https://kvdb.io/', {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'email=ranking' + Date.now() + '@example.com&default_ttl=0'
+      });
+      if(res.ok){
+        cached = (await res.text()).trim();
+        localStorage.setItem('ranking_setup_id', cached);
+      }
+    }catch(e){ console.warn('No se pudo generar el codigo de ranking:', e); }
+  }
+  if(cached) showSetupBanner(cached);
+}
+
+function showSetupBanner(id){
+  if(document.getElementById('setup-banner')) return;
+  var div = document.createElement('div');
+  div.id = 'setup-banner';
+  div.style.cssText = 'max-width:760px;margin:14px auto 0;padding:14px 16px;background:rgba(242,193,78,.12);border:1.5px solid var(--gold);border-radius:12px;font-size:13px;';
+  div.innerHTML =
+    '<b style="color:var(--gold);">Falta un paso para el ranking</b><br>' +
+    'Copiá este código y pasáselo a la IA para que termine de activar el ranking compartido:<br>' +
+    '<div style="background:var(--navy);border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0;font-weight:700;color:var(--gold);word-break:break-all;user-select:all;" id="setup-code">' + id + '</div>' +
+    '<button type="button" id="setup-copy" style="background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;">Copiar código</button>';
+  document.querySelector('header.top').insertAdjacentElement('afterend', div);
+  document.getElementById('setup-copy').onclick = function(){
+    navigator.clipboard.writeText(id).then(function(){
+      var b = document.getElementById('setup-copy');
+      b.textContent = '¡Copiado!';
+      setTimeout(function(){ b.textContent = 'Copiar código'; }, 1500);
+    });
+  };
+}
+
+async function pushMyScore(){
+  if(!currentUser || !rankingConfigured()) return;
+  var s = computeStats();
+  try{
+    await fetch('https://kvdb.io/' + BUCKET_ID + '/user:' + encodeURIComponent(currentUser), {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name:currentUser, points:s.points, exact:s.exact, preds:s.preds, updated:Date.now()})
+    });
+  }catch(e){ console.warn('No se pudo sincronizar el ranking:', e); }
+}
+
+async function loadRanking(){
+  var el = document.getElementById('tab-ranking');
+  if(!rankingConfigured()){
+    el.innerHTML = '<div class="empty-state"><div class="ico">⚙️</div>Falta configurar el ranking compartido.<br>Mirá las instrucciones en el código (BUCKET_ID) para activarlo.</div>';
+    return;
+  }
+  el.innerHTML = '<div class="empty-state"><div class="ico">⏳</div>Cargando ranking…</div>';
+  try{
+    var res = await fetch('https://kvdb.io/' + BUCKET_ID + '/?prefix=user:&values=true&format=json', {cache:'no-store'});
+    if(!res.ok) throw new Error('bad response');
+    var data = await res.json();
+    var rows = data.map(function(kv){
+      var v = kv[1];
+      if(typeof v === 'string'){ try{ v = JSON.parse(v); }catch(e){ return null; } }
+      return v;
+    }).filter(Boolean);
+    rows.sort(function(a,b){ return (b.points - a.points) || (b.exact - a.exact); });
+    if(!rows.length){
+      el.innerHTML = '<div class="empty-state"><div class="ico">🏆</div>Todavía nadie tiene pronósticos guardados.</div>';
+      return;
+    }
+    el.innerHTML = '<div class="section-title">Ranking de amigos</div>' + rows.map(function(r, i){
+      var isMe = r.name === currentUser;
+      return '<div class="rank-row' + (isMe ? ' me' : '') + '">' +
+        '<span class="rank-pos">' + (i + 1) + '</span>' +
+        '<span class="rank-name">' + r.name + (isMe ? ' (vos)' : '') + '</span>' +
+        '<span class="rank-exact">' + r.exact + ' exactos</span>' +
+        '<span class="rank-pts">' + r.points + ' pts</span>' +
+      '</div>';
+    }).join('');
+  }catch(e){
+    el.innerHTML = '<div class="empty-state"><div class="ico">⚠️</div>No se pudo cargar el ranking.<br>Probá de nuevo en un momento.</div>';
+  }
+}
+
+function matchCard(m){
+  var p = predictions[m.id];
+  var locked = isLocked(m);
+  var pts = p ? calcPoints(p, m) : null;
+
+  var liveMin = m.status==='live' ? minutesElapsed(m) : null;
+  var predictableLive = canPredictLive(m);
+
+  var badge;
+  if(m.status==='finished') badge = '<span class="badge finished">Finalizado</span>';
+  else if(m.status==='live'){
+    var minTxt = (liveMin!==null && liveMin>=0) ? ' <span class="live-min">· min ' + Math.floor(liveMin) + '</span>' : '';
+    badge = '<span class="badge live"><span class="dot-live"></span>En vivo' + minTxt + '</span>';
+  }
+  else badge = '<span class="badge scheduled">' + m.date + '</span>';
+
+  var hVal = p ? p.h : '';
+  var aVal = p ? p.a : '';
+  // Mostramos el resultado real siempre que el partido ya arrancó, salvo que
+  // esté en vivo y todavía se pueda pronosticar (minuto 0 a 10).
+  var showActualScore = (m.status==='finished' || (m.status==='live' && !predictableLive));
+
+  var midHtml;
+  if(showActualScore){
+    midHtml = '<div class="score-mid"><b>' + m.hs + '</b><span class="dash">-</span><b>' + m.as + '</b></div>';
+  } else {
+    midHtml = '<div class="score-mid">' +
+      '<input type="number" min="0" max="20" inputmode="numeric" data-h="' + m.id + '" value="' + hVal + '" ' + (locked?'disabled':'') + '>' +
+      '<span class="dash">-</span>' +
+      '<input type="number" min="0" max="20" inputmode="numeric" data-a="' + m.id + '" value="' + aVal + '" ' + (locked?'disabled':'') + '>' +
+      '</div>';
+  }
+
+  var bottomHtml = '';
+  if((m.status==='scheduled' || (m.status==='live' && predictableLive)) && !locked){
+    bottomHtml = '<div class="predict-row"><button class="save-btn" data-save="' + m.id + '" type="button">Guardar pronóstico</button></div>' +
+      (p ? '<div class="saved-note">Guardado: <b>' + p.h + ' - ' + p.a + '</b></div>' : '') +
+      (m.status==='live' ? '<div class="live-note">¡Ya arrancó! Podés predecir hasta el minuto 10.</div>' : '');
+  } else if(p){
+    var ptsClass = pts===10?'p10':pts===5?'p5':pts===0?'p0':'';
+    var ptsLabel = pts===null ? 'Pendiente' : (pts+' pts');
+    bottomHtml = '<div class="points-strip">' +
+        '<span class="pred-txt">Predijiste ' + p.h + ' - ' + p.a + '</span>' +
+        (pts!==null ? '<span class="pts ' + ptsClass + '">' + ptsLabel + '</span>' : '<span class="pred-txt">Esperando resultado</span>') +
+      '</div>';
+  } else if(m.status!=='scheduled'){
+    bottomHtml = '<div class="points-strip"><span class="pred-txt">No pronosticaste este partido</span></div>';
+  } else {
+    bottomHtml = '<div class="points-strip"><span class="pred-txt">Partido cerrado para pronósticos</span></div>';
+  }
+
+  return '<div class="match-card">' +
+    '<div class="match-top"><span>' + m.date + '</span>' + badge + '</div>' +
+    '<div class="teams-row">' +
+      '<div class="team left"><span class="flag">' + flag(m.home) + '</span><span class="team-name">' + m.homeN + '</span></div>' +
+      midHtml +
+      '<div class="team right"><span class="flag">' + flag(m.away) + '</span><span class="team-name">' + m.awayN + '</span></div>' +
+    '</div>' +
+    bottomHtml +
+  '</div>';
+}
+
+function renderPartidos(){
+  // Solo partidos en vivo y próximos. Los finalizados no se muestran acá
+  // (podés verlos, con tus puntos, en la pestaña "Mis pronósticos").
+  var live = MATCHES.filter(function(m){return m.status==='live';});
+  var scheduled = MATCHES.filter(function(m){return m.status==='scheduled';});
+
+  var html = '';
+  if(live.length) html += '<div class="section-title"><span class="dot-live"></span> En vivo</div>' + live.map(matchCard).join('');
+  if(scheduled.length) html += '<div class="section-title">Próximos partidos</div>' + scheduled.map(matchCard).join('');
+  if(!live.length && !scheduled.length){
+    html = '<div class="empty-state"><div class="ico">⚽</div>No hay partidos en vivo ni próximos por ahora.</div>';
+  }
+  document.getElementById('tab-partidos').innerHTML = html;
+  attachCardEvents();
+}
+
+function renderMios(){
+  var withPred = MATCHES.filter(function(m){ return !!predictions[m.id]; });
+  var el = document.getElementById('tab-mios');
+  if(!withPred.length){
+    el.innerHTML = '<div class="empty-state"><div class="ico">📋</div>Todavía no hiciste ningún pronóstico.<br>Andá a la pestaña "Partidos" para empezar.</div>';
+    return;
+  }
+  var ordered = withPred.slice().sort(function(a,b){ return (a.status==='scheduled') - (b.status==='scheduled'); });
+  el.innerHTML = '<div class="section-title">Tus pronósticos (' + withPred.length + ')</div>' + ordered.map(matchCard).join('');
+  attachCardEvents();
+}
+
+function renderStats(){
+  var s = computeStats();
+  document.getElementById('stat-points').textContent = s.points;
+  document.getElementById('stat-exact').textContent = s.exact;
+  document.getElementById('stat-preds').textContent = s.preds;
+}
+
+function refreshAll(){
+  renderStats();
+  renderPartidos();
+  renderMios();
+  pushMyScore();
+  if(document.getElementById('tab-ranking').style.display !== 'none') loadRanking();
+}
+
+function attachCardEvents(){
+  document.querySelectorAll('[data-save]').forEach(function(btn){
+    btn.onclick = function(){
+      var id = btn.getAttribute('data-save');
+      var hInput = document.querySelector('input[data-h="' + id + '"]');
+      var aInput = document.querySelector('input[data-a="' + id + '"]');
+      var h = parseInt(hInput.value, 10);
+      var a = parseInt(aInput.value, 10);
+      if(isNaN(h) || isNaN(a) || h<0 || a<0){
+        hInput.style.borderColor = '#e63946';
+        aInput.style.borderColor = '#e63946';
+        return;
+      }
+      predictions[id] = {h:h,a:a};
+      savePredictions();
+      refreshAll();
+    };
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(function(btn){
+  btn.onclick = function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    var tab = btn.getAttribute('data-tab');
+    document.getElementById('tab-partidos').style.display = tab==='partidos' ? 'block':'none';
+    document.getElementById('tab-mios').style.display = tab==='mios' ? 'block':'none';
+    document.getElementById('tab-ranking').style.display = tab==='ranking' ? 'block':'none';
+    if(tab==='ranking') loadRanking();
+  };
+});
+
+document.getElementById('refresh-btn').addEventListener('click', refreshSource);
+
+function enterApp(name){
+  currentUser = name;
+  predictions = loadPredictions();
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-label').textContent = currentUser;
+  refreshAll();
+  refreshSource();
+  ensureSetupBanner();
+}
+
+function doEnter(){
+  var val = document.getElementById('name-input').value.trim();
+  var errEl = document.getElementById('login-err');
+  if(val.length < 2){
+    errEl.textContent = 'Ingresá un nombre de al menos 2 letras.';
+    return;
+  }
+  errEl.textContent = '';
+  saveProfile(val);
+  enterApp(val);
+}
+
+document.getElementById('enter-btn').addEventListener('click', doEnter);
+document.getElementById('name-input').addEventListener('keydown', function(e){
+  if(e.key==='Enter'){ e.preventDefault(); doEnter(); }
+});
+
+document.getElementById('logout-btn').addEventListener('click', function(){
+  clearProfile();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('name-input').value = '';
+});
+
+(function init(){
+  var profile = loadProfile();
+  if(profile && profile.name){
+    enterApp(profile.name);
+  }
+})();
+
+// Mientras haya algún partido en vivo: refrescamos el minuto en pantalla cada
+// 20s, y buscamos resultados nuevos en la fuente en vivo cada 60s.
+setInterval(function(){
+  if(!currentUser) return;
+  if(MATCHES.some(function(m){return m.status==='live';})){
+    renderPartidos();
+    renderMios();
+  }
+}, 20000);
+setInterval(function(){
+  if(!currentUser) return;
+  if(MATCHES.some(function(m){return m.status==='live';})) refreshSource();
+}, 60000);
+</script>
+</body>
+</html>
