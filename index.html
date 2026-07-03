@@ -300,19 +300,20 @@
 
         let clienteActual = "";
 
-        // Inicializar almacenamiento global en memoria del buscador si no existe
+        // Inicializar almacenamiento global
         if (!localStorage.getItem('mundial_prode_v2')) {
             localStorage.setItem('mundial_prode_v2', JSON.stringify({}));
         }
 
-        // Reloj en tiempo real: SOLO cambia las letras de la hora para no congelar inputs
+        // Reloj en tiempo real
         setInterval(() => {
             const ahora = new Date();
             const txtHora = ahora.toTimeString().split(' ')[0];
-            document.getElementById('live-clock').innerText = `🕒 Hora Actual: ${txtHora}`;
+            const clockEl = document.getElementById('live-clock');
+            if (clockEl) clockEl.innerText = `🕒 Hora Actual: ${txtHora}`;
         }, 1000);
 
-        // Al cargar la ventana, revisa si hay una sesión guardada y entra directo
+        // Al cargar, verifica sesión persistente
         window.onload = function() {
             const userGuardado = localStorage.getItem('mundial_sesion_usuario');
             if (userGuardado) {
@@ -329,11 +330,9 @@
 
             let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
 
-            // Si el usuario no existe, creamos el perfil y guardamos su contraseña elegida
             if (!DB[alias]) {
                 DB[alias] = { password: pass, pronosticos: {}, recordPuntos: 0 };
             } else {
-                // Si ya existe, validamos que la contraseña ingresada coincida con la registrada
                 if (DB[alias].password && DB[alias].password !== pass) {
                     return alert("❌ Contraseña incorrecta para este usuario.");
                 }
@@ -341,7 +340,6 @@
 
             localStorage.setItem('mundial_prode_v2', JSON.stringify(DB));
             
-            // Guardar la sesión en la memoria para que recuerde al recargar
             clienteActual = alias;
             localStorage.setItem('mundial_sesion_usuario', clienteActual);
 
@@ -458,7 +456,7 @@
         function guardarProde() {
             let DB = JSON.parse(localStorage.getItem('mundial_prode_v2'));
             const ahora = new Date();
-            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + algo = ahora.getMinutes().toString().padStart(2, '0');
+            const horaActualStr = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
 
             multiWebsMatches.forEach(match => {
                 let estaLive = (match.fecha === "03 Jul" && horaActualStr >= match.hora);
