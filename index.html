@@ -431,7 +431,7 @@ async function pushMyScore(){
 async function loadRanking(){
   var el = document.getElementById('tab-ranking');
   if(!rankingConfigured()){
-    el.innerHTML = '<div class="empty-state"><div class="ico">⚙️</div>Falta configurar el ranking compartido.<br>Mirá las instrucciones en el código (BUCKET_ID) para activarlo.</div>';
+    el.innerHTML = '<div class="empty-state"><div class="ico">🏆</div>Esta función todavía no está activada.<br>Por ahora podés ver tus puntos en "Mis pronósticos".</div>';
     return;
   }
   el.innerHTML = '<div class="empty-state"><div class="ico">⏳</div>Cargando ranking…</div>';
@@ -610,7 +610,6 @@ function enterApp(name){
   document.getElementById('user-label').textContent = currentUser;
   refreshAll();
   refreshSource();
-  ensureSetupBanner();
 }
 
 function doEnter(){
